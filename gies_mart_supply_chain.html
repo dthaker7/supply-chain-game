@@ -1,0 +1,783 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#G{font-family:system-ui,sans-serif;background:#0f0e17;color:#fffffe;height:660px;display:flex;flex-direction:column;border-radius:8px;overflow:hidden}
+.px{font-family:'Courier New',monospace;font-weight:700}
+.topbar{background:#12101f;border-bottom:1px solid #2a2640;padding:6px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.sp{background:#1c1930;border:1px solid #2a2640;border-radius:5px;padding:3px 10px;display:flex;align-items:center;gap:5px;font-size:11px}
+.body{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;min-height:0}
+.store-wrap{position:relative;overflow:hidden;background:#0d0b1a}
+#SC{display:block;width:100%;height:100%}
+.side{background:#12101f;border-left:1px solid #2a2640;display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid #2a2640;flex-shrink:0}
+.tb{flex:1;padding:9px 4px;font-size:11px;text-align:center;cursor:pointer;border-bottom:2px solid transparent;color:#6a6490}
+.tb.on{color:#ff6b35;border-bottom-color:#ff6b35}
+.pc{flex:1;overflow-y:auto;padding:10px}
+.pc::-webkit-scrollbar{width:3px}
+.pc::-webkit-scrollbar-thumb{background:#2a2640}
+.pcard{background:#1c1930;border:1px solid #2a2640;border-radius:6px;padding:9px 10px;margin-bottom:7px;cursor:pointer;transition:border-color .15s}
+.pcard.sel{border-color:#ff6b35}
+.pcard:hover{border-color:#ff6b3566}
+.ob{width:100%;background:#ff6b35;color:#fff;border:none;padding:9px;border-radius:4px;cursor:pointer;font-family:'Courier New',monospace;font-size:8px;font-weight:700;box-shadow:0 3px 0 #a83a15;margin-bottom:7px}
+.ob:disabled{background:#2a2640;box-shadow:0 3px 0 #1a1828;cursor:not-allowed}
+.nb{width:100%;background:#06d6a0;color:#042a1e;border:none;padding:9px;border-radius:4px;cursor:pointer;font-weight:700;font-size:12px}
+.qb{background:#1c1930;border:1px solid #2a2640;color:#fffffe;width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.qi{flex:1;background:#1c1930;border:1px solid #2a2640;color:#fffffe;font-size:17px;font-weight:700;padding:5px 9px;border-radius:4px;width:100%}
+.le{background:#1c1930;border-radius:4px;padding:7px 10px;margin-bottom:6px;font-size:10px;line-height:1.6;color:#6a6490;border-left:3px solid #2a2640}
+.toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(15,14,23,.96);border:1px solid #ff6b35;border-radius:6px;padding:7px 16px;font-size:11px;color:#ff6b35;pointer-events:none;white-space:nowrap;z-index:20;transition:opacity .3s}
+.bar{height:6px;border-radius:3px;background:#2a2640;overflow:hidden;margin-top:3px}
+.bfill{height:100%;border-radius:3px;transition:width .4s}
+.evt{background:#1c1930;border:1px solid #ffd16633;border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:11px;line-height:1.6}
+.distcard{background:#1c1930;border:1px solid #2a2640;border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:11px}
+</style>
+
+<div id="G">
+<div class="topbar" id="topbar">
+  <span class="px" style="font-size:6px;color:#ffd166">GIES MART</span>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">DAY</span><span style="font-weight:700;color:#ffd166" id="hday">1</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">CASH</span><span style="font-weight:700;color:#06d6a0" id="hcash">G2500</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">REVENUE</span><span style="font-weight:700;color:#ffd166" id="hrev">G0</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">SERVICE</span><span style="font-weight:700" id="hsvc" style="color:#fffffe">—</span></div>
+  <button onclick="G.scr='menu';G.render()" style="margin-left:auto;background:transparent;border:1px solid #2a2640;color:#6a6490;padding:4px 9px;border-radius:4px;cursor:pointer;font-size:10px">Menu</button>
+</div>
+<div class="body">
+  <div class="store-wrap"><canvas id="SC"></canvas><div class="toast" id="toast" style="opacity:0"></div></div>
+  <div class="side">
+    <div class="tabs" id="tabs">
+      <div class="tb on" onclick="G.tab='products';G.render()" id="t0">Products</div>
+      <div class="tb" onclick="G.tab='order';G.render()" id="t1">Order</div>
+      <div class="tb" onclick="G.tab='log';G.render()" id="t2">Log</div>
+      <div class="tb" onclick="G.tab='dist';G.render()" id="t3">Suppliers</div>
+    </div>
+    <div class="pc" id="pc"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const G = (function(){
+
+// ── RNG
+function rng(s){let t=(s+0x6d2b79f5)>>>0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return{v:((t^(t>>>14))>>>0)/4294967296,n:(s+0x6d2b79f5)>>>0}}
+function ri(s,a,b){const r=rng(s);return{v:Math.floor(r.v*(b-a+1))+a,n:r.n}}
+
+// ── PRODUCTS
+const PRODS = [
+  {id:'choc', name:'Chocolate', emoji:'🍫', color:'#8B4513', light:'#d4956a',
+   sell:3.5, cost:1.8, hold:0.08, maxShelf:80, initInv:40,
+   dMin:8, dMax:18, ltDays:2,
+   distName:'Sweet Co.', distCity:'Chicago', distRel:0.92,
+   desc:'Steady demand, spikes in winter/events',
+   events:[{d:6,t:'spike',m:1.8,txt:'Valentine week — chocolate demand up!'},{d:18,t:'delay',ex:2,txt:'Sweet Co. truck breakdown — +2d delay!'},{d:25,t:'spike',m:2.2,txt:'End-of-month snack rush!'}]},
+  {id:'water', name:'Water', emoji:'💧', color:'#1a8ab2', light:'#73c2fb',
+   sell:1.5, cost:0.6, hold:0.03, maxShelf:120, initInv:60,
+   dMin:10, dMax:20, ltDays:1,
+   distName:'AquaFresh', distCity:'Local', distRel:0.98,
+   desc:'High volume, weather-sensitive demand',
+   events:[{d:8,t:'spike',m:2.5,txt:'Heat wave! Water demand 2.5x!'},{d:15,t:'spike',m:1.6,txt:'Campus sports day — water rush'},{d:22,t:'price',np:1.8,txt:'AquaFresh raises price to G1.8/unit'}]},
+  {id:'snack', name:'Snacks', emoji:'🍿', color:'#e8930a', light:'#ffd166',
+   sell:2.8, cost:1.2, hold:0.06, maxShelf:100, initInv:50,
+   dMin:12, dMax:22, ltDays:2,
+   distName:'CrunchBros', distCity:'Detroit', distRel:0.85,
+   desc:'Variable demand, unreliable supplier',
+   events:[{d:5,t:'stockout_warn',txt:'CrunchBros low stock warning — order now!'},{d:12,t:'spike',m:1.9,txt:'Movie night event — snack demand up!'},{d:20,t:'supplier_fail',days:3,txt:'CrunchBros factory pause — 3d no supply!'}]},
+  {id:'soda', name:'Soda', emoji:'🥤', color:'#e83a3a', light:'#f09595',
+   sell:2.2, cost:0.9, hold:0.05, maxShelf:110, initInv:55,
+   dMin:9, dMax:19, ltDays:3,
+   distName:'FizzCorp', distCity:'Atlanta', distRel:0.88,
+   desc:'Longest lead time, seasonal spikes',
+   events:[{d:10,t:'spike',m:1.7,txt:'Weekend party season starts!'},{d:16,t:'delay',ex:2,txt:'FizzCorp shipping delay — +2d!'},{d:24,t:'spike',m:2.0,txt:'End-semester celebration demand!'}]},
+];
+
+// ── STATE
+function newState(){
+  const inv={}, pipe={}, sold={}, lost={}, rev={}, ordCost={}, holdCost={}, lrev={}, suppBlocked={};
+  const orders=[], porders={};
+  PRODS.forEach(p=>{
+    inv[p.id]=p.initInv; pipe[p.id]=[]; sold[p.id]=0; lost[p.id]=0;
+    rev[p.id]=0; ordCost[p.id]=0; holdCost[p.id]=0; lrev[p.id]=0;
+    suppBlocked[p.id]=0; porders[p.id]=0;
+  });
+  return {day:1,done:false,cash:2500,seed:42,inv,pipe,sold,lost,rev,ordCost,holdCost,lrev,suppBlocked,
+    log:[],totRev:0,totSold:0,totLost:0,porders,customers:[],particles:[]};
+}
+
+// ── ENGINE STEP
+function stepDay(st, decisions){
+  let {day,cash,seed,inv,pipe,sold,lost,rev,ordCost,holdCost,lrev,suppBlocked,log,totRev,totSold,totLost,porders} = st;
+  inv={...inv}; pipe={...pipe}; sold={...sold}; lost={...lost};
+  rev={...rev}; ordCost={...ordCost}; holdCost={...holdCost}; lrev={...lrev};
+  suppBlocked={...suppBlocked}; porders={...porders};
+  PRODS.forEach(p=>pipe[p.id]=[...pipe[p.id]]);
+
+  const dayLog={day,prods:{},events:[]};
+
+  PRODS.forEach(p=>{
+    const pid=p.id;
+    // demand
+    const dr=ri(seed,p.dMin,p.dMax); let dem=dr.v; seed=dr.n;
+    let lt=p.ltDays, costPerUnit=p.cost, sellPrice=p.sell;
+    const pevs=[];
+
+    // events
+    (p.events||[]).forEach(ev=>{
+      if(ev.d!==day) return;
+      if(ev.t==='spike'){dem=Math.round(dem*ev.m);pevs.push({txt:ev.txt,c:'spike'});}
+      if(ev.t==='delay'){lt+=ev.ex;pevs.push({txt:ev.txt,c:'delay'});}
+      if(ev.t==='price'){sellPrice=ev.np;pevs.push({txt:ev.txt,c:'price'});}
+      if(ev.t==='supplier_fail'){suppBlocked[pid]=ev.days;pevs.push({txt:ev.txt,c:'fail'});}
+      if(ev.t==='stockout_warn'){pevs.push({txt:ev.txt,c:'warn'});}
+    });
+    if(suppBlocked[pid]>0) suppBlocked[pid]--;
+
+    // deliveries
+    let recv=0;
+    pipe[pid].filter(o=>o.arr===day).forEach(o=>{inv[pid]+=o.q;recv+=o.q;});
+    pipe[pid]=pipe[pid].filter(o=>o.arr!==day);
+
+    // sell
+    const s=Math.min(dem,inv[pid]), l=dem-s;
+    const r=s*sellPrice, lr=l*sellPrice;
+    inv[pid]-=s; cash+=r;
+    sold[pid]+=s; lost[pid]+=l; rev[pid]+=r; lrev[pid]+=lr;
+    totRev+=r; totSold+=s; totLost+=l;
+
+    // holding
+    const hc=inv[pid]*p.hold; cash-=hc; holdCost[pid]+=hc;
+
+    // order
+    const oq=Math.max(0,Math.floor(decisions[pid]||0));
+    let oc=0, newOrd=null;
+    if(oq>0 && suppBlocked[pid]===0){
+      oc=50+oq*costPerUnit; cash-=oc; ordCost[pid]+=oc;
+      newOrd={q:oq,ord:day,arr:day+lt,lt};
+      pipe[pid]=[...pipe[pid],newOrd];
+      porders[pid]=(porders[pid]||0)+1;
+    }
+    dayLog.prods[pid]={dem,s,l,r,lr,hc,oc,recv,invEnd:inv[pid],oq,arr:newOrd?newOrd.arr:null};
+    dayLog.events.push(...pevs);
+  });
+
+  const tD=totSold+totLost, svc=tD>0?totSold/tD:1;
+  return {...st,day:day+1,done:day+1>30,cash,seed,inv,pipe,sold,lost,rev,ordCost,holdCost,lrev,
+    suppBlocked,log:[...log,dayLog],totRev,totSold,totLost,porders,
+    metrics:{svc:+svc.toFixed(4)}};
+}
+
+// ── EOQ
+function eoq(p){return Math.round(Math.sqrt(2*(p.dMin+p.dMax)/2*50/p.hold));}
+
+// ── GAME OBJECT
+const game = {
+  scr:'title', tab:'products', gs:null,
+  selProd:'choc', decisions:{choc:0,water:0,snack:0,soda:0},
+  pendOrd:{choc:null,water:null,snack:null,soda:null},
+  time:0, raf:null, canvas:null, ctx:null,
+  toastTm:null,
+
+  showToast(msg,dur=2600){
+    const t=document.getElementById('toast');
+    if(!t)return; t.textContent=msg; t.style.opacity='1';
+    clearTimeout(this.toastTm);
+    this.toastTm=setTimeout(()=>{if(t)t.style.opacity='0';},dur);
+  },
+
+  spawnCust(happy){
+    if(!this.gs)return;
+    const SKINS=['#f4c27a','#d4956a','#c68642','#8d5524','#fdbcb4'];
+    const SHIRTS=['#ff6b35','#118ab2','#06d6a0','#9b5de5','#f72585','#4cc9f0','#e8930a'];
+    const HAIRS=['#1a1428','#8b4513','#f4c27a','#bb2200','#333'];
+    this.gs.customers.push({x:-55-Math.random()*40,sp:1.0+Math.random()*.9,happy,sc:.72+Math.random()*.28,
+      fr:Math.floor(Math.random()*20),skin:SKINS[~~(Math.random()*5)],shirt:SHIRTS[~~(Math.random()*7)],
+      hair:HAIRS[~~(Math.random()*5)],pants:['#2c3e50','#4a3560','#1a2030'][~~(Math.random()*3)],done:false});
+  },
+
+  spawnPart(x,y,txt,col){
+    if(!this.gs)return;
+    this.gs.particles.push({x,y,vy:-1.4,t:txt,c:col,l:1});
+  },
+
+  advDay(){
+    if(!this.gs||this.gs.done)return;
+    const dec={};
+    PRODS.forEach(p=>{dec[p.id]=this.pendOrd[p.id]!==null?this.pendOrd[p.id]:0;});
+    const next=stepDay(this.gs,dec);
+    const entry=next.log[next.log.length-1];
+
+    // spawn customers per product
+    let totalSold=0,totalLost=0;
+    PRODS.forEach(p=>{totalSold+=entry.prods[p.id].s;totalLost+=entry.prods[p.id].l;});
+    const nc=Math.min(6,totalSold);
+    for(let i=0;i<nc;i++) setTimeout(()=>this.spawnCust(totalLost===0),i*110);
+    if(totalLost>0) for(let i=0;i<Math.min(3,totalLost);i++) setTimeout(()=>this.spawnCust(false),i*140+200);
+
+    // particles
+    const W=this.canvas?this.canvas.width:400,H=this.canvas?this.canvas.height:300;
+    PRODS.forEach(p=>{
+      const pe=entry.prods[p.id];
+      if(pe.recv>0) setTimeout(()=>this.spawnPart(W*.5,H*.3,'+'+ pe.recv+' '+p.emoji,p.light),200);
+    });
+    const totRev=PRODS.reduce((s,p)=>s+entry.prods[p.id].r,0);
+    if(totRev>0) this.spawnPart(W*.3+Math.random()*W*.3,H*.45,'G+'+totRev.toFixed(0),'#ffd166');
+
+    // toasts for events
+    entry.events.forEach((ev,i)=>setTimeout(()=>this.showToast(ev.txt,3000),i*600));
+
+    this.gs={...next,customers:this.gs.customers,particles:this.gs.particles};
+    PRODS.forEach(p=>{this.pendOrd[p.id]=null;this.decisions[p.id]=0;});
+    if(next.done) setTimeout(()=>{this.scr='results';this.render();},1300);
+    this.render();
+  },
+
+  placeOrder(pid){
+    const q=this.decisions[pid]||0;
+    if(q<=0){this.showToast('Set quantity > 0 first');return;}
+    if(this.gs.suppBlocked[pid]>0){this.showToast('Supplier blocked! Cannot order yet');return;}
+    this.pendOrd[pid]=q;
+    const p=PRODS.find(x=>x.id===pid);
+    this.showToast('📦 '+p.name+': '+q+' units queued!');
+    this.render();
+  },
+
+  // ── PIXEL ART STORE CANVAS
+  drawStore(){
+    const cv=this.canvas; if(!cv)return;
+    const ctx=this.ctx, W=cv.width, H=cv.height, t=this.time;
+    ctx.clearRect(0,0,W,H);
+
+    // FLOOR
+    ctx.fillStyle='#1a1530'; ctx.fillRect(0,0,W,H);
+
+    // CEILING TILES
+    ctx.fillStyle='#221f3a';
+    for(let x=0;x<W;x+=40) for(let y=0;y<60;y+=20){
+      ctx.fillStyle=(Math.floor(x/40)+Math.floor(y/20))%2===0?'#221f3a':'#201c38';
+      ctx.fillRect(x,y,40,20);
+    }
+
+    // CEILING LIGHTS (fluorescent flicker)
+    const lfl=.92+.08*Math.sin(t*.3);
+    ctx.fillStyle=`rgba(255,249,200,${lfl*.18})`;
+    [W*.2,W*.5,W*.8].forEach(lx=>{
+      ctx.fillRect(lx-30,0,60,8);
+      ctx.fillStyle=`rgba(255,249,200,${lfl*.06})`;
+      ctx.fillRect(lx-50,0,100,30);
+      ctx.fillStyle=`rgba(255,249,200,${lfl*.18})`;
+    });
+
+    // FLOOR TILES
+    ctx.fillStyle='#16122a';
+    for(let x=0;x<W;x+=32){
+      ctx.fillStyle=x%64===0?'#181430':'#161230';
+      ctx.fillRect(x,H-80,32,80);
+    }
+    // Floor lines
+    ctx.strokeStyle='#1e1a38'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=32){ctx.beginPath();ctx.moveTo(x,H-80);ctx.lineTo(x,H);ctx.stroke();}
+    ctx.beginPath();ctx.moveTo(0,H-80);ctx.lineTo(W,H-80);ctx.stroke();
+
+    // SHELF UNITS — 4 products in pixel-art style
+    const shelfW=Math.floor((W-20)/4), gs=this.gs;
+    PRODS.forEach((p,i)=>{
+      const sx=10+i*shelfW, sy=55, sw=shelfW-6, sh=H-155;
+      const inv=gs?gs.inv[p.id]:p.initInv;
+      const ratio=Math.max(0,Math.min(1,inv/p.maxShelf));
+
+      // shelf back wall — pixel pattern
+      for(let py=sy;py<sy+sh;py+=4){
+        ctx.fillStyle=(Math.floor((py-sy)/4))%2===0?'#1e1a38':'#1a1630';
+        ctx.fillRect(sx,py,sw,4);
+      }
+
+      // shelf planks (5 shelves)
+      const nShelves=5, shGap=sh/nShelves;
+      for(let shelf=0;shelf<nShelves;shelf++){
+        const sby=sy+sh-shelf*shGap-shGap;
+
+        // plank — pixel art wood look
+        for(let px=sx;px<sx+sw;px+=6){
+          ctx.fillStyle=shelf%2===0?'#2e284a':'#2a2444';
+          ctx.fillRect(px,sby+shGap-5,6,5);
+        }
+        ctx.strokeStyle='#3a3460'; ctx.lineWidth=1;
+        ctx.strokeRect(sx,sby+shGap-5,sw,5);
+
+        // products on shelf
+        const shelfRatio = ratio; // simplified — same ratio each shelf
+        const nSlots=Math.floor(sw/10);
+        const filled=Math.round(shelfRatio*nSlots);
+        for(let slot=0;slot<nSlots;slot++){
+          const px=sx+slot*10+1, py=sby+shGap-5-18;
+          if(slot<filled){
+            // pixel product — varies by product
+            if(p.id==='choc'){
+              ctx.fillStyle='#5c2d00'; ctx.fillRect(px,py,8,16);
+              ctx.fillStyle='#8b4513'; ctx.fillRect(px+1,py+1,6,6);
+              ctx.fillStyle='#a0522d'; ctx.fillRect(px+2,py+2,4,2);
+            } else if(p.id==='water'){
+              ctx.fillStyle='#0a4a6a'; ctx.fillRect(px+1,py+2,6,14);
+              ctx.fillStyle='#1a8ab2'; ctx.fillRect(px+2,py+3,4,10);
+              ctx.fillStyle='rgba(115,194,251,.5)'; ctx.fillRect(px+3,py+4,2,6);
+              ctx.fillStyle='#2a9ac2'; ctx.fillRect(px+1,py,6,3);
+            } else if(p.id==='snack'){
+              ctx.fillStyle='#7a4800'; ctx.fillRect(px,py+2,8,14);
+              ctx.fillStyle='#e8930a'; ctx.fillRect(px+1,py+3,6,10);
+              ctx.fillStyle='#ffd166'; ctx.fillRect(px+2,py+5,4,4);
+              ctx.fillStyle='#c47800'; ctx.fillRect(px,py,8,3);
+            } else {
+              ctx.fillStyle='#8b0000'; ctx.fillRect(px+1,py+3,6,13);
+              ctx.fillStyle='#e83a3a'; ctx.fillRect(px+2,py+4,4,10);
+              ctx.fillStyle='#ff6b6b'; ctx.fillRect(px+3,py+5,2,6);
+              ctx.fillStyle='#c0392b'; ctx.fillRect(px,py,8,4);
+            }
+          } else {
+            // empty slot — darker gap
+            ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(px,py,8,16);
+          }
+        }
+      }
+
+      // shelf label sign — pixel art sign
+      ctx.fillStyle='#2a2444';
+      ctx.fillRect(sx+2,sy,sw-4,22);
+      ctx.strokeStyle=p.color; ctx.lineWidth=1.5;
+      ctx.strokeRect(sx+2,sy,sw-4,22);
+
+      // product emoji text
+      ctx.font='11px system-ui'; ctx.textAlign='center';
+      ctx.fillStyle=p.light;
+      ctx.fillText(p.emoji+' '+p.name, sx+sw/2, sy+14);
+
+      // stock level bar under label
+      const barW=sw-12, barX=sx+6, barY=sy+23;
+      ctx.fillStyle='#16122a'; ctx.fillRect(barX,barY,barW,5);
+      ctx.fillStyle=ratio>.5?'#06d6a0':ratio>.2?'#ffd166':'#ef476f';
+      ctx.fillRect(barX,barY,barW*ratio,5);
+
+      // divider between sections
+      if(i<3){
+        ctx.strokeStyle='#3a3460'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(sx+sw+3,sy); ctx.lineTo(sx+sw+3,H-80); ctx.stroke();
+      }
+
+      // low stock warning pulse
+      if(ratio<.15){
+        const pulse=.15+.15*Math.abs(Math.sin(t*.15));
+        ctx.fillStyle=`rgba(239,71,111,${pulse})`;
+        ctx.fillRect(sx,sy,sw,sh);
+        ctx.font='bold 10px system-ui'; ctx.textAlign='center';
+        ctx.fillStyle='#ef476f';
+        ctx.fillText('LOW STOCK!',sx+sw/2,sy+sh/2);
+      }
+
+      // price tag
+      ctx.fillStyle='#ffd16688'; ctx.fillRect(sx+sw-28,sy+28,26,14);
+      ctx.fillStyle='#ffd166'; ctx.font='8px system-ui'; ctx.textAlign='center';
+      ctx.fillText('G'+p.sell.toFixed(1),sx+sw-15,sy+38);
+    });
+
+    // CASHIER DESK — pixel art
+    const cx=W/2-30, cy=H-78;
+    ctx.fillStyle='#2e284a'; ctx.fillRect(cx,cy,60,20);
+    ctx.fillStyle='#3a3460'; ctx.fillRect(cx,cy-2,60,4);
+    // register
+    ctx.fillStyle='#1a1630'; ctx.fillRect(cx+8,cy-16,28,16);
+    ctx.fillStyle='#221f3a'; ctx.fillRect(cx+10,cy-14,24,10);
+    ctx.fillStyle='#06d6a0'; ctx.fillRect(cx+12,cy-12,8,6);
+    ctx.fillStyle='#ffd166'; ctx.fillRect(cx+22,cy-12,10,6);
+    // screen
+    ctx.fillStyle='#0a0818'; ctx.fillRect(cx+16,cy-28,20,14);
+    const scanLine=~~(t*.3)%4;
+    ctx.fillStyle='rgba(6,214,160,.6)'; ctx.fillRect(cx+16,cy-28+scanLine*3,20,2);
+    ctx.font='6px system-ui'; ctx.textAlign='center'; ctx.fillStyle='#06d6a0';
+    ctx.fillText('GIES',cx+26,cy-18);
+    // cashier person (pixel art)
+    const cashierBob=Math.abs(Math.sin(t*.04))*2;
+    ctx.fillStyle='#f4c27a'; ctx.fillRect(cx+36,cy-42-cashierBob,12,12); // head
+    ctx.fillStyle='#2c3e50'; ctx.fillRect(cx+35,cy-50-cashierBob,14,10); // hair
+    ctx.fillStyle='#06d6a0'; ctx.fillRect(cx+34,cy-30-cashierBob,14,18); // body/apron
+    ctx.fillStyle='#f4c27a'; ctx.fillRect(cx+32,cy-28-cashierBob,4,10); // arm L
+    ctx.fillStyle='#f4c27a'; ctx.fillRect(cx+46,cy-28-cashierBob,4,10); // arm R
+    // name tag
+    ctx.fillStyle='#fff'; ctx.fillRect(cx+36,cy-24-cashierBob,8,5);
+    ctx.fillStyle='#0a0818'; ctx.font='4px system-ui'; ctx.textAlign='center';
+    ctx.fillText('SAM',cx+40,cy-21-cashierBob);
+
+    // CUSTOMER AISLE
+    if(gs) this.drawCustomers(ctx,W,H);
+
+    // PARTICLES
+    if(gs && gs.particles){
+      gs.particles.forEach(p=>{
+        ctx.save(); ctx.globalAlpha=p.l;
+        ctx.font=`bold ${11+(1-p.l)*4}px system-ui`; ctx.textAlign='center';
+        ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillText(p.t,p.x+1,p.y+1);
+        ctx.fillStyle=p.c; ctx.fillText(p.t,p.x,p.y);
+        ctx.restore();
+        p.y+=p.vy; p.l-=.017;
+      });
+      gs.particles=gs.particles.filter(p=>p.l>0);
+    }
+
+    // DAY PROGRESS BAR
+    if(gs){
+      ctx.fillStyle='rgba(12,10,22,.8)'; ctx.fillRect(0,H-24,W,24);
+      ctx.fillStyle='#1c1930'; ctx.fillRect(8,H-16,W-16,8);
+      const pct=(gs.day-1)/30, pg=ctx.createLinearGradient(8,0,8+(W-16)*pct,0);
+      pg.addColorStop(0,'#ff6b35'); pg.addColorStop(1,'#ffd166');
+      ctx.fillStyle=pg; ctx.fillRect(8,H-16,(W-16)*pct,8);
+      ctx.font='9px system-ui'; ctx.fillStyle='#6a6490'; ctx.textAlign='left';
+      ctx.fillText('Day '+(gs.day-1)+' / 30',8,H-19);
+      ctx.textAlign='right'; ctx.fillStyle=(gs.day-1)>=25?'#ef476f':'#6a6490';
+      ctx.fillText((30-(gs.day-1))+'d left',W-8,H-19);
+
+      // upcoming event across all products
+      const allEvts=PRODS.flatMap(p=>(p.events||[]).filter(e=>e.d>=gs.day&&e.d<=gs.day+4).map(e=>({...e,pname:p.name})));
+      if(allEvts.length>0){
+        const ne=allEvts[0], inD=ne.d-gs.day+1;
+        ctx.fillStyle='rgba(255,209,102,.1)'; ctx.strokeStyle='rgba(255,209,102,.4)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.roundRect(W/2-95,4,190,20,3); ctx.fill(); ctx.stroke();
+        ctx.fillStyle='#ffd166'; ctx.font='9px system-ui'; ctx.textAlign='center';
+        ctx.fillText(ne.pname+': '+ne.txt.substring(0,30)+'... in '+inD+'d',W/2,16);
+      }
+    }
+  },
+
+  drawCustomers(ctx,W,H){
+    const gs=this.gs; if(!gs||!gs.customers)return;
+    const gy=H-82;
+    gs.customers.forEach(c=>{
+      if(c.done)return;
+      ctx.save(); ctx.translate(c.x,gy);
+      ctx.scale(c.sc,c.sc);
+      const ls=Math.sin(c.fr*.28)*5, ab=Math.abs(Math.sin(c.fr*.28))*1.5;
+      ctx.fillStyle='rgba(0,0,0,.15)'; ctx.beginPath(); ctx.ellipse(0,25+ab,8,2,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=c.pants;
+      [[-4,16+ab,ls*.04],[4,16+ab,-ls*.04]].forEach(([x,y,r])=>{ctx.save();ctx.translate(x,y);ctx.rotate(r);ctx.fillRect(-3,0,5,12);ctx.restore();});
+      ctx.fillStyle=c.shirt; ctx.fillRect(-8,ab,16,17);
+      ctx.fillStyle=c.skin;
+      [[-8,3+ab,-ls*.05],[8,3+ab,ls*.05]].forEach(([x,y,r],i)=>{ctx.save();ctx.translate(x,y);ctx.rotate(r);ctx.fillRect(i===0?-3:0,0,3,10);ctx.restore();});
+      ctx.fillStyle=c.skin; ctx.beginPath(); ctx.arc(0,ab-8,9,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=c.hair; ctx.beginPath(); ctx.arc(0,ab-13,7,Math.PI,0); ctx.fill();
+      ctx.fillStyle='#0d0b18';
+      if(c.happy){
+        ctx.beginPath();ctx.arc(-3,ab-10,1.5,Math.PI,0);ctx.fill();
+        ctx.beginPath();ctx.arc(3,ab-10,1.5,Math.PI,0);ctx.fill();
+        ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;
+        ctx.beginPath();ctx.arc(0,ab-5,3.5,.1,Math.PI-.1);ctx.stroke();
+        if(c.x>W*.25){ctx.fillStyle='#ffd166';ctx.fillRect(9,6+ab,7,9);}
+      } else {
+        ctx.fillRect(-4,ab-11,3,2.5);ctx.fillRect(2,ab-11,3,2.5);
+        ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;
+        ctx.beginPath();ctx.arc(0,ab-4,3.5,Math.PI+.1,-.1);ctx.stroke();
+      }
+      ctx.restore();
+      c.x+=c.sp; c.fr++;
+      if(c.x>W+60) c.done=true;
+    });
+    gs.customers=gs.customers.filter(c=>!c.done);
+  },
+
+  // ── RENDER PANEL
+  render(){
+    const gs=this.gs;
+    if(this.scr==='title'){this.renderTitle();return;}
+    if(this.scr==='results'){this.renderResults();return;}
+    if(!gs)return;
+
+    // update topbar
+    const totSold=gs.totSold,totLost=gs.totLost,td=totSold+totLost;
+    const svc=td>0?(totSold/td*100).toFixed(1)+'%':'—';
+    const cashC=gs.cash>2500?'#06d6a0':gs.cash>0?'#ffd166':'#ef476f';
+    const el=id=>document.getElementById(id);
+    el('hday').textContent=gs.day;
+    el('hcash').style.color=cashC; el('hcash').textContent='G'+Math.round(gs.cash).toLocaleString();
+    el('hrev').textContent='G'+Math.round(gs.totRev).toLocaleString();
+    el('hsvc').textContent=svc; el('hsvc').style.color=td>0&&totSold/td>=.9?'#06d6a0':'#ffd166';
+
+    // tabs active
+    ['t0','t1','t2','t3'].forEach((id,i)=>{
+      const t=el(id); if(!t)return;
+      const tabs=['products','order','log','dist'];
+      t.className='tb'+(this.tab===tabs[i]?' on':'');
+    });
+
+    const pc=el('pc'); if(!pc)return;
+    if(this.tab==='products') pc.innerHTML=this.renderProducts();
+    else if(this.tab==='order') pc.innerHTML=this.renderOrder();
+    else if(this.tab==='log') pc.innerHTML=this.renderLog();
+    else if(this.tab==='dist') pc.innerHTML=this.renderDist();
+  },
+
+  renderProducts(){
+    const gs=this.gs;
+    return PRODS.map(p=>{
+      const inv=gs.inv[p.id], pipe=gs.pipe[p.id].reduce((s,o)=>s+o.q,0);
+      const ratio=Math.max(0,Math.min(1,inv/p.maxShelf));
+      const barC=ratio>.5?'#06d6a0':ratio>.2?'#ffd166':'#ef476f';
+      const pend=this.pendOrd[p.id];
+      const eQ=eoq(p);
+      const blocked=gs.suppBlocked[p.id]>0;
+      return `<div class="pcard${this.selProd===p.id?' sel':''}" onclick="G.selProd='${p.id}';G.tab='order';G.render()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:13px;font-weight:700;color:${p.light}">${p.emoji} ${p.name}</span>
+          <span style="font-size:10px;color:${barC};background:${barC}18;padding:2px 7px;border-radius:10px">${Math.round(ratio*100)}% stocked</span>
+        </div>
+        <div style="font-size:10px;color:#6a6490;margin-bottom:5px">${p.desc}</div>
+        <div class="bar"><div class="bfill" style="width:${ratio*100}%;background:${barC}"></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:7px;font-size:10px">
+          <div style="color:#6a6490">On hand<br><strong style="color:#fffffe;font-size:12px">${inv}</strong></div>
+          <div style="color:#6a6490">Transit<br><strong style="color:#73c2fb;font-size:12px">${pipe}</strong></div>
+          <div style="color:#6a6490">EOQ<br><strong style="color:#ffd166;font-size:12px">${eQ}</strong></div>
+        </div>
+        ${pend!==null?`<div style="margin-top:5px;font-size:10px;color:#06d6a0">✓ ${pend} units queued</div>`:''}
+        ${blocked?`<div style="margin-top:5px;font-size:10px;color:#ef476f">⚠ Supplier blocked ${gs.suppBlocked[p.id]}d</div>`:''}
+      </div>`;
+    }).join('')+'<div style="font-size:10px;color:#6a6490;text-align:center;margin-top:4px">Click a product to order</div>';
+  },
+
+  renderOrder(){
+    const gs=this.gs, p=PRODS.find(x=>x.id===this.selProd);
+    if(!p) return '<div style="color:#6a6490;font-size:12px;text-align:center;margin-top:20px">Select a product from Products tab</div>';
+    const inv=gs.inv[p.id], pipe=gs.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
+    const ratio=Math.max(0,Math.min(1,inv/p.maxShelf));
+    const barC=ratio>.5?'#06d6a0':ratio>.2?'#ffd166':'#ef476f';
+    const eQ=eoq(p), rop=Math.ceil((p.dMin+p.dMax)/2*p.ltDays);
+    const pos=inv+pipeU, recO=pos<rop?eQ:0;
+    const q=this.decisions[p.id]||0;
+    const pend=this.pendOrd[p.id];
+    const blocked=gs.suppBlocked[p.id]>0;
+    const cost=q>0?50+q*p.cost:0;
+
+    // product switcher
+    const switcher=PRODS.map(pr=>`<button onclick="G.selProd='${pr.id}';G.render()" style="flex:1;padding:5px 2px;background:${this.selProd===pr.id?pr.color+'33':'#1c1930'};border:1px solid ${this.selProd===pr.id?pr.color:'#2a2640'};border-radius:4px;cursor:pointer;font-size:12px">${pr.emoji}</button>`).join('');
+
+    return `
+<div style="display:flex;gap:4px;margin-bottom:10px">${switcher}</div>
+<div style="background:#1c1930;border:1px solid ${p.color}44;border-radius:5px;padding:9px;margin-bottom:9px">
+  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+    <span style="font-weight:700;color:${p.light}">${p.emoji} ${p.name}</span>
+    <span style="font-size:10px;color:${barC}">${Math.round(ratio*100)}% stocked</span>
+  </div>
+  <div class="bar" style="margin-bottom:6px"><div class="bfill" style="width:${ratio*100}%;background:${barC}"></div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px">
+    <div style="color:#6a6490">On hand<br><strong style="color:#fffffe">${inv}</strong></div>
+    <div style="color:#6a6490">In transit<br><strong style="color:#73c2fb">${pipeU}</strong></div>
+    <div style="color:#6a6490">Position<br><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong></div>
+  </div>
+</div>
+<div style="background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-radius:4px;padding:7px 9px;font-size:10px;color:#ffd166;margin-bottom:8px;line-height:1.6">
+  💡 EOQ=${eQ}u · ROP=${rop}u · LT=${p.ltDays}d · ${p.distName}<br>
+  <strong style="color:${recO>0?'#ff6b35':'#06d6a0'}">${recO>0?'Rec: order '+recO+'u now':'Inventory position OK'}</strong>
+</div>
+${blocked?`<div style="background:rgba(239,71,111,.1);border:1px solid rgba(239,71,111,.3);border-radius:4px;padding:7px 9px;font-size:11px;color:#ef476f;margin-bottom:8px">⚠ ${p.distName} blocked for ${gs.suppBlocked[p.id]} more days!</div>`:''}
+<div style="font-size:10px;color:#6a6490;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Place Order</div>
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+  <button class="qb" onclick="G.decisions['${p.id}']=Math.max(0,(G.decisions['${p.id}']||0)-10);G.render()">−</button>
+  <input class="qi" type="number" value="${q}" min="0" max="500" onchange="G.decisions['${p.id}']=Math.max(0,parseInt(this.value)||0);G.render()">
+  <button class="qb" onclick="G.decisions['${p.id}']=(G.decisions['${p.id}']||0)+10;G.render()">+</button>
+</div>
+${recO>0?`<button onclick="G.decisions['${p.id}']=${recO};G.render()" style="width:100%;background:#ffd16622;border:1px solid #ffd16644;color:#ffd166;padding:6px;border-radius:4px;cursor:pointer;font-size:10px;margin-bottom:6px">Use EOQ recommendation (${recO}u)</button>`:''}
+<div style="font-size:10px;color:#6a6490;margin-bottom:7px">${q>0?'Cost: G50 fixed + G'+(q*p.cost).toFixed(0)+' = G'+cost.toFixed(0):'No order — G0'}</div>
+<button class="ob" ${pend!==null||blocked?'disabled':''} onclick="G.placeOrder('${p.id}')">${pend!==null?'✓ '+pend+'u QUEUED':'📦 ORDER '+p.name.toUpperCase()}</button>
+<button class="nb" onclick="G.advDay()">⏭ Next Day →</button>
+<div style="font-size:9px;color:#3a3460;text-align:center;margin-top:5px">Order all products before advancing</div>
+${pipe.length>0?`<div style="margin-top:10px"><div style="font-size:10px;color:#6a6490;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px">Pipeline</div>${pipe.map(o=>`<div class="distcard"><span style="color:#73c2fb;font-weight:700">${o.q}u</span> <span style="color:#6a6490">→ arrives day ${o.arr} (ordered d${o.ord})</span></div>`).join('')}</div>`:''}`;
+  },
+
+  renderLog(){
+    const gs=this.gs;
+    if(gs.log.length===0) return '<div style="color:#6a6490;font-size:12px;text-align:center;margin-top:20px">No days played yet</div>';
+    return [...gs.log].reverse().slice(0,20).map(e=>{
+      const totS=PRODS.reduce((s,p)=>s+e.prods[p.id].s,0);
+      const totL=PRODS.reduce((s,p)=>s+e.prods[p.id].l,0);
+      const totR=PRODS.reduce((s,p)=>s+e.prods[p.id].r,0);
+      const hasEvt=e.events.length>0;
+      return `<div class="le" style="border-left-color:${totL>0?'#ef476f':hasEvt?'#ffd166':'#2a2640'}">
+        <div style="color:#fffffe;font-weight:700;margin-bottom:3px">Day ${e.day}</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:4px">
+          ${PRODS.map(p=>{const pe=e.prods[p.id];return `<div style="font-size:9px;color:${pe.l>0?'#ef476f':'#6a6490'}">${p.emoji} ${pe.s}/${pe.dem}${pe.recv>0?`<span style="color:#06d6a0"> +${pe.recv}</span>`:''}</div>`;}).join('')}
+        </div>
+        Rev G${totR.toFixed(0)} ${totL>0?`<span style="color:#ef476f">· Lost ${totL}u</span>`:''}
+        ${e.events.map(ev=>`<div style="color:#ffd166;margin-top:2px">${ev.txt}</div>`).join('')}
+      </div>`;
+    }).join('');
+  },
+
+  renderDist(){
+    const gs=this.gs;
+    return `<div style="font-size:10px;color:#6a6490;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Your Distributors</div>`+
+    PRODS.map(p=>{
+      const blocked=gs.suppBlocked[p.id]>0;
+      const rel=p.distRel;
+      const relC=rel>=.95?'#06d6a0':rel>=.85?'#ffd166':'#ef476f';
+      const orders=gs.porders[p.id]||0;
+      const revenue=gs.rev[p.id]||0;
+      const totalHold=gs.holdCost[p.id]||0;
+      const totalOrd=gs.ordCost[p.id]||0;
+      return `<div class="distcard" style="border-color:${blocked?'#ef476f44':p.color+'44'}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-weight:700;color:${p.light}">${p.emoji} ${p.name}</span>
+          <span style="font-size:10px;color:${blocked?'#ef476f':'#6a6490'}">${blocked?'BLOCKED '+gs.suppBlocked[p.id]+'d':'ACTIVE'}</span>
+        </div>
+        <div style="font-size:11px;color:#6a6490;margin-bottom:4px">🏭 ${p.distName} · ${p.distCity} · Lead time: ${p.ltDays}d</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+          <span style="font-size:10px;color:#6a6490">Reliability</span>
+          <div style="flex:1;height:5px;background:#1c1930;border-radius:3px"><div style="height:100%;border-radius:3px;background:${relC};width:${rel*100}%"></div></div>
+          <span style="font-size:10px;color:${relC}">${Math.round(rel*100)}%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-size:10px">
+          <div style="color:#6a6490">Orders<br><strong style="color:#fffffe">${orders}</strong></div>
+          <div style="color:#6a6490">Revenue<br><strong style="color:#06d6a0">G${Math.round(revenue)}</strong></div>
+          <div style="color:#6a6490">Hold cost<br><strong style="color:#ef476f">G${Math.round(totalHold)}</strong></div>
+        </div>
+        <div style="margin-top:5px;font-size:10px;color:#6a6490">Upcoming events: ${(p.events||[]).filter(e=>e.d>=gs.day).map(e=>`Day ${e.d}`).join(', ')||'None'}</div>
+      </div>`;
+    }).join('');
+  },
+
+  renderTitle(){
+    document.getElementById('G').innerHTML=`
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:660px;background:linear-gradient(160deg,#0f0e17,#1a0a2e);padding:28px;text-align:center">
+  <div style="font-size:52px;margin-bottom:10px">🏪</div>
+  <div class="px" style="font-size:7px;color:#ffd166;margin-bottom:7px;letter-spacing:1px">★ GIES COLLEGE OF BUSINESS ★</div>
+  <div class="px" style="font-size:16px;line-height:1.7;margin-bottom:6px;text-shadow:3px 3px 0 #ff6b35">GIES MART<br>SUPPLY CHAIN</div>
+  <div style="font-size:11px;color:#6a6490;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px">Multi-Product Edition</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin-bottom:24px">
+    ${PRODS.map(p=>`<div style="background:#1c1930;border:1px solid ${p.color}44;border-radius:8px;padding:12px 8px;text-align:center">
+      <div style="font-size:24px;margin-bottom:4px">${p.emoji}</div>
+      <div style="font-size:10px;font-weight:700;color:${p.light}">${p.name}</div>
+      <div style="font-size:9px;color:#6a6490;margin-top:2px">${p.distName}</div>
+    </div>`).join('')}
+  </div>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:7px;max-width:440px;margin-bottom:24px">
+    ${['📦 Multi-product inventory','🏭 Individual distributors','⚡ Product-specific events','📊 Per-product EOQ','💧 Demand spikes','🚚 Supplier disruptions'].map(c=>`<span style="background:#1c1930;border:1px solid #2a2640;border-radius:5px;padding:4px 10px;font-size:11px;color:#6a6490">${c}</span>`).join('')}
+  </div>
+  <button onclick="G.start()" style="background:#ff6b35;color:#fff;border:none;padding:12px 32px;border-radius:5px;cursor:pointer;font-family:'Courier New',monospace;font-weight:700;font-size:10px;box-shadow:0 4px 0 #a83a15;letter-spacing:1px;margin-bottom:10px">▶ OPEN THE STORE</button>
+  <div style="font-size:10px;color:#3a3460">Manage 4 products · 30 days · Beat 90% service level</div>
+  <div style="margin-top:12px;font-size:10px;color:#3a3460"><strong style="color:#ff552e">UIUC</strong> · Prof. Javadi · Supply Chain Management</div>
+</div>`;
+  },
+
+  renderResults(){
+    const gs=this.gs, m=gs.metrics;
+    const gp=gs.totRev-PRODS.reduce((s,p)=>s+gs.ordCost[p.id]+gs.holdCost[p.id],0);
+    const td=gs.totSold+gs.totLost, svc=td>0?gs.totSold/td:1;
+    let grade,gc;
+    if(svc>=.95&&gp>800){grade='A+';gc='#06d6a0';}
+    else if(svc>=.90&&gp>500){grade='A';gc='#06d6a0';}
+    else if(svc>=.85&&gp>200){grade='B';gc='#ffd166';}
+    else if(svc>=.75){grade='C';gc='#ffd166';}
+    else if(svc>=.6){grade='D';gc='#ff6b35';}
+    else{grade='F';gc='#ef476f';}
+
+    const prodRows=PRODS.map(p=>{
+      const eQ=eoq(p), orders=gs.porders[p.id]||0;
+      const avgOrd=orders>0?Math.round((gs.sold[p.id]+gs.lost[p.id])/orders):0;
+      const sl=gs.sold[p.id]+gs.lost[p.id]>0?(gs.sold[p.id]/(gs.sold[p.id]+gs.lost[p.id])*100).toFixed(0):100;
+      return `<div style="background:#1c1930;border:1px solid #2a2640;border-radius:5px;padding:8px;margin-bottom:6px;font-size:11px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-weight:700;color:${p.light}">${p.emoji} ${p.name}</span>
+          <span style="color:${sl>=90?'#06d6a0':sl>=75?'#ffd166':'#ef476f'}">${sl}% SVC</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px;color:#6a6490">
+          <div>Sold<br><strong style="color:#fffffe">${gs.sold[p.id]}</strong></div>
+          <div>Lost<br><strong style="color:#ef476f">${gs.lost[p.id]}</strong></div>
+          <div>EOQ ${eQ}u<br><strong style="color:#ffd166">Avg ${avgOrd}u</strong></div>
+          <div>Rev<br><strong style="color:#06d6a0">G${Math.round(gs.rev[p.id])}</strong></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('G').innerHTML=`
+<div style="display:flex;align-items:center;justify-content:center;min-height:660px;background:linear-gradient(160deg,#0f0e17,#1a0a2e);padding:20px">
+  <div style="background:#1c1930;border:1px solid #2a2640;border-radius:12px;padding:28px 32px;max-width:560px;width:100%">
+    <div class="px" style="font-size:10px;color:#ffd166;text-align:center;margin-bottom:5px">GIES MART — 30 DAYS</div>
+    <div style="font-size:60px;font-weight:700;text-align:center;color:${gc};margin-bottom:2px">${grade}</div>
+    <div style="text-align:center;font-size:10px;color:#6a6490;text-transform:uppercase;letter-spacing:2px;margin-bottom:18px">Final Grade</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      ${[['Revenue','G'+Math.round(gs.totRev).toLocaleString(),'#06d6a0'],['Profit','G'+Math.round(gp).toLocaleString(),gp>0?'#06d6a0':'#ef476f'],['Service',(svc*100).toFixed(1)+'%',svc>=.9?'#06d6a0':'#ffd166'],['Lost',gs.totLost+'u','#ef476f']].map(([l,v,c])=>`<div style="background:#12101f;border-radius:5px;padding:9px;text-align:center"><div style="font-size:16px;font-weight:700;color:${c}">${v}</div><div style="font-size:9px;color:#6a6490;text-transform:uppercase;margin-top:2px">${l}</div></div>`).join('')}
+    </div>
+    <div style="font-size:11px;color:#6a6490;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Per-Product Breakdown</div>
+    ${prodRows}
+    <div style="background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:5px;padding:10px 13px;margin-bottom:16px;font-size:12px;color:#9efce3;line-height:1.7">
+      <strong>Key insight:</strong> Each product has its own EOQ, lead time, and disruption risk. Managing them independently — while watching cash flow collectively — is the core of multi-product inventory management.
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button onclick="G.start()" style="background:#ff6b35;color:#fff;border:none;padding:10px 22px;border-radius:4px;cursor:pointer;font-family:'Courier New',monospace;font-size:8px;font-weight:700;box-shadow:0 3px 0 #a83a15">↺ REPLAY</button>
+      <button onclick="G.scr='title';G.renderTitle()" style="background:transparent;border:1px solid #2a2640;color:#6a6490;padding:10px 18px;border-radius:4px;cursor:pointer;font-size:12px">← Menu</button>
+    </div>
+  </div>
+</div>`;
+  },
+
+  start(){
+    this.gs=newState();
+    this.gs.customers=[];
+    this.gs.particles=[];
+    this.decisions={choc:0,water:0,snack:0,soda:0};
+    this.pendOrd={choc:null,water:null,snack:null,soda:null};
+    this.tab='products';
+    this.scr='game';
+    // Rebuild game HTML if coming from title/results
+    document.getElementById('G').innerHTML=`
+<div class="topbar" id="topbar">
+  <span class="px" style="font-size:6px;color:#ffd166">GIES MART</span>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">DAY</span><span style="font-weight:700;color:#ffd166" id="hday">1</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">CASH</span><span style="font-weight:700;color:#06d6a0" id="hcash">G2500</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">REVENUE</span><span style="font-weight:700;color:#ffd166" id="hrev">G0</span></div>
+  <div class="sp"><span style="color:#6a6490;font-size:9px">SERVICE</span><span style="font-weight:700;color:#fffffe" id="hsvc">—</span></div>
+  <button onclick="G.scr='title';G.renderTitle()" style="margin-left:auto;background:transparent;border:1px solid #2a2640;color:#6a6490;padding:4px 9px;border-radius:4px;cursor:pointer;font-size:10px">Menu</button>
+</div>
+<div class="body">
+  <div class="store-wrap"><canvas id="SC"></canvas><div class="toast" id="toast" style="opacity:0"></div></div>
+  <div class="side">
+    <div class="tabs" id="tabs">
+      <div class="tb on" onclick="G.tab='products';G.render()" id="t0">Products</div>
+      <div class="tb" onclick="G.tab='order';G.render()" id="t1">Order</div>
+      <div class="tb" onclick="G.tab='log';G.render()" id="t2">Log</div>
+      <div class="tb" onclick="G.tab='dist';G.render()" id="t3">Suppliers</div>
+    </div>
+    <div class="pc" id="pc"></div>
+  </div>
+</div>`;
+    this.initCanvas();
+    this.render();
+  },
+
+  initCanvas(){
+    this.canvas=document.getElementById('SC');
+    if(!this.canvas)return;
+    this.ctx=this.canvas.getContext('2d');
+    const par=this.canvas.parentElement;
+    this.canvas.width=par.offsetWidth||400;
+    this.canvas.height=par.offsetHeight||400;
+    new ResizeObserver(()=>{
+      if(!this.canvas)return;
+      this.canvas.width=this.canvas.parentElement.offsetWidth||400;
+      this.canvas.height=this.canvas.parentElement.offsetHeight||400;
+    }).observe(this.canvas.parentElement);
+  },
+
+  loop(){
+    this.time++;
+    if(this.scr==='game'&&this.canvas&&this.ctx) this.drawStore();
+    this.raf=requestAnimationFrame(()=>this.loop());
+  }
+};
+
+// keyboard
+document.addEventListener('keydown',e=>{
+  if(G.scr!=='game')return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();G.advDay();}
+  if(e.key==='ArrowUp'){e.preventDefault();G.decisions[G.selProd]=(G.decisions[G.selProd]||0)+5;G.render();}
+  if(e.key==='ArrowDown'){e.preventDefault();G.decisions[G.selProd]=Math.max(0,(G.decisions[G.selProd]||0)-5);G.render();}
+});
+
+window.G=game;
+game.scr='title';
+game.renderTitle();
+game.raf=requestAnimationFrame(()=>game.loop());
+return game;
+})();
+</script>
