@@ -12,141 +12,242 @@
   --acc:#ff7a3d;--acc2:#c14a18;--gold:#ffd166;--green:#3ddc97;--red:#ff5c7a;
   --sky:#7fd3ff;--purple:#b07bff;--coffee:#a67b5b;--cookie:#e0b07a;
   --shadow:0 8px 32px -8px rgba(0,0,0,.6);
+  --nav-w:220px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-body{display:flex;flex-direction:column;overflow:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
 
-/* topbar */
-#topbar{background:linear-gradient(180deg,var(--surf),var(--panel));border-bottom:2px solid var(--border2);padding:10px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.4);flex-shrink:0;flex-wrap:wrap}
-.logo{font-family:'Fraunces',serif;font-size:15px;color:var(--gold);display:flex;align-items:center;gap:8px}
-.logo-tag{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-dot 1.4s ease-in-out infinite;flex-shrink:0}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
-.top-stat{background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;display:flex;flex-direction:column;align-items:center;min-width:72px}
-.top-stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
-.top-stat-v{font-size:14px;font-weight:700;font-family:'Space Mono',monospace}
-.btn-top{padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .13s;border:none}
-.btn-green{background:rgba(61,220,151,.12);border:1px solid rgba(61,220,151,.35)!important;color:#3ddc97}
-.btn-green:hover{background:rgba(61,220,151,.22)}
-.btn-acc{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 3px 0 var(--acc2)}
-.btn-acc:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--acc2)}
-.btn-ghost{background:var(--panel2);border:1px solid var(--border2)!important;color:var(--text)}
-.btn-ghost:hover{border-color:var(--acc)!important;color:var(--acc)}
+/* ── AUTH SCREEN ── */
+#op-auth-screen{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(900px 500px at 30% 30%,rgba(255,122,61,.12),transparent 60%),linear-gradient(160deg,#0f0c1a,#1a132e);padding:20px}
 
-/* layout */
-#layout{flex:1;display:grid;grid-template-columns:310px 1fr;overflow:hidden;min-height:0}
+/* ── APP SHELL ── */
+#app{display:none;height:100vh;width:100vw;overflow:hidden;flex-direction:column}
+#app.visible{display:flex}
 
-/* left settings */
-#settings{background:var(--surf);border-right:2px solid var(--border2);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-#settings::-webkit-scrollbar{width:4px}
-#settings::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.s-card{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:12px 14px}
-.s-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.s-title::before{content:"";width:10px;height:2px;background:var(--acc);border-radius:1px}
-.field{margin-bottom:8px}.field:last-child{margin-bottom:0}
-.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:600}
-.field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1.5px solid var(--border2);color:var(--text);font-size:12px;padding:6px 9px;border-radius:6px;font-family:'Space Mono',monospace;outline:none;transition:border-color .15s}
+/* ── TOP BAR ── */
+#topbar{
+  height:56px;flex-shrink:0;
+  background:var(--surf);border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;padding:0 20px;gap:14px;
+  box-shadow:0 2px 16px rgba(0,0,0,.4);z-index:50;
+}
+.logo{font-family:'Fraunces',serif;font-size:16px;color:var(--gold);display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:8px}
+.logo-sub{font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.2px;display:block;line-height:1}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.top-kpi{display:flex;flex-direction:column;align-items:center;min-width:62px;padding:4px 10px;
+  background:var(--panel2);border:1px solid var(--border2);border-radius:7px}
+.top-kpi-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+.top-kpi-v{font-size:13px;font-weight:700;font-family:'Space Mono',monospace}
+.tb-spacer{flex:1}
+.tb-btn{padding:6px 13px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;
+  font-family:'DM Sans',sans-serif;border:none;transition:all .13s}
+.tb-btn-acc{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 3px 0 var(--acc2)}
+.tb-btn-acc:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--acc2)}
+.tb-btn-ghost{background:var(--panel2);border:1px solid var(--border2)!important;color:var(--text)}
+.tb-btn-ghost:hover{border-color:var(--acc)!important;color:var(--acc)}
+.tb-btn-green{background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3)!important;color:var(--green)}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--panel2);
+  border:1px solid var(--border2);border-radius:8px;padding:5px 12px}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+
+/* ── BODY: sidebar + main ── */
+#body{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* ── SIDEBAR NAV ── */
+#sidebar{
+  width:var(--nav-w);flex-shrink:0;
+  background:var(--surf);border-right:1px solid var(--border2);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+.nav-section-label{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);
+  font-weight:700;padding:16px 16px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;
+  font-size:12px;font-weight:600;color:var(--muted);transition:all .15s;border-left:3px solid transparent;
+  text-decoration:none}
+.nav-item:hover{background:var(--panel);color:var(--text)}
+.nav-item.active{background:rgba(255,122,61,.1);color:var(--acc);border-left-color:var(--acc)}
+.nav-icon{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.nav-divider{height:1px;background:var(--border);margin:8px 16px}
+
+/* Settings panel inside sidebar */
+#settings-panel{display:none;flex-direction:column;gap:0;flex:1}
+#settings-panel.visible{display:flex}
+.s-card{background:transparent;padding:10px 12px 12px;border-bottom:1px solid var(--border)}
+.s-title{font-size:9px;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);
+  font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.s-title::before{content:"";width:8px;height:2px;background:var(--acc);border-radius:1px;flex-shrink:0}
+.field{margin-bottom:7px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1.5px solid var(--border2);
+  color:var(--text);font-size:11px;padding:5px 8px;border-radius:6px;font-family:'Space Mono',monospace;
+  outline:none;transition:border-color .15s}
 .field input:focus{border-color:var(--acc)}
-.field input[type=range]{padding:0;background:none;border:none;cursor:pointer;margin-top:8px}
-.field textarea{resize:vertical;min-height:60px;font-size:10px;line-height:1.5}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.prod-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px}
-.ptb{padding:6px;background:var(--bg2);border:2px solid var(--border2);border-radius:6px;cursor:pointer;font-size:11px;text-align:center;font-weight:700;color:var(--muted);transition:all .15s}
+.field input[type=range]{padding:0;background:none;border:none;cursor:pointer;margin-top:6px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.prod-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px}
+.ptb{padding:5px;background:var(--bg2);border:2px solid var(--border2);border-radius:5px;
+  cursor:pointer;font-size:10px;text-align:center;font-weight:700;color:var(--muted);transition:all .15s}
 .ptb.on{border-color:var(--acc);background:rgba(255,122,61,.1);color:var(--acc)}
-.info-pill{background:rgba(127,211,255,.07);border:1px solid rgba(127,211,255,.18);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--sky);line-height:1.6}
-
-/* toggle switches */
-.tog-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.info-pill{background:rgba(127,211,255,.07);border:1px solid rgba(127,211,255,.18);border-radius:5px;
+  padding:6px 9px;font-size:10px;color:var(--sky);line-height:1.5}
+.tog-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .tog-row:last-child{border-bottom:none;padding-bottom:0}
-.tog-wrap{position:relative;flex-shrink:0;width:36px;height:20px;margin-top:1px}
+.tog-wrap{position:relative;flex-shrink:0;width:34px;height:19px;margin-top:1px}
 .tog-inp{position:absolute;opacity:0;width:0;height:0}
 .tog-track{position:absolute;inset:0;border-radius:99px;background:var(--border2);transition:background .2s;cursor:pointer}
 .tog-inp:checked~.tog-track{background:var(--acc)}
-.tog-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
-.tog-inp:checked~.tog-track .tog-thumb{transform:translateX(16px)}
-.tog-info{flex:1}
-.tog-label{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
-.tog-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.tog-thumb{position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;
+  background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tog-inp:checked~.tog-track .tog-thumb{transform:translateX(15px)}
+.tog-info{flex:1}.tog-label{font-size:10px;font-weight:700;color:var(--text);margin-bottom:1px}
+.tog-desc{font-size:9px;color:var(--muted);line-height:1.4}
 
-/* right panel */
-#right{display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.panel-tabs{display:flex;border-bottom:2px solid var(--border2);background:var(--panel);flex-shrink:0}
-.rtab{flex:1;padding:10px 4px;font-size:11px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .18s;font-weight:700;letter-spacing:.4px}
-.rtab:hover:not(.on){color:var(--text);background:var(--panel2)}
-.rtab.on{color:var(--acc);border-bottom-color:var(--acc);background:var(--surf)}
-.panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-.panel-body::-webkit-scrollbar{width:5px}
-.panel-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* ── MAIN CONTENT ── */
+#main{flex:1;overflow-y:auto;background:var(--bg);display:flex;flex-direction:column}
+#main::-webkit-scrollbar{width:5px}
+#main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* player cards */
-.player-card{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .18s;animation:slide-in .3s ease-out}
-@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* ── PAGE HEADER ── */
+.page-header{padding:20px 24px 0;flex-shrink:0}
+.page-header h1{font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:12px;color:var(--muted)}
+
+/* ── DASHBOARD GRID ── */
+.dash-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:16px 24px 0}
+.kpi-card{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:14px 16px}
+.kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:800;font-family:'Space Mono',monospace;line-height:1}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:4px}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px 24px}
+.dash-card{background:var(--panel);border:1px solid var(--border2);border-radius:12px;padding:16px 18px;overflow:hidden}
+.dash-card-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;
+  margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+/* Round status in dashboard */
+.round-status-day{font-family:'Space Mono',monospace;font-size:40px;font-weight:700;
+  color:var(--gold);text-align:center;line-height:1}
+.round-status-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px}
+.round-progress-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px;color:var(--muted)}
+.round-progress-bar{flex:1;height:7px;background:var(--border2);border-radius:99px;overflow:hidden}
+.round-progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:99px;transition:width .5s}
+.btn-release-big{width:100%;padding:13px;border-radius:9px;border:none;cursor:pointer;
+  background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
+  font-size:13px;font-weight:800;font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 0 var(--acc2);transition:all .12s;letter-spacing:.3px}
+.btn-release-big:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
+.btn-release-big:disabled{opacity:.45;transform:none;cursor:not-allowed}
+.btn-lock{width:100%;margin-top:8px;padding:8px;border-radius:7px;border:1px solid var(--border2);
+  background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-lock:hover{border-color:var(--red);color:var(--red)}
+
+/* Recent activity */
+.activity-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px}
+.activity-row:last-child{border-bottom:none}
+.activity-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.activity-meta{font-size:10px;color:var(--dim);margin-top:2px}
+
+/* Waiting grid */
+.waiting-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.waiting-chip{background:var(--panel2);border:1px solid var(--border2);border-radius:6px;
+  padding:6px 4px;text-align:center;font-size:10px}
+.waiting-chip.ready{border-color:rgba(61,220,151,.4);background:rgba(61,220,151,.07);color:#3ddc97}
+.waiting-chip.waiting{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.05);color:#ffd166}
+
+/* ── PANEL PAGES ── */
+.panel-page{display:none;flex-direction:column;flex:1;overflow:hidden}
+.panel-page.active{display:flex}
+.panel-content{flex:1;overflow-y:auto;padding:16px 24px}
+.panel-content::-webkit-scrollbar{width:5px}
+.panel-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── PLAYER CARDS ── */
+.player-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:13px 16px;cursor:pointer;transition:all .18s;margin-bottom:8px;animation:slide-in .3s ease-out}
+@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .player-card:hover{border-color:var(--dim);transform:translateY(-1px)}
 .player-card.expanded{border-color:var(--acc)}
 .player-top{display:flex;align-items:center;gap:10px}
 .player-name{font-weight:700;font-size:14px;flex:1}
-.status-pill{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:700;font-family:'Space Mono',monospace}
+.status-pill{font-size:9px;padding:3px 9px;border-radius:99px;font-weight:700;font-family:'Space Mono',monospace}
 .status-complete{background:rgba(61,220,151,.15);color:#3ddc97;border:1px solid rgba(61,220,151,.3)}
 .status-progress{background:rgba(255,209,102,.12);color:#ffd166;border:1px solid rgba(255,209,102,.3)}
 .player-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
 .pstat{text-align:center;background:var(--bg2);border-radius:6px;padding:6px 4px}
-.pstat-v{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:1px}
-.pstat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
-.grade-big{font-size:28px;font-weight:800;font-family:'Space Mono',monospace;min-width:44px;text-align:center}
-.svc-track{height:5px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:4px}
+.pstat-v{font-size:12px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:1px}
+.pstat-l{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.grade-big{font-size:26px;font-weight:800;font-family:'Space Mono',monospace;min-width:40px;text-align:center}
+.svc-track{height:4px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:3px}
 .svc-fill{height:100%;border-radius:99px;transition:width .6s}
 .day-progress{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted)}
-.day-track{flex:1;height:6px;background:var(--border2);border-radius:99px;overflow:hidden}
+.day-track{flex:1;height:5px;background:var(--border2);border-radius:99px;overflow:hidden}
 .day-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:99px;transition:width .5s}
-.day-log-table{width:100%;border-collapse:collapse;font-size:11px}
-.day-log-table th{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);font-weight:700;padding:4px 6px;text-align:left;border-bottom:1px solid var(--border)}
-.day-log-table td{padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
-.day-log-table tr:hover td{background:rgba(255,255,255,.02)}
+.day-log-table{width:100%;border-collapse:collapse;font-size:10px}
+.day-log-table th{font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);
+  font-weight:700;padding:4px 5px;text-align:left;border-bottom:1px solid var(--border)}
+.day-log-table td{padding:4px 5px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
 
-/* round control */
-.round-ctrl-panel{background:linear-gradient(135deg,rgba(255,122,61,.08),rgba(255,209,102,.05));border:2px solid rgba(255,122,61,.4);border-radius:10px;padding:14px;margin-bottom:10px}
-.round-ctrl-day{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:4px}
-.round-ctrl-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px}
-.btn-release{width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 var(--acc2);transition:all .12s}
-.btn-release:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
-.btn-release:disabled{opacity:.5;transform:none;cursor:not-allowed}
-.waiting-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
-.waiting-chip{background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:5px 4px;text-align:center;font-size:10px}
-.waiting-chip.ready{border-color:rgba(61,220,151,.4);background:rgba(61,220,151,.07);color:#3ddc97}
-.waiting-chip.waiting{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.05);color:#ffd166}
-
-/* leaderboard */
-.lb-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;animation:slide-in .3s ease-out}
+/* ── LEADERBOARD ── */
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);
+  border:1px solid var(--border);border-radius:8px;margin-bottom:6px;animation:slide-in .3s ease-out}
 .lb-row.gold-row{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.05)}
-.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
-.stat-box{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat-box{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:12px;text-align:center}
 .stat-box-v{font-size:18px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:2px}
 .stat-box-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 
-/* scenarios */
-.scen-row{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 40px;gap:6px;padding:8px 12px;background:var(--panel);border:1px solid var(--border);border-radius:7px;font-size:11px;align-items:center;margin-bottom:5px;cursor:pointer;transition:border-color .15s}
+/* ── SCENARIOS ── */
+.scen-row{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 44px 36px;gap:6px;
+  padding:9px 13px;background:var(--panel);border:1px solid var(--border);border-radius:8px;
+  font-size:11px;align-items:center;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
 .scen-row:hover{border-color:var(--dim)}
 .scen-row.sel{border-color:var(--acc)}
-.scen-header{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 40px;gap:6px;padding:5px 12px;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);font-weight:700;margin-bottom:4px}
+.scen-row.inactive{opacity:0.38;filter:grayscale(0.5)}
+.scen-header{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 44px 36px;gap:6px;
+  padding:5px 13px;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);font-weight:700;margin-bottom:4px}
 .type-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;text-align:center}
 
-/* modal */
-.modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.85);backdrop-filter:blur(6px)}
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,8,20,.85);backdrop-filter:blur(6px)}
 .modal.hidden{display:none}
-.modal-card{background:var(--surf);border:2px solid var(--border2);border-radius:14px;padding:22px;max-width:440px;width:100%;box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
-.modal-title{font-size:13px;font-weight:700;color:var(--acc);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.modal-card{background:var(--surf);border:2px solid var(--border2);border-radius:14px;padding:22px;
+  max-width:440px;width:100%;box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:13px;font-weight:700;color:var(--acc);margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center}
 
-/* notify */
-.notif{position:fixed;bottom:20px;right:20px;background:var(--surf);border:2px solid var(--green);border-radius:10px;padding:10px 18px;color:var(--green);font-size:12px;font-weight:700;box-shadow:var(--shadow);z-index:500;transition:opacity .35s;pointer-events:none}
+/* ── NOTIFY ── */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--surf);border:2px solid var(--green);
+  border-radius:10px;padding:10px 18px;color:var(--green);font-size:12px;font-weight:700;
+  box-shadow:var(--shadow);z-index:500;transition:opacity .35s;pointer-events:none}
 .notif.hidden{opacity:0}
 .empty-state{text-align:center;padding:50px 20px;color:var(--dim)}
 .empty-state div:first-child{font-size:32px;margin-bottom:10px}
+
+/* Round control full-page styling */
+.round-ctrl-section{background:linear-gradient(135deg,rgba(255,122,61,.08),rgba(255,209,102,.05));
+  border:2px solid rgba(255,122,61,.35);border-radius:12px;padding:20px;margin-bottom:14px}
+.round-settings-card{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.round-settings-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:12px}
+.round-setting-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.round-setting-row:last-child{border-bottom:none}
+.round-setting-label{font-size:12px;color:var(--text)}
+.round-setting-val{font-size:12px;font-weight:700;font-family:'Space Mono',monospace;color:var(--gold)}
+.round-action-btn{width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--panel2);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;
+  font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s}
+.round-action-btn:hover{border-color:var(--acc);color:var(--acc)}
 </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
+<!-- ══ AUTH SCREEN ══ -->
 <div id="op-auth-screen" style="position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 30% 30%,rgba(255,122,61,.12),transparent 60%),linear-gradient(160deg,#0f0c1a,#1a132e);padding:20px">
   <div style="background:#1a1628;border:2px solid #403868;border-radius:18px;padding:32px 30px;width:100%;max-width:380px;box-shadow:0 18px 40px rgba(0,0,0,.6)">
     <div style="text-align:center;margin-bottom:26px">
@@ -176,95 +277,249 @@ body{display:flex;flex-direction:column;overflow:hidden}
   </div>
 </div>
 
-<!-- TOP BAR -->
-<div id="topbar" style="display:none">
-  <div class="logo">☕ Supply Chain <span class="logo-tag">OPERATOR CONSOLE</span></div>
-  <div class="live-dot"></div>
-  <div class="top-stat"><span class="top-stat-l">Players</span><span class="top-stat-v" id="stat-players" style="color:#3ddc97">—</span></div>
-  <div class="top-stat"><span class="top-stat-l">Complete</span><span class="top-stat-v" id="stat-complete" style="color:#ffd166">—</span></div>
-  <div class="top-stat"><span class="top-stat-l">Avg SVC</span><span class="top-stat-v" id="stat-avgsvc" style="color:#7fd3ff">—</span></div>
-  <div class="top-stat"><span class="top-stat-l">Avg Profit</span><span class="top-stat-v" id="stat-avgprofit" style="color:#b07bff">—</span></div>
-  <button class="btn-top btn-acc" onclick="applyConfig()">✓ Push Config</button>
-  <button class="btn-top btn-green" onclick="refreshRuns()">↺ Refresh</button>
-  <button class="btn-top btn-green" onclick="doExportCSV()">⬇ Export CSV</button>
-  <button class="btn-top btn-ghost" onclick="doClearRuns()" style="font-size:10px;opacity:.6">🗑 Clear Runs</button>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px">
-    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff" id="op-avatar">P</div>
-    <div style="font-size:11px;color:var(--muted)" id="op-user-label">—</div>
-    <button onclick="opSignOut()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Out</button>
-    <button onclick="openChangePw()" style="background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif">🔑 Change PW</button>
-  </div>
-</div>
+<!-- ══ APP ══ -->
+<div id="app">
 
-<div id="layout" style="display:none">
-  <!-- LEFT SETTINGS -->
-  <div id="settings">
-
-    <!-- GAME PARAMETERS -->
-    <div class="s-card">
-      <div class="s-title">Game Parameters</div>
-      <div class="field-row">
-        <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
-        <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
-        <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
-      </div>
-      <!-- Toggles -->
-      <div style="margin-top:10px;border:1px solid var(--border2);border-radius:8px;padding:10px 12px;background:var(--bg2)">
-        <label class="tog-row" style="padding-top:0">
-          <div class="tog-wrap"><input type="checkbox" id="cfg-round-control" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-          <div class="tog-info"><div class="tog-label">🎮 Operator Round Control</div><div class="tog-desc">Students must wait for you to release each day</div></div>
-        </label>
-        <label class="tog-row">
-          <div class="tog-wrap"><input type="checkbox" id="cfg-hide-demand" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-          <div class="tog-info"><div class="tog-label">👁 Hide Avg Demand</div><div class="tog-desc">Students won't see expected demand values</div></div>
-        </label>
-        <label class="tog-row">
-          <div class="tog-wrap"><input type="checkbox" id="cfg-hide-rec" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-          <div class="tog-info"><div class="tog-label">💡 Hide Recommendations</div><div class="tog-desc">Hide EOQ/ROP hint box from students</div></div>
-        </label>
-      </div>
-    </div>
-
-    <!-- DEMAND -->
-    <div class="s-card">
-      <div class="s-title">Demand Parameters</div>
-      <div class="prod-tabs">
-        <div class="ptb on" id="dtab-coffee" onclick="setDemandProd('coffee')">☕ Coffee</div>
-        <div class="ptb" id="dtab-cookie" onclick="setDemandProd('cookie')">🍪 Cookies</div>
-      </div>
-      <div id="demand-fields"></div>
-    </div>
-
-    <!-- LT + RELIABILITY + COSTS -->
-    <div class="s-card">
-      <div class="s-title">Lead Time · Reliability · Costs</div>
-      <div id="lt-fields"></div>
-    </div>
-
-    <!-- CONFIG JSON -->
-    <div class="s-card">
-      <div class="s-title">Config JSON</div>
-      <textarea id="config-json" style="height:90px;font-size:9px;color:#9b5de5" readonly></textarea>
-      <button onclick="copyConfigJSON()" style="width:100%;margin-top:6px;background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700">📋 Copy JSON</button>
-    </div>
-
-  </div>
-
-  <!-- RIGHT PANEL -->
-  <div id="right">
-    <div class="panel-tabs">
-      <div class="rtab on" id="rt0" onclick="setRTab('players')">👥 Players</div>
-      <div class="rtab" id="rt1" onclick="setRTab('leaderboard')">🏆 Leaderboard</div>
-      <div class="rtab" id="rt2" onclick="setRTab('scenarios')">⚡ Scenarios</div>
-    </div>
-    <div class="panel-body" id="panel-body">
-      <div class="empty-state"><div>⏳</div>Connecting…</div>
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <div class="logo">☕ <div><span style="font-family:'Fraunces',serif;font-size:15px;color:var(--gold)">Supply Chain</span><span class="logo-sub">OPERATOR CONSOLE</span></div></div>
+    <div class="live-dot"></div>
+    <div class="top-kpi"><span class="top-kpi-l">Players</span><span class="top-kpi-v" id="stat-players" style="color:#3ddc97">—</span></div>
+    <div class="top-kpi"><span class="top-kpi-l">Complete</span><span class="top-kpi-v" id="stat-complete" style="color:#ffd166">—</span></div>
+    <div class="top-kpi"><span class="top-kpi-l">Avg SVC</span><span class="top-kpi-v" id="stat-avgsvc" style="color:#7fd3ff">—</span></div>
+    <div class="top-kpi"><span class="top-kpi-l">Avg Profit</span><span class="top-kpi-v" id="stat-avgprofit" style="color:#b07bff">—</span></div>
+    <div class="tb-spacer"></div>
+    <button class="tb-btn tb-btn-acc" onclick="applyConfig()">✓ Push Config</button>
+    <button class="tb-btn tb-btn-green" onclick="refreshRuns()">↺ Refresh</button>
+    <button class="tb-btn tb-btn-ghost" onclick="doExportCSV()">⬇ CSV</button>
+    <button class="tb-btn tb-btn-ghost" onclick="doClearRuns()" style="font-size:10px;opacity:.55">🗑</button>
+    <div class="user-chip">
+      <div class="user-avatar" id="op-avatar">P</div>
+      <div style="font-size:11px;color:var(--muted)" id="op-user-label">—</div>
+      <button onclick="opSignOut()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer">Sign Out</button>
+      <button onclick="openChangePw()" style="background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer">🔑</button>
     </div>
   </div>
-</div>
+
+  <!-- BODY -->
+  <div id="body">
+
+    <!-- ── SIDEBAR ── -->
+    <div id="sidebar">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+        <span class="nav-icon">🏠</span>Dashboard
+      </a>
+      <a class="nav-item" id="nav-roundcontrol" onclick="showPage('roundcontrol')">
+        <span class="nav-icon">🎮</span>Round Control
+      </a>
+      <a class="nav-item" id="nav-players" onclick="showPage('players')">
+        <span class="nav-icon">👥</span>Teams
+      </a>
+      <a class="nav-item" id="nav-leaderboard" onclick="showPage('leaderboard')">
+        <span class="nav-icon">🏆</span>Leaderboard
+      </a>
+      <a class="nav-item" id="nav-scenarios" onclick="showPage('scenarios')">
+        <span class="nav-icon">⚡</span>Scenarios
+      </a>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Configuration</div>
+      <a class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <span class="nav-icon">⚙️</span>Settings
+      </a>
+
+      <!-- SETTINGS PANEL — shown only when settings page is active -->
+      <div id="settings-panel">
+        <!-- GAME PARAMETERS -->
+        <div class="s-card">
+          <div class="s-title">Game Parameters</div>
+          <div class="field-row">
+            <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
+            <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
+            <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
+          </div>
+          <div style="margin-top:8px;border:1px solid var(--border2);border-radius:7px;padding:8px 10px;background:var(--bg2)">
+            <label class="tog-row" style="padding-top:0">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-round-control" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">🎮 Round Control</div><div class="tog-desc">Gate students by day</div></div>
+            </label>
+            <label class="tog-row">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-demand" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">👁 Hide Avg Demand</div><div class="tog-desc">Students won't see expected demand</div></div>
+            </label>
+            <label class="tog-row">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-rec" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">💡 Hide Recommendations</div><div class="tog-desc">Hide EOQ/ROP hints</div></div>
+            </label>
+          </div>
+        </div>
+        <!-- DEMAND -->
+        <div class="s-card">
+          <div class="s-title">Demand Parameters</div>
+          <div class="prod-tabs">
+            <div class="ptb on" id="dtab-coffee" onclick="setDemandProd('coffee')">☕ Coffee</div>
+            <div class="ptb" id="dtab-cookie" onclick="setDemandProd('cookie')">🍪 Cookies</div>
+          </div>
+          <div id="demand-fields"></div>
+        </div>
+        <!-- LT + RELIABILITY + COSTS -->
+        <div class="s-card">
+          <div class="s-title">Supplier · Reliability · Costs</div>
+          <div id="lt-fields"></div>
+        </div>
+        <!-- CONFIG JSON -->
+        <div class="s-card">
+          <div class="s-title">Config JSON</div>
+          <textarea id="config-json" style="height:80px;font-size:9px;color:#9b5de5;width:100%;background:var(--bg2);border:1.5px solid var(--border2);color:#9b5de5;padding:6px;border-radius:6px;font-family:'Space Mono',monospace;resize:vertical" readonly></textarea>
+          <button onclick="copyConfigJSON()" style="width:100%;margin-top:6px;background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700">📋 Copy JSON</button>
+        </div>
+      </div>
+      <!-- end settings-panel -->
+    </div>
+    <!-- end sidebar -->
+
+    <!-- ── MAIN ── -->
+    <div id="main">
+
+      <!-- ══ DASHBOARD PAGE ══ -->
+      <div class="panel-page active" id="page-dashboard">
+        <div class="page-header">
+          <h1 id="dash-greeting">Good morning, Instructor</h1>
+          <p>Here's what's happening in your simulation.</p>
+        </div>
+        <div class="dash-kpi-row">
+          <div class="kpi-card"><div class="kpi-label">Teams Active</div><div class="kpi-value" id="dash-teams" style="color:var(--green)">—</div><div class="kpi-sub" id="dash-teams-sub"></div></div>
+          <div class="kpi-card"><div class="kpi-label">Teams Ready</div><div class="kpi-value" id="dash-ready" style="color:var(--gold)">—</div><div class="kpi-sub" id="dash-ready-sub"></div></div>
+          <div class="kpi-card"><div class="kpi-label">Current Day</div><div class="kpi-value" id="dash-day" style="color:var(--sky)">—</div><div class="kpi-sub" id="dash-day-sub"></div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Service Level</div><div class="kpi-value" id="dash-svc" style="color:var(--purple)">—</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Profit</div><div class="kpi-value" id="dash-profit" style="color:var(--green)">—</div></div>
+        </div>
+        <div class="dash-grid">
+          <!-- Round Status -->
+          <div class="dash-card">
+            <div class="dash-card-title">ROUND STATUS
+              <span id="dash-live-pill" style="font-size:9px;padding:2px 8px;border-radius:99px;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);color:var(--green)">● Live</span>
+            </div>
+            <div id="dash-round-status">
+              <div class="round-status-day" id="dash-day-big">—</div>
+              <div class="round-status-sub" id="dash-day-sub2">—</div>
+              <div class="round-progress-row">
+                <span id="dash-waiting-label" style="min-width:100px">0 / 0 ready</span>
+                <div class="round-progress-bar"><div class="round-progress-fill" id="dash-progress-fill" style="width:0%"></div></div>
+                <span id="dash-progress-pct">0%</span>
+              </div>
+              <button class="btn-release-big" id="dash-release-btn" onclick="releaseNextDay()">▶ Release Next Day</button>
+              <button class="btn-lock" onclick="showPage('roundcontrol')">⚙ Round Control Settings</button>
+            </div>
+          </div>
+          <!-- Recent Activity -->
+          <div class="dash-card">
+            <div class="dash-card-title">TEAM STATUS OVERVIEW</div>
+            <div id="dash-activity"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ROUND CONTROL PAGE ══ -->
+      <div class="panel-page" id="page-roundcontrol">
+        <div class="page-header"><h1>Round Control</h1><p>Manage the flow of the simulation.</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 24px">
+          <div>
+            <div class="round-ctrl-section">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--acc);font-weight:700;margin-bottom:10px">CURRENT ROUND</div>
+              <div class="round-status-day" id="rc-day-big">—</div>
+              <div class="round-status-sub" id="rc-day-sub">Round — of —</div>
+              <div class="round-progress-row">
+                <span id="rc-waiting-label">0 teams ready</span>
+                <div class="round-progress-bar"><div class="round-progress-fill" id="rc-progress-fill" style="width:0%"></div></div>
+                <span id="rc-progress-pct">0%</span>
+              </div>
+              <button class="btn-release-big" id="rc-release-btn" onclick="releaseNextDay()">▶ Release Next Day</button>
+              <div style="display:flex;gap:8px;margin-top:10px">
+                <button class="btn-lock" style="flex:1" onclick="resetToDay1()">↺ Reset to Day 1</button>
+                <button class="btn-lock" style="flex:1" onclick="releaseAllDays()">Release All</button>
+              </div>
+            </div>
+            <!-- Waiting grid -->
+            <div id="rc-waiting-grid"></div>
+          </div>
+          <div>
+            <div class="round-settings-card">
+              <div class="round-settings-title">ROUND SETTINGS</div>
+              <div class="round-setting-row"><span class="round-setting-label">Total Rounds (Days)</span><span class="round-setting-val" id="rc-total-rounds">30</span></div>
+              <div class="round-setting-row"><span class="round-setting-label">Round Control</span>
+                <label class="tog-wrap" style="width:34px;height:19px">
+                  <input type="checkbox" id="rc-round-control-mirror" class="tog-inp" onchange="mirrorRoundControl(this)">
+                  <div class="tog-track"><div class="tog-thumb"></div></div>
+                </label>
+              </div>
+              <div class="round-setting-row"><span class="round-setting-label">Hide Avg Demand</span>
+                <label class="tog-wrap" style="width:34px;height:19px">
+                  <input type="checkbox" id="rc-hide-demand-mirror" class="tog-inp" onchange="mirrorHideDemand(this)">
+                  <div class="tog-track"><div class="tog-thumb"></div></div>
+                </label>
+              </div>
+              <div class="round-setting-row"><span class="round-setting-label">Hide EOQ/ROP</span>
+                <label class="tog-wrap" style="width:34px;height:19px">
+                  <input type="checkbox" id="rc-hide-rec-mirror" class="tog-inp" onchange="mirrorHideRec(this)">
+                  <div class="tog-track"><div class="tog-thumb"></div></div>
+                </label>
+              </div>
+            </div>
+            <div class="round-settings-card">
+              <div class="round-settings-title">ROUND ACTIONS</div>
+              <button class="round-action-btn" onclick="showNotif('📢 Notification sent to all teams')">
+                <span>📢</span> Notify All Teams
+              </button>
+              <button class="round-action-btn" onclick="doExportCSV()">
+                <span>⬇</span> Export CSV
+              </button>
+              <button class="round-action-btn" onclick="doClearRuns()" style="color:var(--red);border-color:rgba(255,92,122,.3)">
+                <span>🗑</span> Clear All Run Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TEAMS PAGE ══ -->
+      <div class="panel-page" id="page-players">
+        <div class="page-header"><h1>Teams</h1><p>Monitor all teams in real time.</p></div>
+        <div class="panel-content" id="panel-body">
+          <div class="empty-state"><div>⏳</div>Connecting…</div>
+        </div>
+      </div>
+
+      <!-- ══ LEADERBOARD PAGE ══ -->
+      <div class="panel-page" id="page-leaderboard">
+        <div class="page-header"><h1>Leaderboard</h1><p>Ranked standings and grade distribution.</p></div>
+        <div class="panel-content" id="lb-body">
+          <div class="empty-state"><div>🏆</div>No data yet.</div>
+        </div>
+      </div>
+
+      <!-- ══ SCENARIOS PAGE ══ -->
+      <div class="panel-page" id="page-scenarios">
+        <div class="page-header"><h1>Scenario Control</h1><p>Introduce events and changes to the simulation.</p></div>
+        <div class="panel-content" id="scen-body">
+          <div class="empty-state"><div>⚡</div>No scenarios.</div>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS PAGE ══ -->
+      <div class="panel-page" id="page-settings">
+        <div class="page-header"><h1>Settings</h1><p>Configure game parameters and push to students.</p></div>
+        <div style="padding:16px 24px;font-size:13px;color:var(--muted)">
+          ← Use the settings panel in the sidebar to configure and then hit <strong style="color:var(--acc)">Push Config</strong> in the top bar.
+        </div>
+      </div>
+
+    </div><!-- end #main -->
+  </div><!-- end #body -->
+</div><!-- end #app -->
 
 <!-- CHANGE PASSWORD MODAL -->
 <div id="changepw-modal" class="modal hidden">
@@ -349,14 +604,18 @@ onAuthStateChanged(auth, async user=>{
 
 function showDashboard(user){
   document.getElementById('op-auth-screen').style.display='none';
-  document.getElementById('topbar').style.display='flex';
-  document.getElementById('layout').style.display='grid';
+  document.getElementById('app').classList.add('visible');
   const name=user.displayName||user.email.split('@')[0];
   const init=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('op-avatar').textContent=init;
   document.getElementById('op-user-label').textContent=name+' ('+user.email+')';
+  // Greeting by time of day
+  const hr=new Date().getHours();
+  const el=document.getElementById('dash-greeting');
+  if(el) el.textContent=(hr<12?'Good morning':hr<17?'Good afternoon':'Good evening')+', '+name+'!';
   startListeners();
   renderSettings();
+  showPage('dashboard');
 }
 
 // ── FIREBASE LISTENERS ────────────────────────────────────────────────────────
@@ -372,9 +631,7 @@ function startListeners(){
   if(unsubControl) unsubControl();
   unsubControl=onSnapshot(doc(db,'control','round'),snap=>{
     if(snap.exists()){
-      const savedDay = snap.data().allowedDay || 1;
-      // If allowedDay is 9999 it means gating was off — treat as day 1 when re-enabling
-      CURRENT_ALLOWED_DAY = (savedDay >= 9999) ? 1 : savedDay;
+      CURRENT_ALLOWED_DAY=snap.data().allowedDay||1;
       CFG.roundControl=snap.data().roundControl||false;
       document.getElementById('cfg-round-control').checked=CFG.roundControl;
     }
@@ -423,7 +680,7 @@ async function applyConfig(){
     await setDoc(doc(db,'config','game'),{...payload,updatedAt:serverTimestamp()});
     // Update round control gate
     await setDoc(doc(db,'control','round'),{
-      allowedDay:CFG.roundControl ? CURRENT_ALLOWED_DAY : 9999,
+      allowedDay:CFG.roundControl?CURRENT_ALLOWED_DAY:9999,
       roundControl:CFG.roundControl,
       updatedAt:serverTimestamp()
     });
@@ -454,19 +711,6 @@ function updateConfigJSON(){
 }
 
 // ── ROUND CONTROL ─────────────────────────────────────────────────────────────
-async function resetToDay1(){
-  if(!confirm('Reset round control to Day 1? Students will be blocked until you release each day again.')) return;
-  CURRENT_ALLOWED_DAY=1;
-  try{
-    await setDoc(doc(db,'control','round'),{allowedDay:1,roundControl:true,updatedAt:serverTimestamp()});
-    CFG.roundControl=true;
-    document.getElementById('cfg-round-control').checked=true;
-    showNotif('↺ Reset to Day 1');
-  }catch(e){showNotif('⚠ '+e.message);}
-  renderPanel();
-}
-window.resetToDay1=resetToDay1;
-
 async function releaseNextDay(){
   CURRENT_ALLOWED_DAY++;
   try{
@@ -477,14 +721,9 @@ async function releaseNextDay(){
 }
 
 async function releaseAllDays(){
-  if(!confirm('Turn off round gating? All students will be able to play freely. You can re-enable it from the settings.')) return;
-  try{
-    await setDoc(doc(db,'control','round'),{allowedDay:9999,roundControl:false,updatedAt:serverTimestamp()});
-    CURRENT_ALLOWED_DAY=1;
-    CFG.roundControl=false;
-    document.getElementById('cfg-round-control').checked=false;
-    showNotif('✓ Round gating disabled — students play freely');
-  }catch(e){showNotif('⚠ '+e.message);}
+  if(!confirm('Release all remaining days?')) return;
+  await setDoc(doc(db,'control','round'),{allowedDay:9999,roundControl:false,updatedAt:serverTimestamp()});
+  CURRENT_ALLOWED_DAY=9999; showNotif('✓ All days released');
   renderPanel();
 }
 
@@ -651,53 +890,24 @@ window.copyConfigJSON=function(){navigator.clipboard.writeText(document.getEleme
 
 // ── PANEL RENDERING ───────────────────────────────────────────────────────────
 function renderPanel(){
-  if(rTab==='players')     renderPlayers();
-  else if(rTab==='leaderboard') renderLeaderboard();
-  else if(rTab==='scenarios')   renderScenarios();
+  renderPlayers();
+  renderLeaderboard();
+  renderScenarios();
+  updateDashboard();
+  updateRoundControlPage();
 }
-window.setRTab=function(t){
-  rTab=t;
-  ['players','leaderboard','scenarios'].forEach((n,i)=>{
-    document.getElementById('rt'+i).className='rtab'+(n===t?' on':'');
-  });
-  renderPanel();
-};
+window.setRTab=function(t){rTab=t;renderPanel();};
 
-// Round control panel HTML
-function roundCtrlHTML(){
-  if(!CFG.roundControl) return '';
-  const runs=Object.values(RUNS);
-  const waiting=runs.filter(r=>r.status==='in_progress'&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY);
-  const done=runs.filter(r=>r.status==='complete');
-  return `<div class="round-ctrl-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--acc)">🎮 Round Control — ACTIVE</div>
-    <div style="display:flex;gap:6px">
-      <button onclick="resetToDay1()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer">↺ Reset to Day 1</button>
-      <button onclick="releaseAllDays()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer">Release All</button>
-    </div>
-  </div>
-  <div class="round-ctrl-day">Day ${CURRENT_ALLOWED_DAY}</div>
-  <div class="round-ctrl-sub">Released · ${waiting.length} waiting · ${done.length} done</div>
-  <button class="btn-release" onclick="releaseNextDay()">▶ Release Day ${CURRENT_ALLOWED_DAY+1}</button>
-  ${runs.length?`<div class="waiting-grid">${runs.slice(0,8).map(r=>{
-    const isDone=r.status==='complete';
-    const isWait=!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
-    return `<div class="waiting-chip ${isDone?'ready':isWait?'waiting':'ready'}">
-      <div>${isDone?'✓':isWait?'⏳':'▶'}</div>
-      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${(r.player||'?').split(' ')[0]}</div>
-      <div style="font-size:9px;opacity:.7">${isDone?'Done':'D'+(r.currentDay||1)}</div>
-    </div>`;}).join('')}${runs.length>8?`<div class="waiting-chip" style="color:var(--dim)">+${runs.length-8}</div>`:''}</div>`:''}
-</div>`;
-}
+// roundCtrlHTML replaced by updateRoundControlPage()
 
 // ── PLAYERS ───────────────────────────────────────────────────────────────────
 function renderPlayers(){
   const body=document.getElementById('panel-body');
+  if(!body) return;
   const runs=Object.values(RUNS).sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));
-  body.innerHTML = roundCtrlHTML() + (runs.length
+  body.innerHTML = runs.length
     ? runs.map(r=>playerCardHTML(r)).join('')
-    : `<div class="empty-state"><div>👥</div><strong>No players yet</strong><br>Students appear here when they start playing.</div>`);
+    : `<div class="empty-state"><div>👥</div><strong>No players yet</strong><br>Students appear here when they start playing.</div>`;
 }
 
 function gradeFor(svc,profit){
@@ -775,7 +985,7 @@ window.toggleExpand=function(id){expandedRun=expandedRun===id?null:id;renderPane
 
 // ── LEADERBOARD ───────────────────────────────────────────────────────────────
 function renderLeaderboard(){
-  const body=document.getElementById('panel-body');
+  const body=document.getElementById('lb-body');
   const runs=Object.values(RUNS);
   if(!runs.length){body.innerHTML=`<div class="empty-state"><div>🏆</div>No runs yet.</div>`;return;}
   const sorted=[...runs].sort((a,b)=>(b.svc||0)-(a.svc||0)||((b.profit||0)-(a.profit||0)));
@@ -816,7 +1026,7 @@ function renderLeaderboard(){
 
 // ── SCENARIOS ─────────────────────────────────────────────────────────────────
 function renderScenarios(){
-  const body=document.getElementById('panel-body');
+  const body=document.getElementById('scen-body');
   const tc={spike:'#ff7a3d',delay:'#ffd166',price:'#b07bff',supplier_fail:'#ff5c7a'};
   const tl={spike:'SPIKE',delay:'DELAY',price:'PRICE',supplier_fail:'FAIL'};
   const header=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -983,6 +1193,122 @@ function showNotif(msg){
   clearTimeout(notifTm);notifTm=setTimeout(()=>el.classList.add('hidden'),2800);
 }
 window.notify=showNotif;
+
+// ── PAGE NAVIGATION ──────────────────────────────────────────────────────────
+const ALL_PAGES=['dashboard','roundcontrol','players','leaderboard','scenarios','settings'];
+window.showPage=function(page){
+  ALL_PAGES.forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.classList.toggle('active',p===page);
+    const nav=document.getElementById('nav-'+p);
+    if(nav) nav.classList.toggle('active',p===page);
+  });
+  const sp=document.getElementById('settings-panel');
+  if(sp) sp.classList.toggle('visible', page==='settings');
+  if(page==='players')     renderPlayers();
+  if(page==='leaderboard') renderLeaderboard();
+  if(page==='scenarios')   renderScenarios();
+};
+
+// ── MIRROR TOGGLES ────────────────────────────────────────────────────────────
+window.mirrorRoundControl=function(el){
+  const m=document.getElementById('cfg-round-control'); if(m) m.checked=el.checked;
+  CFG.roundControl=el.checked; updateConfigJSON();
+};
+window.mirrorHideDemand=function(el){
+  const m=document.getElementById('cfg-hide-demand'); if(m) m.checked=el.checked;
+  CFG.hideDemand=el.checked; updateConfigJSON();
+};
+window.mirrorHideRec=function(el){
+  const m=document.getElementById('cfg-hide-rec'); if(m) m.checked=el.checked;
+  CFG.hideRecommendations=el.checked; updateConfigJSON();
+};
+
+// ── DASHBOARD UPDATE ──────────────────────────────────────────────────────────
+function updateDashboard(){
+  const runs=Object.values(RUNS);
+  const total=runs.length;
+  const complete=runs.filter(r=>r.status==='complete').length;
+  const avgSvc=total?runs.reduce((s,r)=>s+(r.svc||0),0)/total:0;
+  const avgP=total?Math.round(runs.reduce((s,r)=>s+(r.profit||0),0)/total):0;
+  const s=id=>document.getElementById(id);
+  if(s('dash-teams'))     s('dash-teams').textContent=total||'0';
+  if(s('dash-ready'))     s('dash-ready').textContent=complete;
+  if(s('dash-day'))       s('dash-day').textContent=CURRENT_ALLOWED_DAY;
+  if(s('dash-day-sub'))   s('dash-day-sub').textContent='of '+CFG.rounds+' days';
+  if(s('dash-svc'))       s('dash-svc').textContent=avgSvc.toFixed(1)+'%';
+  if(s('dash-profit'))    s('dash-profit').textContent='$'+avgP.toLocaleString();
+  if(s('dash-day-big'))   s('dash-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
+  if(s('dash-day-sub2'))  s('dash-day-sub2').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
+  const readyPct=total?Math.round(complete/total*100):0;
+  if(s('dash-waiting-label')) s('dash-waiting-label').textContent=complete+' / '+total+' ready';
+  if(s('dash-progress-fill')) s('dash-progress-fill').style.width=readyPct+'%';
+  if(s('dash-progress-pct'))  s('dash-progress-pct').textContent=readyPct+'%';
+  const btn=s('dash-release-btn');
+  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
+  // Activity feed
+  const actEl=s('dash-activity');
+  if(actEl){
+    const sorted=[...runs].sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));
+    if(!sorted.length){
+      actEl.innerHTML='<div style="color:var(--dim);font-size:12px;padding:10px 0">No teams connected yet.</div>';
+    } else {
+      const dotC={complete:'#3ddc97',in_progress:'#ffd166',waiting:'#ff7a3d'};
+      actEl.innerHTML=sorted.slice(0,6).map(r=>{
+        const dot=dotC[r.status]||'#9088bb';
+        const action=r.status==='complete'?'Completed the simulation':(r.lastAction||'Active on Day '+(r.currentDay||1));
+        const ago=r.updatedAt?.seconds?Math.round((Date.now()/1000-r.updatedAt.seconds)/60)+'m ago':'';
+        return `<div class="activity-row">
+          <div class="activity-dot" style="background:${dot}"></div>
+          <div style="flex:1"><div style="font-weight:600">${r.player||'?'}</div>
+          <div class="activity-meta">${action} · ${ago}</div></div>
+          <div style="font-size:10px;color:var(--muted)">D${r.currentDay||1}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+// ── ROUND CONTROL PAGE UPDATE ─────────────────────────────────────────────────
+function updateRoundControlPage(){
+  const runs=Object.values(RUNS);
+  const s=id=>document.getElementById(id);
+  if(s('rc-day-big'))      s('rc-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
+  if(s('rc-day-sub'))      s('rc-day-sub').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
+  if(s('rc-total-rounds')) s('rc-total-rounds').textContent=CFG.rounds;
+  const complete=runs.filter(r=>r.status==='complete').length;
+  const readyPct=runs.length?Math.round(complete/runs.length*100):0;
+  if(s('rc-waiting-label')) s('rc-waiting-label').textContent=complete+' / '+runs.length+' teams ready';
+  if(s('rc-progress-fill')) s('rc-progress-fill').style.width=readyPct+'%';
+  if(s('rc-progress-pct'))  s('rc-progress-pct').textContent=readyPct+'%';
+  const btn=s('rc-release-btn');
+  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
+  // Mirror toggles
+  const rcm=s('rc-round-control-mirror'); if(rcm) rcm.checked=CFG.roundControl;
+  const hdm=s('rc-hide-demand-mirror');   if(hdm) hdm.checked=CFG.hideDemand;
+  const hrm=s('rc-hide-rec-mirror');      if(hrm) hrm.checked=CFG.hideRecommendations;
+  // Waiting grid
+  const grid=s('rc-waiting-grid');
+  if(grid&&runs.length){
+    grid.innerHTML='<div class="waiting-grid">'+runs.slice(0,8).map(r=>{
+      const isDone=r.status==='complete';
+      const isWait=!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
+      return `<div class="waiting-chip ${isDone?'ready':isWait?'waiting':'ready'}">
+        <div>${isDone?'✓':isWait?'⏳':'▶'}</div>
+        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${(r.player||'?').split(' ')[0]}</div>
+        <div style="font-size:9px;opacity:.7">${isDone?'Done':'D'+(r.currentDay||1)}</div>
+      </div>`;}).join('')+(runs.length>8?`<div class="waiting-chip" style="color:var(--dim)">+${runs.length-8}</div>`:'')+
+    '</div>';
+  }
+}
+
+// ── Patch renderPanel to call dashboard + round control updates too ───────────
+const _origRenderPanel = renderPanel;
+renderPanel = function(){
+  _origRenderPanel();
+  updateDashboard();
+  updateRoundControlPage();
+};
+
 </script>
-</body>
 </html>
