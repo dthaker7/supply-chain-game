@@ -1,0 +1,2929 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cafe Supply Chain Simulator</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ========= THEME TOKENS ========= */
+:root, [data-theme="dark"]{
+  --bg:#15111c; --bg2:#1d1830;
+  --surf:#1a1626; --panel:#241f36; --panel2:#2c2742;
+  --border:#332c4a; --border2:#403863;
+  --text:#f4f1ff; --muted:#9c95bd; --dim:#5b5482;
+  --acc:#ff7a3d; --acc2:#c14a18; --acc-glow:rgba(255,122,61,.35);
+  --gold:#ffd166; --green:#3ddc97; --red:#ff5c7a;
+  --blue:#3ba7d4; --sky:#7fd3ff; --purple:#b07bff;
+  --choc:#c68642; --water:#1a8ab2; --snack:#e8930a; --soda:#e83a3a;
+  --shadow-lg:0 18px 40px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.4);
+  --shadow-md:0 6px 18px -6px rgba(0,0,0,.5);
+  --shadow-inset:inset 0 1px 0 rgba(255,255,255,.04);
+  --pixel-shadow: 0 3px 0 var(--acc2);
+  --grad-bg: radial-gradient(1200px 600px at 20% -10%, rgba(255,122,61,.12), transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, rgba(176,123,255,.10), transparent 60%),
+             linear-gradient(160deg,#15111c 0%, #1a132e 50%, #0f1428 100%);
+}
+[data-theme="light"]{
+  --bg:#fbf6ec; --bg2:#f3ead6;
+  --surf:#fffaf0; --panel:#fff4dc; --panel2:#ffe9bf;
+  --border:#e8d9b2; --border2:#d6c08a;
+  --text:#2b1f12; --muted:#7a6a4d; --dim:#b8a276;
+  --acc:#e85d23; --acc2:#a83a15; --acc-glow:rgba(232,93,35,.25);
+  --gold:#d49922; --green:#22a06b; --red:#d63b54;
+  --blue:#1f6f99; --sky:#3ba7d4; --purple:#7a4fc9;
+  --choc:#8a4f1a; --water:#1f6f99; --snack:#b56a00; --soda:#c2342f;
+  --shadow-lg:0 18px 40px -14px rgba(120,80,30,.35), 0 4px 14px rgba(120,80,30,.18);
+  --shadow-md:0 4px 14px -4px rgba(120,80,30,.25);
+  --shadow-inset:inset 0 1px 0 rgba(255,255,255,.6);
+  --grad-bg: radial-gradient(1000px 500px at 20% -10%, #ffe9c7, transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, #f7d49a, transparent 60%),
+             linear-gradient(160deg,#fbf6ec 0%, #f7e8c8 100%);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',system-ui,sans-serif;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  transition:background .35s ease, color .25s ease;
+}
+.mono{font-family:'Space Mono',monospace}
+.pixel{font-family:'DM Sans',system-ui,sans-serif; letter-spacing:.3px; font-weight:700}
+
+/* ========= TOP BAR ========= */
+#topbar{
+  background:linear-gradient(180deg,var(--surf),var(--panel));
+  border-bottom:2px solid var(--border2);
+  padding:8px 14px;display:flex;align-items:center;gap:10px;
+  flex-shrink:0;min-height:54px;flex-wrap:wrap;
+  box-shadow:var(--shadow-md);
+  position:relative;z-index:5;
+}
+.logo{
+  font-family:'DM Sans',system-ui,sans-serif;font-size:11px;
+  color:var(--gold);letter-spacing:1px;margin-right:6px;
+  text-shadow:2px 2px 0 var(--acc2);
+  display:flex;align-items:center;gap:6px;
+}
+.logo::before{content:"☕";font-family:initial;font-size:18px;text-shadow:none}
+.stat{
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:8px;padding:5px 12px;
+  display:flex;flex-direction:column;align-items:center;
+  min-width:74px;box-shadow:var(--shadow-inset);
+  transition:transform .15s;
+}
+.stat:hover{transform:translateY(-1px)}
+.stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.stat-v{font-size:14px;font-weight:700;line-height:1.2;font-family:'Space Mono',monospace}
+.stat-v.green{color:var(--green)}.stat-v.gold{color:var(--gold)}
+.stat-v.red{color:var(--red)}.stat-v.sky{color:var(--sky)}
+#day-prog{flex:1;min-width:140px;max-width:240px;display:flex;flex-direction:column;justify-content:center;padding:0 4px}
+.prog-track{height:8px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:5px;box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.prog-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--acc),var(--gold));
+  transition:width .5s cubic-bezier(.4,.8,.3,1);
+  box-shadow:0 0 12px var(--acc-glow);
+}
+.top-btn{
+  background:var(--panel2);border:1px solid var(--border2);
+  color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer;
+  font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;
+  transition:all .15s;display:inline-flex;align-items:center;gap:5px;
+}
+.top-btn:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1px)}
+.theme-toggle{font-size:14px;padding:6px 10px}
+
+/* ========= MAIN LAYOUT ========= */
+#main{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(440px,1fr);overflow:hidden;min-height:0;background:var(--grad-bg)}
+@media (max-width: 1100px){
+  #main{grid-template-columns:1fr;grid-template-rows:minmax(240px,42vh) 1fr}
+  #side{border-left:none;border-top:2px solid var(--border2)}
+}
+
+/* ========= CANVAS ========= */
+#canvas-wrap{position:relative;overflow:hidden;background:#0a0818;border-right:2px solid var(--border2)}
+[data-theme="light"] #canvas-wrap{background:#3a2d1e}
+#SC{display:block;width:100%;height:100%}
+.toast{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  background:var(--surf);border:2px solid var(--acc);
+  border-radius:10px;padding:9px 18px;font-size:12px;font-weight:600;
+  color:var(--acc);pointer-events:none;white-space:nowrap;z-index:20;
+  transition:opacity .35s;max-width:90%;text-align:center;
+  box-shadow:var(--shadow-lg), 0 0 24px var(--acc-glow);
+}
+
+/* ========= SIDE PANEL ========= */
+#side{
+  background:var(--surf);
+  border-left:2px solid var(--border2);
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:inset 4px 0 12px -8px rgba(0,0,0,.4);
+}
+.tabs{display:flex;border-bottom:2px solid var(--border2);flex-shrink:0;background:var(--panel)}
+.tab{
+  flex:1;padding:11px 4px;font-size:11px;text-align:center;cursor:pointer;
+  border-bottom:3px solid transparent;color:var(--muted);
+  transition:all .18s;font-weight:700;letter-spacing:.4px;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.tab:hover:not(.on){color:var(--text);background:var(--panel2)}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);background:var(--surf)}
+.tab.on::before{content:"";position:absolute}
+#pc{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+#pc::-webkit-scrollbar{width:6px}
+#pc::-webkit-scrollbar-track{background:transparent}
+#pc::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+#pc::-webkit-scrollbar-thumb:hover{background:var(--acc)}
+
+/* ========= PRODUCT CARDS ========= */
+.prod-card{
+  background:var(--panel);border:2px solid var(--border2);
+  border-radius:10px;padding:11px 13px;cursor:pointer;
+  transition:all .2s cubic-bezier(.3,.7,.4,1.2);
+  box-shadow:var(--shadow-inset);
+}
+.prod-card:hover{border-color:var(--dim);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.prod-card.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-glow), var(--shadow-md)}
+.prod-card.warn{border-color:var(--red);animation:pulse-warn 1.6s ease-in-out infinite}
+@keyframes pulse-warn{0%,100%{box-shadow:0 0 0 0 rgba(255,92,122,.0)}50%{box-shadow:0 0 0 4px rgba(255,92,122,.18)}}
+.prod-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prod-name{font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
+.prod-badge{font-size:10px;padding:3px 9px;border-radius:99px;font-weight:700}
+.prog2{height:6px;background:var(--border2);border-radius:99px;overflow:hidden;margin:6px 0;box-shadow:inset 0 1px 2px rgba(0,0,0,.2)}
+.prog2-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.3,.7,.3,1)}
+.prod-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:7px}
+.ps{font-size:10px;color:var(--muted);text-align:center}
+.ps strong{display:block;font-size:12px;color:var(--text);font-weight:700;font-family:'Space Mono',monospace}
+.tag{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;display:inline-block}
+
+/* ========= ORDER PANEL ========= */
+.section-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.section-title::before{content:"";width:14px;height:2px;background:var(--acc);border-radius:1px}
+.prod-switcher{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
+.psw-btn{
+  padding:8px 4px;background:var(--panel);border:2px solid var(--border2);
+  border-radius:8px;cursor:pointer;font-size:16px;text-align:center;
+  transition:all .15s;font-family:'DM Sans',sans-serif;color:var(--text);
+}
+.psw-btn:hover{border-color:var(--dim);transform:translateY(-1px)}
+.psw-btn.on{border-color:var(--acc);background:var(--acc-glow);box-shadow:0 0 0 2px var(--acc-glow)}
+.info-box{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow-inset)}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px;gap:8px}
+.info-row:last-child{margin-bottom:0}
+.info-row .lbl{color:var(--muted)}
+.info-row .val{font-weight:700;font-family:'Space Mono',monospace;text-align:right}
+.hint-box{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--gold);line-height:1.65;margin-bottom:8px}
+.warn-box{background:rgba(239,71,111,.1);border:1px solid rgba(239,71,111,.32);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--red);line-height:1.65;margin-bottom:8px}
+.succ-box{background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--green);line-height:1.65;margin-bottom:8px}
+[data-theme="light"] .hint-box{color:#8a6810}
+[data-theme="light"] .succ-box{color:#0e6a40}
+
+/* ========= SUPPLIERS ========= */
+.supp-card{background:var(--panel);border:2px solid var(--border2);border-radius:9px;padding:10px 12px;cursor:pointer;transition:all .18s;margin-bottom:6px}
+.supp-card:hover{border-color:var(--dim);transform:translateX(2px)}
+.supp-card.sel{border-color:var(--sky);box-shadow:0 0 0 2px rgba(127,211,255,.2)}
+.supp-card.blocked{opacity:.5;cursor:not-allowed;border-color:var(--red)}
+.supp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.supp-name{font-weight:700;font-size:12px}
+.supp-tag{font-size:9px;padding:2px 8px;border-radius:4px;font-weight:700}
+.supp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.supp-stat{text-align:center;font-size:10px;color:var(--muted)}
+.supp-stat strong{display:block;font-size:12px;color:var(--text);font-weight:700;font-family:'Space Mono',monospace}
+.rel-bar{height:4px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:4px}
+.rel-fill{height:100%;border-radius:99px;transition:width .5s}
+
+/* ========= ORDER CONTROLS ========= */
+.qty-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.qbtn{
+  background:var(--panel);border:2px solid var(--border2);color:var(--text);
+  width:38px;height:38px;border-radius:8px;cursor:pointer;font-size:18px;
+  font-weight:700;transition:all .12s;flex-shrink:0;
+}
+.qbtn:hover{border-color:var(--acc);color:var(--acc);transform:scale(1.05)}
+.qbtn:active{transform:scale(.95)}
+.qinp{
+  flex:1;background:var(--panel);border:2px solid var(--border2);color:var(--text);
+  font-size:20px;font-weight:700;padding:6px 10px;border-radius:8px;
+  min-width:0;font-family:'Space Mono',monospace;text-align:center;
+}
+.qinp:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-glow)}
+.cost-preview{font-size:11px;color:var(--muted);margin-bottom:8px;padding:7px 9px;background:var(--panel);border-radius:6px;border:1px solid var(--border2)}
+.btn-order{
+  width:100%;background:linear-gradient(180deg,var(--acc),var(--acc2));
+  color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;
+  font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:700;
+  box-shadow:0 4px 0 var(--acc2), var(--shadow-md);
+  letter-spacing:.5px;transition:all .12s;margin-bottom:6px;
+}
+.btn-order:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2), var(--shadow-md)}
+.btn-order:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--acc2)}
+.btn-order:disabled{background:var(--border2);box-shadow:none;cursor:not-allowed;opacity:.6}
+.btn-next{
+  width:100%;background:linear-gradient(180deg,var(--green),#1a8d5b);
+  color:#fff;border:none;padding:13px;border-radius:8px;cursor:pointer;
+  font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;
+  transition:all .15s;box-shadow:0 4px 0 #146a44, var(--shadow-md);
+  letter-spacing:.5px;
+}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 0 #146a44, var(--shadow-md)}
+.btn-next:active{transform:translateY(2px);box-shadow:0 2px 0 #146a44}
+.kb-hint{font-size:10px;color:var(--dim);text-align:center;margin-top:6px}
+
+/* ========= PIPELINE & LOG ========= */
+.pipe-item{
+  background:var(--panel);border:1px solid var(--border2);border-radius:7px;
+  padding:8px 11px;display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;animation:slide-in .3s ease-out;
+}
+@keyframes slide-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+.log-entry{background:var(--panel);border-radius:7px;padding:9px 11px;font-size:10px;line-height:1.7;color:var(--muted);border-left:3px solid var(--acc)}
+.log-entry .log-day{color:var(--text);font-weight:700;font-size:11px;margin-bottom:3px;font-family:'Space Mono',monospace}
+.log-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
+.log-prod{font-size:9px;color:var(--muted)}
+
+/* ========= COSTS ========= */
+.cost-card{background:var(--panel);border:1px solid var(--border2);border-radius:9px;padding:11px 13px}
+.cost-head{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-weight:700}
+.cost-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px dashed var(--border);color:var(--muted)}
+.cost-row:last-child{border-bottom:none}
+.cost-row .val{color:var(--text);font-weight:700;font-family:'Space Mono',monospace}
+
+/* ========= TITLE / RESULTS ========= */
+#screen-title,#screen-results{
+  position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:var(--grad-bg);padding:24px;overflow-y:auto;
+}
+#screen-title.hidden,#screen-results.hidden{display:none}
+.hidden{display:none !important}
+.title-card{
+  text-align:center;max-width:660px;width:100%;
+  background:var(--surf);border:2px solid var(--border2);border-radius:18px;
+  padding:36px 32px;box-shadow:var(--shadow-lg);
+  animation:rise .5s cubic-bezier(.3,.8,.3,1.1);
+}
+@keyframes rise{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.title-badge{font-family:'DM Sans',system-ui,sans-serif;font-size:9px;color:var(--gold);letter-spacing:1.5px;margin-bottom:14px;text-shadow:1px 1px 0 var(--acc2)}
+.title-main{font-family:'DM Sans',system-ui,sans-serif;font-size:24px;line-height:1.5;color:var(--text);text-shadow:3px 3px 0 var(--acc), 6px 6px 0 var(--acc2);margin-bottom:8px}
+.title-sub{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+@media (max-width:520px){.prod-grid{grid-template-columns:repeat(2,1fr)}.title-main{font-size:18px}}
+.pg-item{background:var(--panel);border:2px solid var(--border2);border-radius:10px;padding:14px 8px;text-align:center;transition:transform .18s}
+.pg-item:hover{transform:translateY(-3px) rotate(-1deg);border-color:var(--acc)}
+.pg-emoji{font-size:30px;margin-bottom:6px;display:block}
+.pg-name{font-size:11px;font-weight:700;margin-bottom:2px}
+.pg-sup{font-size:9px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:28px}
+.chip{background:var(--panel);border:1px solid var(--border2);border-radius:99px;padding:5px 12px;font-size:10px;color:var(--muted);font-weight:600}
+.btn-start{
+  background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;
+  padding:16px 40px;border-radius:10px;cursor:pointer;
+  font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:700;
+  box-shadow:0 6px 0 var(--acc2), var(--shadow-lg);letter-spacing:1.5px;
+  transition:all .12s;margin-bottom:12px;
+}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 9px 0 var(--acc2), var(--shadow-lg)}
+.btn-start:active{transform:translateY(4px);box-shadow:0 2px 0 var(--acc2)}
+.footer-note{font-size:11px;color:var(--dim)}
+
+/* Results */
+.res-card{
+  max-width:680px;width:100%;background:var(--surf);border:2px solid var(--border2);
+  border-radius:16px;padding:32px 36px;max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+}
+.grade{font-size:88px;font-weight:700;text-align:center;line-height:1;font-family:'DM Sans',system-ui,sans-serif;text-shadow:4px 4px 0 var(--acc2)}
+.grade-lbl{text-align:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px}
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+@media (max-width:520px){.res-grid{grid-template-columns:repeat(2,1fr)}}
+.res-cell{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:11px;text-align:center}
+.res-cell .rv{font-size:18px;font-weight:700;margin-bottom:3px;font-family:'Space Mono',monospace}
+.res-cell .rl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.prod-res{background:var(--panel);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.debrief{background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.25);border-radius:8px;padding:13px 15px;font-size:12px;color:var(--green);line-height:1.7;margin:14px 0}
+.res-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-replay{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px 28px;border-radius:8px;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;box-shadow:0 4px 0 var(--acc2)}
+.btn-replay:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
+.btn-ghost{background:var(--panel);border:1px solid var(--border2);color:var(--muted);padding:12px 22px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+
+/* ========= INFO MODAL ========= */
+#info-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.78);backdrop-filter:blur(6px);padding:20px}
+[data-theme="light"] #info-modal{background:rgba(40,28,12,.55)}
+#info-modal.hidden{display:none}
+.info-modal-card{background:var(--surf);border:2px solid var(--border2);border-radius:16px;max-width:720px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.info-modal-card::-webkit-scrollbar{width:6px}
+.info-modal-card::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.info-header{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:2px solid var(--border2);position:sticky;top:0;background:var(--surf);z-index:1}
+.info-header h2{font-size:18px;font-weight:700;color:var(--gold);font-family:'DM Sans',system-ui,sans-serif}
+.info-close{background:var(--panel);border:1px solid var(--border2);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.info-close:hover{border-color:var(--red);color:var(--red)}
+.info-body{padding:22px 26px 28px}
+.info-section{margin-bottom:24px}
+.info-section h3{font-size:13px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.info-section p,.info-section li{font-size:13px;color:var(--text);opacity:.85;line-height:1.75;margin-bottom:6px}
+.info-section ul{padding-left:20px}
+.info-section li{list-style:disc}
+.info-section strong{color:var(--text);opacity:1}
+.info-formula{background:var(--panel);border:1px solid rgba(255,209,102,.3);border-radius:7px;padding:11px 14px;font-family:'Space Mono',monospace;font-size:13px;color:var(--gold);margin:8px 0}
+.info-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.info-table th{text-align:left;padding:7px 10px;background:var(--panel);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+.info-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);opacity:.85}
+.info-table tr:last-child td{border-bottom:none}
+.info-table td:first-child{color:var(--text);opacity:1;font-weight:700}
+.tip-box{background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.25);border-radius:7px;padding:11px 14px;font-size:12px;color:var(--green);line-height:1.7;margin-top:8px}
+
+/* ========= SMALL SCREENS ========= */
+@media (max-width:640px){
+  #topbar{padding:6px 8px;gap:6px}
+  .stat{min-width:60px;padding:4px 8px}
+  .stat-v{font-size:12px}
+  .logo{font-size:9px}
+  #pc{padding:10px}
+}
+
+/* ========= MODERN OVERRIDES ========= */
+:root{
+  --radius-card:14px;
+  --ease-smooth:cubic-bezier(.22,.61,.36,1);
+}
+body{font-feature-settings:"ss01","cv11";}
+#pc{padding:18px 18px 24px;gap:14px}
+#pc::-webkit-scrollbar{width:8px}
+.tab{padding:14px 6px;font-size:12px;letter-spacing:.3px;text-transform:none}
+.prod-card{border-radius:var(--radius-card);padding:14px 16px;border-width:1px;
+  background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 92%, transparent), var(--panel));
+  backdrop-filter:blur(6px);
+  transition:transform .35s var(--ease-smooth), box-shadow .35s var(--ease-smooth), border-color .25s ease;}
+.prod-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px -16px rgba(0,0,0,.55)}
+.prod-name{font-size:14px;letter-spacing:.1px}
+.ps strong{font-size:13px}
+.section-title{font-size:11px;letter-spacing:1.2px}
+.stat{border-radius:10px;padding:6px 14px;min-width:82px;transition:transform .25s var(--ease-smooth), box-shadow .25s ease}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.top-btn{border-radius:8px;padding:7px 14px;transition:all .25s var(--ease-smooth)}
+.top-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px -10px var(--acc-glow)}
+.logo{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;letter-spacing:.4px;text-shadow:none;color:var(--gold)}
+.toast{border-radius:12px;border-width:1px;backdrop-filter:blur(10px);
+  background:color-mix(in oklab, var(--surf) 85%, transparent);
+  animation:toast-in .45s var(--ease-smooth)}
+@keyframes toast-in{from{opacity:0;transform:translate(-50%,-8px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes float-up{0%{opacity:0;transform:translateY(8px)}15%{opacity:1}100%{opacity:0;transform:translateY(-24px)}}
+.float-fx{animation:float-up .9s var(--ease-smooth) both}
+.prog-fill, .prog2-fill{transition:width .8s var(--ease-smooth)}
+button, .btn, .top-btn{font-family:'DM Sans',system-ui,sans-serif}
+#canvas-wrap{border-right:1px solid var(--border2);
+  background:linear-gradient(180deg,#0a0818,#100b22)}
+#canvas-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 100%, transparent 60%, rgba(0,0,0,.35));}
+#side{box-shadow:inset 1px 0 0 var(--border2), -20px 0 40px -30px rgba(0,0,0,.5)}
+
+/* CAFE MODERN REFRESH */
+:root, [data-theme="dark"]{
+  --bg:#1a1410; --bg2:#221913;
+  --surf:#221a14; --panel:#2a201a; --panel2:#332720;
+  --border:#3a2d24; --border2:#4a3a2e;
+  --text:#f7ecdc; --muted:#b4a392; --dim:#7a6655;
+  --acc:#d97742; --acc2:#a4541f; --acc-glow:rgba(217,119,66,.32);
+  --gold:#e8b770; --green:#8db580; --red:#d96868;
+  --blue:#7fb3c4; --sky:#b8d8e0; --purple:#c9a27e;
+  --grad-bg: radial-gradient(1100px 600px at 15% -10%, rgba(217,119,66,.14), transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, rgba(232,183,112,.08), transparent 60%),
+             linear-gradient(160deg,#1a1410 0%, #221913 60%, #15100c 100%);
+}
+[data-theme="light"]{
+  --bg:#f7f1e6; --bg2:#efe4cf;
+  --surf:#fffaf2; --panel:#fbf3e3; --panel2:#f5e9d1;
+  --border:#e8d9b8; --border2:#d6c094;
+  --text:#2b1d12; --muted:#7a6650; --dim:#b39977;
+  --acc:#c2632a; --acc2:#8f3f12; --acc-glow:rgba(194,99,42,.22);
+  --gold:#b87a1f; --green:#4a8a55; --red:#c14a4a;
+  --blue:#3a7a92; --sky:#6fb3c4; --purple:#8a6a4a;
+  --grad-bg: radial-gradient(1000px 500px at 20% -10%, #fbe6c4, transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, #f0d6a7, transparent 60%),
+             linear-gradient(160deg,#f7f1e6 0%, #f0e2c6 100%);
+}
+body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
+.mono, .stat-v, .ps strong, .info-row .val, .supp-stat strong,
+.cost-row .val, .log-entry .log-day, .info-formula, .rv{
+  font-family:'JetBrains Mono','Space Mono',monospace !important; font-weight:600;
+}
+.logo, .title-main, .title-badge, .info-header h2, .grade,
+.section-title, .tab{
+  font-family:'Fraunces',Georgia,serif !important;
+}
+.title-main{font-weight:700;letter-spacing:-.5px;text-shadow:none;font-size:34px}
+.title-badge{letter-spacing:2px;color:var(--acc);text-shadow:none}
+.logo{font-size:18px;font-weight:700;letter-spacing:-.2px;text-shadow:none;color:var(--text)}
+.logo::before{content:"\2615";font-size:20px}
+.section-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.info-header h2{font-weight:700;letter-spacing:-.3px;color:var(--acc)}
+.grade{text-shadow:none;font-weight:800;color:var(--acc)}
+#main{grid-template-columns:minmax(0,0.55fr) minmax(560px,1.45fr) !important}
+@media (max-width:1100px){
+  #main{grid-template-columns:1fr !important; grid-template-rows:minmax(160px,22vh) 1fr !important}
+}
+#canvas-wrap{
+  border-right:1px solid var(--border2);
+  background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 90%, #000), color-mix(in oklab, var(--bg) 92%, #000)) !important;
+}
+#canvas-wrap::after{
+  background:radial-gradient(circle at 50% 100%, transparent 55%, rgba(0,0,0,.28));
+}
+#side{
+  background:linear-gradient(180deg, var(--surf), var(--bg));
+  box-shadow:inset 1px 0 0 var(--border2);
+}
+.prod-card, .stat, .top-btn, .toast, .info-formula, .tip-box{border-radius:14px}
+.prod-card{
+  background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 96%, transparent), var(--panel2));
+  border:1px solid var(--border);
+  box-shadow:0 1px 0 color-mix(in oklab, var(--text) 6%, transparent) inset, 0 6px 18px -14px rgba(0,0,0,.5);
+}
+.prod-card.sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-glow), 0 10px 24px -16px var(--acc-glow)}
+.top-btn{
+  background:color-mix(in oklab, var(--panel) 88%, transparent);
+  border:1px solid var(--border2);
+  font-weight:600; letter-spacing:.1px;
+}
+.top-btn:hover{background:var(--acc);color:#fff;border-color:var(--acc);box-shadow:0 8px 20px -10px var(--acc-glow)}
+.stat{
+  background:color-mix(in oklab, var(--panel) 92%, transparent);
+  border:1px solid var(--border);
+}
+.stat-l{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:1.4px}
+.prog-fill{background:linear-gradient(90deg,var(--acc),var(--gold))}
+#topbar{
+  background:linear-gradient(180deg, color-mix(in oklab, var(--surf) 96%, transparent), color-mix(in oklab, var(--panel) 96%, transparent));
+  border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(10px);
+}
+.tab{font-weight:600}
+.title-card, .scenario-card{border-radius:18px}
+</style>
+
+</head>
+<body>
+
+<!-- AUTH SCREEN (shown before title) -->
+<div id="screen-auth" style="
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--grad-bg);padding:20px;
+">
+  <div style="
+    background:var(--surf);border:2px solid var(--border2);
+    border-radius:18px;padding:32px 30px;width:100%;max-width:400px;
+    box-shadow:var(--shadow-lg);
+  ">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:44px;margin-bottom:8px">☕</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:2px;font-weight:700;margin-bottom:4px">SUPPLY CHAIN SIMULATION</div>
+      <div style="font-family:'Fraunces',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1.2">Cafe<br>Supply Chain</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Prof. Javadi · Inventory Management Sim</div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel);border-radius:9px;padding:4px;margin-bottom:22px">
+      <button id="auth-tab-login" onclick="switchAuthTab('login')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 2px 0 var(--acc2);transition:all .15s">Sign In</button>
+      <button id="auth-tab-register" onclick="switchAuthTab('register')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;background:transparent;color:var(--muted);transition:all .15s">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="auth-login-form">
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Email</label>
+        <input id="login-email" type="email" placeholder="you@illinois.edu"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Password</label>
+        <div style="position:relative">
+          <input id="login-pass" type="password" placeholder="••••••••"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+            onkeydown="if(event.key==='Enter')doLogin()">
+          <button onclick="togglePw('login-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
+        </div>
+      </div>
+      <button onclick="doLogin()" id="btn-login" style="
+        width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;
+        background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
+        font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+        box-shadow:0 4px 0 var(--acc2);transition:all .12s;margin-bottom:10px;
+      ">▶ Sign In & Play</button>
+      <button onclick="doForgotPassword()" style="width:100%;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;padding:4px">Forgot password?</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="auth-register-form" class="hidden">
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Full Name</label>
+        <input id="reg-name" type="text" placeholder="Alex Kim" maxlength="30"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('reg-email').focus()">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Email</label>
+        <input id="reg-email" type="email" placeholder="netid@illinois.edu"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('reg-pass').focus()">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Password <span style="color:var(--dim);font-weight:400">(min 6 chars)</span></label>
+        <div style="position:relative">
+          <input id="reg-pass" type="password" placeholder="••••••••"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+            onkeydown="if(event.key==='Enter')document.getElementById('reg-pass2').focus()">
+          <button onclick="togglePw('reg-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Confirm Password</label>
+        <div style="position:relative">
+          <input id="reg-pass2" type="password" placeholder="••••••••"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
+            onkeydown="if(event.key==='Enter')doRegister()">
+          <button onclick="togglePw('reg-pass2',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
+        </div>
+      </div>
+      <button onclick="doRegister()" id="btn-register" style="
+        width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;
+        background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
+        font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+        box-shadow:0 4px 0 var(--acc2);transition:all .12s;
+      ">✓ Create Account & Play</button>
+    </div>
+
+    <!-- Error / status message -->
+    <div id="auth-error" style="
+      display:none;margin-top:14px;padding:10px 14px;
+      background:rgba(255,92,122,.1);border:1px solid rgba(255,92,122,.35);
+      border-radius:8px;font-size:12px;color:#ff5c7a;line-height:1.5;text-align:center;
+    "></div>
+    <div id="auth-success" style="
+      display:none;margin-top:14px;padding:10px 14px;
+      background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.35);
+      border-radius:8px;font-size:12px;color:#3ddc97;line-height:1.5;text-align:center;
+    "></div>
+  </div>
+</div>
+
+<!-- TITLE SCREEN -->
+<div id="screen-title" class="hidden">
+  <div class="title-card">
+    <div style="font-size:56px;margin-bottom:12px">☕</div>
+    <div class="title-badge">★ SUPPLY CHAIN SIMULATION ★</div>
+    <div class="title-main">CAFE<br>SUPPLY CHAIN</div>
+    <div class="title-sub">Inventory Management Simulation · Prof. Javadi</div>
+    <div class="prod-grid" style="grid-template-columns:repeat(2,1fr);max-width:380px;margin:0 auto 18px">
+      <div class="pg-item"><div class="pg-emoji">☕</div><div class="pg-name" style="color:#a67b5b">Coffee</div><div class="pg-sup">1 distributor</div></div>
+      <div class="pg-item"><div class="pg-emoji">🍪</div><div class="pg-name" style="color:#e0b07a">Cookies</div><div class="pg-sup">1 distributor</div></div>
+    </div>
+    <!-- Player name auto-filled from auth, shown read-only -->
+    <div style="margin-bottom:16px;text-align:left;max-width:360px;margin-left:auto;margin-right:auto">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px">Playing as</div>
+      <div style="display:flex;align-items:center;gap:10px;background:var(--panel);border:2px solid var(--border2);border-radius:8px;padding:10px 14px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0" id="auth-avatar">?</div>
+        <div>
+          <div style="font-weight:700;font-size:14px" id="auth-display-name">—</div>
+          <div style="font-size:11px;color:var(--muted)" id="auth-display-email">—</div>
+        </div>
+        <button onclick="doSignOut()" style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">Sign Out</button>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">📦 EOQ per product</span>
+      <span class="chip">💰 Holding cost trade-off</span>
+      <span class="chip">📈 Charts & analytics</span>
+      <span class="chip">⚡ Scenario popups</span>
+      <span class="chip">🚚 Morning deliveries</span>
+    </div>
+    <!-- Save state status banner (shown when a saved game exists) -->
+    <div id="save-state-banner" style="display:none;margin-bottom:16px;padding:10px 14px;background:rgba(61,220,151,.09);border:1px solid rgba(61,220,151,.3);border-radius:9px;font-size:12px;text-align:left;max-width:360px;margin-left:auto;margin-right:auto">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:16px">💾</span>
+        <span style="font-weight:700;color:var(--green)">Saved game found</span>
+      </div>
+      <div id="save-state-info" style="color:var(--muted);line-height:1.6;font-size:11px"></div>
+    </div>
+    <!-- Button group -->
+    <div id="title-btn-group" style="display:flex;flex-direction:column;gap:8px;max-width:320px;margin:0 auto 12px">
+      <button class="btn-start" id="btn-resume-game" style="display:none" onclick="resumeGame()">▶ RESUME GAME</button>
+      <button class="btn-start" id="btn-open-cafe" onclick="startGame()">▶ OPEN THE CAFE</button>
+      <div id="menu-extra-btns" style="display:none;flex-direction:column;gap:7px">
+        <button onclick="confirmRestartGame()" style="width:100%;background:rgba(255,122,61,.12);border:1px solid rgba(255,122,61,.4);color:var(--acc);padding:11px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(255,122,61,.22)'" onmouseout="this.style.background='rgba(255,122,61,.12)'">↺ Restart Game</button>
+        <button onclick="saveAndViewResults()" id="btn-save-results" style="width:100%;background:rgba(127,211,255,.09);border:1px solid rgba(127,211,255,.3);color:var(--sky);padding:11px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(127,211,255,.18)'" onmouseout="this.style.background='rgba(127,211,255,.09)'">📊 Save & View Results</button>
+      </div>
+    </div>
+    <div class="footer-note">30 days · Manage inventory · Beat 90% service level</div>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="screen-results" class="hidden">
+  <div class="res-card" id="res-content"></div>
+</div>
+
+<!-- SCENARIO POPUP -->
+<div id="scenario-modal" class="hidden" style="position:fixed;inset:0;z-index:180;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.78);backdrop-filter:blur(6px);padding:20px">
+  <div style="background:var(--surf);border:2px solid var(--gold);border-radius:14px;max-width:500px;width:100%;padding:24px 28px;box-shadow:var(--shadow-lg)">
+    <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--gold);margin-bottom:14px;letter-spacing:1px">⚡ SCENARIO ALERT</div>
+    <div id="scenario-body" style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:16px"></div>
+    <div id="scenario-impact" style="font-size:12px;color:var(--muted);margin-bottom:18px;padding:10px 12px;background:var(--panel);border-radius:7px;border-left:3px solid var(--acc)"></div>
+    <button id="scenario-next" onclick="nextScenario()" style="width:100%;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:700;box-shadow:0 4px 0 var(--acc2);letter-spacing:.5px">▶ GOT IT</button>
+  </div>
+</div>
+
+<!-- GAME UI -->
+<div id="topbar">
+  <span class="logo mono" id="logo-text">CAFE SUPPLY CHAIN</span>
+  <div id="topbar-stats" style="display:contents">
+  <div class="stat"><span class="stat-l">Day</span><span class="stat-v gold mono" id="hday">1</span></div>
+  <div class="stat"><span class="stat-l">Cash (USD)</span><span class="stat-v green mono" id="hcash">$2,500</span></div>
+  <div class="stat"><span class="stat-l">Revenue</span><span class="stat-v gold mono" id="hrev">$0</span></div>
+  <div class="stat" style="flex-direction:column;align-items:center">
+    <span class="stat-l">Service</span>
+    <span class="stat-v mono" id="hsvc">—</span>
+    <span id="hsvc-target" style="font-size:9px;color:var(--muted);margin-top:1px">target 90%</span>
+  </div>
+  <div class="stat" title="Units currently ordered and en route"><span class="stat-l">In Transit</span><span class="stat-v sky mono" id="hpipe">0 units</span></div>
+  </div>
+  <div id="day-prog" style="display:flex;flex-direction:column;justify-content:center;padding:0 4px">
+    <div style="font-size:9px;color:var(--muted);display:flex;justify-content:space-between"><span id="prog-label">Day 1/30</span><span id="prog-left" style="color:var(--muted)">29 left</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:3%"></div></div>
+  </div>
+  <button class="top-btn theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+  <button class="top-btn" onclick="showTitle()">← Menu</button>
+  <button class="top-btn" onclick="showInfo()" style="background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.4);color:#ffd166;font-weight:700" title="Game Rules &amp; Guide">ⓘ Guide</button>
+</div>
+
+<div id="main">
+  <!-- CANVAS -->
+  <div id="canvas-wrap">
+    <canvas id="SC"></canvas>
+    <div class="toast" id="toast" style="opacity:0"></div>
+  </div>
+
+  <!-- SIDE PANEL -->
+  <div id="side">
+    <div class="tabs">
+      <div class="tab" id="t0" onclick="setTab('overview')">Overview</div>
+      <div class="tab" id="t1" onclick="setTab('order')">Order</div>
+      <div class="tab" id="t2" onclick="setTab('costs')">Costs</div>
+      <div class="tab" id="t3" onclick="setTab('charts')">Charts</div>
+      <div class="tab" id="t4" onclick="setTab('log')">Log</div>
+      <div class="tab on" id="t5" onclick="setTab('all')" title="Show all panels at once" style="color:var(--acc);font-weight:800">⊞ All</div>
+    </div>
+    <div id="pc"></div>
+  </div>
+</div>
+
+<script type="module">
+// ════════════════════════════════════════════════
+// FIREBASE — Auth + real-time sync + live config listener
+// ════════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+  sendPasswordResetEmail
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const FB_CFG = {
+  apiKey: "AIzaSyC6RT8MyXytw99rld5o-Ozr2uq9hZ6sXik",
+  authDomain: "gies-supply-chain-game.firebaseapp.com",
+  projectId: "gies-supply-chain-game",
+  storageBucket: "gies-supply-chain-game.firebasestorage.app",
+  messagingSenderId: "477604882387",
+  appId: "1:477604882387:web:7c4c60f7e3d89fa21e3126"
+};
+const fbApp = initializeApp(FB_CFG);
+const db    = getFirestore(fbApp);
+const auth  = getAuth(fbApp);
+
+let SESSION_ID   = null;
+let _lastCfgTime = null;
+let _unsubConfig = null;
+let _currentUser = null;
+
+// ── AUTH STATE ───────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  if (user) { _currentUser = user; showPostAuth(user); }
+  else {
+    // Not logged in — send back to login portal
+    window.location.href = 'index.html';
+  }
+});
+
+function showAuthScreen() {
+  document.getElementById('screen-auth').style.display = 'flex';
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+}
+
+function showPostAuth(user) {
+  document.getElementById('screen-auth').style.display = 'none';
+  document.getElementById('screen-title').classList.remove('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+  const name = user.displayName || user.email.split('@')[0];
+  const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const el_name  = document.getElementById('auth-display-name');
+  const el_email = document.getElementById('auth-display-email');
+  const el_av    = document.getElementById('auth-avatar');
+  if (el_name)  el_name.textContent  = name;
+  if (el_email) el_email.textContent = user.email;
+  if (el_av)    el_av.textContent    = initials;
+  startConfigListener();
+  // After auth resolves, check for saved game
+  setTimeout(updateTitleScreenButtons, 100);
+}
+
+// ── AUTH ACTIONS ─────────────────────────────────────────────────────────────
+window.__real_doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+  setAuthLoading('btn-login', true, 'Signing in…');
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    clearAuthMessages();
+  } catch(e) {
+    setAuthLoading('btn-login', false, '▶ Sign In & Play');
+    showAuthError(friendlyAuthError(e.code));
+  }
+};
+
+window.__real_doRegister = async function() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  if (!name)  { showAuthError('Please enter your full name.'); return; }
+  if (!email) { showAuthError('Please enter your email address.'); return; }
+  if (pass.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  if (pass !== pass2) { showAuthError('Passwords do not match.'); return; }
+  setAuthLoading('btn-register', true, 'Creating account…');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db, 'users', cred.user.uid), { name, email, role: 'student', createdAt: serverTimestamp() });
+    clearAuthMessages();
+    showAuthSuccess('Account created! Welcome, ' + name + ' 🎉');
+    setTimeout(() => showPostAuth(cred.user), 1000);
+  } catch(e) {
+    setAuthLoading('btn-register', false, '✓ Create Account & Play');
+    showAuthError(friendlyAuthError(e.code));
+  }
+};
+
+window.__real_doForgotPassword = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showAuthError('Enter your email above first, then click Forgot Password.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showAuthSuccess('Reset email sent to ' + email + '. Check your inbox.');
+  } catch(e) { showAuthError(friendlyAuthError(e.code)); }
+};
+
+window.__real_doSignOut = async function() {
+  await signOut(auth);
+  showAuthScreen();
+  window.__real_switchAuthTab('login');
+};
+
+window.__real_switchAuthTab = function(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('auth-login-form').style.display    = isLogin ? '' : 'none';
+  document.getElementById('auth-register-form').classList[isLogin ? 'add' : 'remove']('hidden');
+  const activeStyle = 'background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 2px 0 var(--acc2)';
+  const inactStyle  = 'background:transparent;color:var(--muted);box-shadow:none';
+  const tl = document.getElementById('auth-tab-login');
+  const tr = document.getElementById('auth-tab-register');
+  if(tl) tl.setAttribute('style', tl.getAttribute('style').split(';').filter(s=>!s.includes('background')&&!s.includes('color')&&!s.includes('box-shadow')).join(';') + ';' + (isLogin ? activeStyle : inactStyle));
+  if(tr) tr.setAttribute('style', tr.getAttribute('style').split(';').filter(s=>!s.includes('background')&&!s.includes('color')&&!s.includes('box-shadow')).join(';') + ';' + (!isLogin ? activeStyle : inactStyle));
+  clearAuthMessages();
+};
+
+window.__real_togglePw = function(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  const ok = document.getElementById('auth-success');
+  if (el) { el.textContent = '⚠ ' + msg; el.style.display = 'block'; }
+  if (ok) ok.style.display = 'none';
+}
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-success');
+  const er = document.getElementById('auth-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+  if (er) er.style.display = 'none';
+}
+function clearAuthMessages() {
+  const er = document.getElementById('auth-error');
+  const ok = document.getElementById('auth-success');
+  if (er) er.style.display = 'none';
+  if (ok) ok.style.display = 'none';
+}
+function setAuthLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.disabled = loading; btn.textContent = label; btn.style.opacity = loading ? '.7' : '1';
+}
+function friendlyAuthError(code) {
+  const map = {
+    'auth/invalid-email':          'Invalid email address.',
+    'auth/user-not-found':         'No account found with that email.',
+    'auth/wrong-password':         'Incorrect password.',
+    'auth/invalid-credential':     'Incorrect email or password.',
+    'auth/email-already-in-use':   'An account with this email already exists. Sign in instead.',
+    'auth/weak-password':          'Password too weak. Use at least 6 characters.',
+    'auth/too-many-requests':      'Too many attempts. Please wait and try again.',
+    'auth/network-request-failed': 'Network error. Check your connection.',
+  };
+  return map[code] || 'Something went wrong (' + code + '). Please try again.';
+}
+
+// ── LIVE CONFIG LISTENER ─────────────────────────────────────────────────────
+let _unsubRoundCtrl = null;
+
+function startConfigListener() {
+  if (_unsubConfig) _unsubConfig();
+  _unsubConfig = onSnapshot(doc(db, 'config', 'game'), snap => {
+    if (!snap.exists()) return;
+    const cfg = snap.data();
+    const pushTime = cfg.updatedAt?.seconds || 0;
+    if (_lastCfgTime === null) { _lastCfgTime = pushTime; return; }
+    if (pushTime <= _lastCfgTime) return;
+    _lastCfgTime = pushTime;
+    const changes = applyLiveConfig(cfg);
+    if (changes.length > 0) showGMPopup(changes);
+  }, err => console.warn('Config listener error', err));
+
+  // Also listen to the round control doc
+  if (_unsubRoundCtrl) _unsubRoundCtrl();
+  _unsubRoundCtrl = onSnapshot(doc(db, 'control', 'round'), snap => {
+    if (!snap.exists()) return;
+    const data = snap.data();
+    const prevAllowed = window._GAME_CFG.allowedDay || 9999;
+    window._GAME_CFG.roundControl = data.roundControl || false;
+    window._GAME_CFG.allowedDay   = data.allowedDay  || 9999;
+    // If a new day just got released, dismiss gate and notify student
+    if(data.allowedDay > prevAllowed && GS && !GS.done){
+      dismissRoundGate();
+      showRoundReleased(data.allowedDay);
+    }
+    if(typeof window.renderPanel  === 'function') window.renderPanel();
+    if(typeof window.updateTopbar === 'function') window.updateTopbar();
+  });
+}
+
+function applyLiveConfig(cfg) {
+  const changes = [];
+  const PRODS = window._PRODS;
+  if (!PRODS) return changes;
+
+  // Game-level params applied to next newState
+  if (cfg.startingCash !== undefined) window._GAME_CFG.startingCash = cfg.startingCash;
+  if (cfg.rounds !== undefined) {
+    window._GAME_CFG.rounds = cfg.rounds;
+    if (window.GS && window.GS.maxDay !== cfg.rounds) {
+      changes.push(`⏱ Game length changed to <strong>${cfg.rounds} days</strong>`);
+      window.GS.maxDay = cfg.rounds;
+    }
+  }
+  if (cfg.hideDemand !== undefined) {
+    window._GAME_CFG.hideDemand = cfg.hideDemand;
+    changes.push(cfg.hideDemand ? `👁 Demand info hidden by instructor` : `👁 Demand info now visible`);
+  }
+
+  // Per-product params
+  const cfgProds = cfg.products || {};
+  PRODS.forEach(p => {
+    const pc = cfgProds[p.id]; if (!pc) return;
+    if (pc.demandAvg !== undefined && pc.demandAvg !== p.demandAvg) {
+      changes.push(`📊 ${p.emoji} ${p.name} avg demand: <strong>${p.demandAvg} → ${pc.demandAvg} u/day</strong>`);
+      p.demandAvg = pc.demandAvg;
+    }
+    if (pc.demandStd !== undefined && pc.demandStd !== p.demandStd) {
+      changes.push(`📊 ${p.emoji} ${p.name} demand std: <strong>${p.demandStd} → ${pc.demandStd}</strong>`);
+      p.demandStd = pc.demandStd;
+    }
+    if (pc.ltMean !== undefined && p.suppliers[0] && p.suppliers[0].ltMean !== pc.ltMean) {
+      changes.push(`🚚 ${p.emoji} ${p.name} lead time mean: <strong>${p.suppliers[0].ltMean} → ${pc.ltMean} days</strong>`);
+    }
+    if (pc.delivRel !== undefined && p.suppliers[0] && p.suppliers[0].delivRel !== pc.delivRel) {
+      changes.push(`📦 ${p.emoji} ${p.name} delivery reliability: <strong>${Math.round((p.suppliers[0].delivRel||0.95)*100)}% → ${Math.round(pc.delivRel*100)}%</strong>`);
+    }
+    if (pc.qualMean !== undefined && p.suppliers[0] && p.suppliers[0].qualMean !== pc.qualMean) {
+      changes.push(`✅ ${p.emoji} ${p.name} quality mean: <strong>${p.suppliers[0].qualMean||98}% → ${pc.qualMean}%</strong>`);
+    }
+    if (pc.fixedCost !== undefined) p.fixedCost = pc.fixedCost;
+    if (pc.sell !== undefined && pc.sell !== p.sell) {
+      changes.push(`💰 ${p.emoji} ${p.name} price: <strong>${p.sell.toFixed(2)} → ${pc.sell.toFixed(2)}</strong>`);
+      p.sell = pc.sell;
+    }
+    if (pc.holdPerUnit !== undefined && pc.holdPerUnit !== p.holdPerUnit) {
+      changes.push(`📦 ${p.emoji} ${p.name} hold cost: <strong>${p.holdPerUnit.toFixed(3)} → ${pc.holdPerUnit.toFixed(3)}/u/day</strong>`);
+      p.holdPerUnit = pc.holdPerUnit;
+    }
+    if (pc.unitCost !== undefined) p.suppliers.forEach(s => s.cost = pc.unitCost);
+  });
+
+  if (cfg.hideRecommendations !== undefined && cfg.hideRecommendations !== window._GAME_CFG.hideRecommendations) {
+    window._GAME_CFG.hideRecommendations = cfg.hideRecommendations;
+    changes.push(cfg.hideRecommendations ? `💡 Recommendations hidden by instructor` : `💡 Recommendations now visible`);
+  }
+  if (cfg.svcTarget !== undefined && cfg.svcTarget !== window._GAME_CFG.svcTarget) {
+    window._GAME_CFG.svcTarget = cfg.svcTarget;
+    changes.push(`🎯 Service level target: <strong>${cfg.svcTarget}%</strong>`);
+  }
+  if (cfg.roundControl !== undefined) window._GAME_CFG.roundControl = cfg.roundControl;
+
+  if (cfg.scenarios && Array.isArray(cfg.scenarios)) {
+    PRODS.forEach(p => {
+      p.events = cfg.scenarios.filter(s => s.product === p.id).map(s => ({
+        d:s.day, t:s.type, m:s.multiplier||1, ex:s.extraDays||0,
+        np:s.newPrice||0, txt:s.desc||'', impact:s.desc||''
+      }));
+    });
+    changes.push(`⚡ Scenarios updated by Game Master`);
+  }
+
+  if (typeof window.renderPanel  === 'function') window.renderPanel();
+  if (typeof window.updateTopbar === 'function') window.updateTopbar();
+  return changes;
+}
+
+// ── GM POPUP ─────────────────────────────────────────────────────────────────
+function showGMPopup(changes) {
+  const existing = document.getElementById('gm-popup'); if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'gm-popup';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.75);backdrop-filter:blur(8px);';
+  overlay.innerHTML = `
+    <style>
+      @keyframes gm-slidein{from{opacity:0;transform:translateY(-20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+      @keyframes gm-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,122,61,.5)}50%{box-shadow:0 0 0 10px rgba(255,122,61,0)}}
+      #gm-card{background:linear-gradient(160deg,#1a1628,#221e36);border:2px solid #ff7a3d;border-radius:16px;padding:28px 30px;max-width:440px;width:90%;box-shadow:0 0 40px rgba(255,122,61,.35),0 18px 40px rgba(0,0,0,.6);animation:gm-slidein .3s cubic-bezier(.34,1.56,.64,1);}
+      .gm-icon{width:52px;height:52px;border-radius:50%;background:rgba(255,122,61,.15);border:2px solid rgba(255,122,61,.4);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;animation:gm-pulse 2s infinite;}
+      .gm-title{text-align:center;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff7a3d;margin-bottom:4px;font-family:'Space Mono',monospace}
+      .gm-sub{text-align:center;font-size:11px;color:#9088bb;margin-bottom:18px}
+      .gm-item{background:rgba(255,122,61,.08);border:1px solid rgba(255,122,61,.2);border-radius:8px;padding:9px 12px;font-size:12px;color:#f2eeff;line-height:1.5;border-left:3px solid #ff7a3d;margin-bottom:7px;}
+      .gm-btn{width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 #8a2e0a;}
+      .gm-cd{text-align:center;font-size:10px;color:#504878;margin-top:10px;font-family:'Space Mono',monospace}
+    </style>
+    <div id="gm-card">
+      <div class="gm-icon">🎮</div>
+      <div class="gm-title">Game Master Update</div>
+      <div class="gm-sub">Your instructor has changed game settings</div>
+      ${changes.map(c=>`<div class="gm-item">${c}</div>`).join('')}
+      <button class="gm-btn" onclick="document.getElementById('gm-popup').remove()">✓ Got it — Changes Applied</button>
+      <div class="gm-cd" id="gm-cd">Auto-closing in 15s</div>
+    </div>`;
+  document.body.appendChild(overlay);
+  let secs = 15;
+  const cd = setInterval(() => {
+    secs--;
+    const el = document.getElementById('gm-cd');
+    if (el) el.textContent = `Auto-closing in ${secs}s`;
+    if (secs <= 0) { clearInterval(cd); const pop = document.getElementById('gm-popup'); if (pop) { pop.style.opacity='0'; pop.style.transition='opacity .4s'; setTimeout(()=>pop.remove(),400); } }
+  }, 1000);
+  overlay.addEventListener('click', e => { if (e.target === overlay) { clearInterval(cd); overlay.remove(); } });
+}
+
+// ── ROUND GATE POPUP ─────────────────────────────────────────────────────────
+function showRoundGate(day){
+  const existing = document.getElementById('round-gate'); if(existing) return;
+  const el = document.createElement('div');
+  el.id = 'round-gate';
+  el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:8000;animation:gm-slidein .3s cubic-bezier(.34,1.56,.64,1)';
+  el.innerHTML=`
+    <div style="
+      background:linear-gradient(135deg,#1a1628,#221e36);
+      border:2px solid #ffd166; border-radius:12px; padding:16px 22px;
+      box-shadow:0 0 30px rgba(255,209,102,.25),0 12px 40px rgba(0,0,0,.5);
+      display:flex;align-items:center;gap:14px;max-width:380px;
+    ">
+      <div style="font-size:28px;animation:icon-bob 2s ease-in-out infinite">⏸</div>
+      <div>
+        <div style="font-size:12px;font-weight:800;color:#ffd166;letter-spacing:.5px;margin-bottom:3px">Waiting for Instructor</div>
+        <div style="font-size:11px;color:#9088bb;line-height:1.5">
+          Day ${day} is locked. Your instructor must release<br>it before you can advance. Stand by…
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  // Auto-dismiss after 4s
+  setTimeout(()=>{ const g=document.getElementById('round-gate'); if(g){g.style.opacity='0';g.style.transition='opacity .4s';setTimeout(()=>g.remove(),400);}}, 4000);
+}
+
+// Remove gate when round is released
+function dismissRoundGate(){ const g=document.getElementById('round-gate'); if(g) g.remove(); }
+
+function showRoundReleased(day){
+  const el = document.createElement('div');
+  el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:8000;animation:gm-slidein .3s cubic-bezier(.34,1.56,.64,1)';
+  el.innerHTML=`
+    <div style="
+      background:linear-gradient(135deg,#0d1f14,#152a1e);
+      border:2px solid #3ddc97; border-radius:12px; padding:14px 22px;
+      box-shadow:0 0 30px rgba(61,220,151,.25),0 12px 40px rgba(0,0,0,.5);
+      display:flex;align-items:center;gap:14px;max-width:360px;
+    ">
+      <div style="font-size:26px">▶</div>
+      <div>
+        <div style="font-size:12px;font-weight:800;color:#3ddc97;margin-bottom:2px">Day ${day} Released!</div>
+        <div style="font-size:11px;color:#9088bb">Your instructor released the next round — you can advance now.</div>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(),400); }, 3500);
+}
+async function fbInitRun(playerName) {
+  if (!_currentUser) return;
+
+  // Load latest config from Firebase before starting
+  try {
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const cfgSnap = await getDoc(doc(db, 'config', 'game'));
+    if (cfgSnap.exists()) {
+      const cfg = cfgSnap.data();
+      // Apply to _GAME_CFG
+      if (cfg.startingCash !== undefined) window._GAME_CFG.startingCash = cfg.startingCash;
+      if (cfg.rounds !== undefined)       window._GAME_CFG.rounds = cfg.rounds;
+      if (cfg.hideDemand !== undefined)   window._GAME_CFG.hideDemand = cfg.hideDemand;
+      if (cfg.roundControl !== undefined) window._GAME_CFG.roundControl = cfg.roundControl;
+      if (cfg.svcTarget !== undefined)    window._GAME_CFG.svcTarget = cfg.svcTarget;
+      if (cfg.hideRecommendations !== undefined) window._GAME_CFG.hideRecommendations = cfg.hideRecommendations;
+      // Apply per-product settings to PRODS
+      const PRODS = window._PRODS;
+      const cfgProds = cfg.products || {};
+      PRODS.forEach(p => {
+        const pc = cfgProds[p.id]; if (!pc) return;
+        if (pc.demandAvg  !== undefined) p.demandAvg  = pc.demandAvg;
+        if (pc.demandStd  !== undefined) p.demandStd  = pc.demandStd;
+        if (pc.ltDays      !== undefined) p.suppliers.forEach(s => s.ltDays   = pc.ltDays);
+        if (pc.ltMean      !== undefined) p.suppliers.forEach(s => s.ltMean   = pc.ltMean);
+        if (pc.ltStd       !== undefined) p.suppliers.forEach(s => s.ltStd    = pc.ltStd);
+        if (pc.delivRel    !== undefined) p.suppliers.forEach(s => { s.delivRel = pc.delivRel; s.rel = pc.delivRel; });
+        if (pc.qualMean    !== undefined) p.suppliers.forEach(s => s.qualMean  = pc.qualMean);
+        if (pc.qualStd     !== undefined) p.suppliers.forEach(s => s.qualStd   = pc.qualStd);
+        if (pc.reliability !== undefined) p.suppliers.forEach(s => s.rel       = pc.reliability);
+        if (pc.fixedCost  !== undefined) p.fixedCost  = pc.fixedCost;
+        if (pc.unitCost   !== undefined) p.suppliers.forEach(s => s.cost   = pc.unitCost);
+        if (pc.sell       !== undefined) p.sell        = pc.sell;
+        if (pc.holdPerUnit!== undefined) p.holdPerUnit = pc.holdPerUnit;
+      });
+      if (cfg.scenarios && Array.isArray(cfg.scenarios)) {
+        PRODS.forEach(p => {
+          p.events = cfg.scenarios.filter(s => s.product === p.id).map(s => ({
+            d:s.day, t:s.type, m:s.multiplier||1, ex:s.extraDays||0,
+            np:s.newPrice||0, txt:s.desc||'', impact:s.desc||''
+          }));
+        });
+      }
+      // Also load round control state
+      try {
+        const ctrlSnap = await getDoc(doc(db, 'control', 'round'));
+        if(ctrlSnap.exists()){
+          window._GAME_CFG.roundControl = ctrlSnap.data().roundControl || false;
+          window._GAME_CFG.allowedDay   = ctrlSnap.data().allowedDay  || 9999;
+        }
+      } catch(e){ /* ignore */ }
+    }
+  } catch(e) { console.warn('Could not load config, using defaults', e); }
+
+  SESSION_ID = _currentUser.uid + '_' + Date.now();
+  try {
+    await setDoc(doc(db, 'runs', SESSION_ID), {
+      player: playerName, uid: _currentUser.uid, email: _currentUser.email,
+      sessionId: SESSION_ID, startedAt: serverTimestamp(), status: 'in_progress',
+      currentDay: 1, totalDays: window._GAME_CFG?.rounds || 30,
+      svc: null, profit: null, totRev: null, totLost: null, grade: null, dayLog: []
+    });
+  } catch(e){ console.warn('FB init failed', e); }
+}
+
+// ── DAY SAVE ─────────────────────────────────────────────────────────────────
+async function fbSaveDay(gs) {
+  if (!SESSION_ID) return;
+  const PRODS = window._PRODS;
+  const totHold = PRODS.reduce((s,p)=>s+gs.holdCost[p.id],0);
+  const totOrd  = PRODS.reduce((s,p)=>s+gs.ordCost[p.id],0);
+  const gp = gs.totRev - totHold - totOrd - PRODS.reduce((s,p)=>s+gs.sold[p.id]*(p.suppliers[gs.selSupp[p.id]||0].cost),0);
+  try {
+    await updateDoc(doc(db, 'runs', SESSION_ID), {
+      currentDay: gs.day, status: gs.done ? 'complete' : 'in_progress',
+      svc: +(gs.svc*100).toFixed(2), profit: Math.round(gp),
+      totRev: Math.round(gs.totRev), totLost: gs.totLost, cash: Math.round(gs.cash),
+      grade: gs.done ? window._calcGrade(gs.svc, gp) : null,
+      updatedAt: serverTimestamp(),
+      dayLog: gs.log.map(e=>({
+        day: e.day, events: e.events.map(ev=>ev.txt),
+        prods: Object.fromEntries(PRODS.map(p=>{
+          const pe=e.prods[p.id];
+          return [p.id,{demand:pe.dem,sold:pe.s,lost:pe.l,revenue:+pe.r.toFixed(2),holdCost:+pe.hc.toFixed(2),orderQty:pe.oq||0,orderCost:+pe.oc.toFixed(2),received:pe.recv||0,invEnd:pe.invEnd,arrDay:pe.arr||null}];
+        }))
+      }))
+    });
+  } catch(e){ console.warn('FB save failed', e); }
+}
+
+window.__real_fbInitRun = fbInitRun;
+window.__real_fbSaveDay = fbSaveDay;
+
+// Signal bridge that all __real_ functions are registered
+if (typeof window.__moduleReady === 'function') window.__moduleReady();
+</script>
+
+<!-- BRIDGE: queues onclick calls until ES module finishes loading -->
+<script>
+(function(){
+  const FNS = ['doLogin','doRegister','doForgotPassword','doSignOut','switchAuthTab','togglePw','fbInitRun','fbSaveDay'];
+  const queue = {};
+  FNS.forEach(fn => {
+    queue[fn] = [];
+    if (!window[fn]) window[fn] = function(...args) {
+      if (window['__real_' + fn]) return window['__real_' + fn](...args);
+      queue[fn].push(args);
+    };
+  });
+  window.__moduleReady = function() {
+    FNS.forEach(fn => {
+      if (window['__real_' + fn]) {
+        window[fn] = window['__real_' + fn];
+        (queue[fn]||[]).forEach(args => window[fn](...args));
+      }
+    });
+  };
+})();
+</script>
+
+
+<script>
+// ════════════════════════════════════════════════
+// RNG — deterministic
+// ════════════════════════════════════════════════
+function rng(s){let t=(s+0x6d2b79f5)>>>0;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return{v:((t^(t>>>14))>>>0)/4294967296,n:(s+0x6d2b79f5)>>>0}}
+function ri(s,a,b){const r=rng(s);return{v:Math.floor(r.v*(b-a+1))+a,n:r.n}}
+
+// ════════════════════════════════════════════════
+// PRODUCTS — with holding cost & multiple suppliers
+// ════════════════════════════════════════════════
+const PRODS = [
+  {
+    id:'coffee', name:'Coffee', emoji:'☕', color:'#6f4e37', light:'#a67b5b', dark:'#3b2519',
+    sell:4.50, maxShelf:80, initInv:40,
+    demandAvg:15, demandStd:3,          // normal-distribution demand
+    fixedCost:50,                        // per-product fixed order cost
+    holdPerUnit:0.10,
+    holdNote:'Medium — beans lose freshness',
+    suppliers:[
+      {id:'co_a', name:'BeanWorks Distribution', city:'Chicago', cost:2.20, ltDays:2, ltMean:2, ltStd:0.5, delivRel:0.95, qualMean:98, qualStd:2, rel:0.95, tag:'Sole Distributor', tagC:'#ffd166',
+       note:'Sole authorized distributor for cafe-grade beans.'}
+    ],
+    events:[
+      {d:6, t:'spike', m:1.8, txt:'❄️ Cold snap — coffee demand up 80% this week!',
+       impact:'Today\'s coffee demand will be ~80% higher than usual. Make sure on-hand + in-transit can cover the surge.'},
+      {d:14, t:'delay', ex:2, txt:'🚛 Distributor delay — orders placed today take +2 days!',
+       impact:'Any coffee order you place today will arrive 2 days later than usual. Consider ordering early.'},
+      {d:22, t:'spike', m:2.0, txt:'📚 Finals week — coffee demand DOUBLES!',
+       impact:'Demand is 2× today. If inventory position is low you will stock out — order extra a few days before.'}
+    ]
+  },
+  {
+    id:'cookie', name:'Cookies', emoji:'🍪', color:'#c68642', light:'#e0b07a', dark:'#7a4a1a',
+    sell:2.50, maxShelf:100, initInv:50,
+    demandAvg:12, demandStd:2,
+    fixedCost:50,
+    holdPerUnit:0.06,
+    holdNote:'Low — packaged, shelf stable',
+    suppliers:[
+      {id:'ck_a', name:'BeanWorks Distribution', city:'Chicago', cost:1.10, ltDays:2, ltMean:2, ltStd:0.5, delivRel:0.95, qualMean:98, qualStd:2, rel:0.95, tag:'Sole Distributor', tagC:'#ffd166',
+       note:'Same distributor handles both coffee and cookies.'}
+    ],
+    events:[
+      {d:10, t:'spike', m:1.6, txt:'🎉 Welcome event — cookies fly off the shelf!',
+       impact:'Cookie demand is 60% higher today. Stock up the day before.'},
+      {d:18, t:'price', np:3.00, txt:'📈 Cookie wholesale price jump — retail price rises to $$3.00.',
+       impact:'You now sell cookies at $$3.00 each (up from $$2.50). Revenue per unit increases.'},
+      {d:25, t:'spike', m:1.8, txt:'🎓 Graduation prep — bulk cookie orders!',
+       impact:'Cookie demand is 80% higher today. Don\'t let the shelf go empty.'}
+    ]
+  }
+];
+
+// Global game config — updated by Firebase config listener
+window._GAME_CFG = {
+  startingCash: 2500,
+  rounds: 30,
+  hideDemand: false,
+  roundControl: false,
+  allowedDay: 9999,
+  svcTarget: 90,
+  hideRecommendations: false,
+};
+
+// Box-Muller normal distribution (clamped to ≥0, rounded to integer)
+function normalDemand(seed, avg, std) {
+  // Two uniform randoms from our seeded RNG
+  const r1 = rng(seed); const u1 = r1.v; seed = r1.n;
+  const r2 = rng(seed); const u2 = r2.v; seed = r2.n;
+  const z = Math.sqrt(-2 * Math.log(Math.max(u1, 1e-10))) * Math.cos(2 * Math.PI * u2);
+  const val = Math.max(0, Math.round(avg + std * z));
+  return { v: val, n: seed };
+}
+
+// Expose for Firebase module
+window._PRODS = PRODS;
+window._calcGrade = function(svc, gp){
+  if(svc>=.95&&gp>800) return 'A+';
+  if(svc>=.90&&gp>500) return 'A';
+  if(svc>=.85&&gp>200) return 'B';
+  if(svc>=.75) return 'C';
+  if(svc>=.60) return 'D';
+  return 'F';
+};
+
+function calcEOQ(p, suppIdx){
+  const D   = p.demandAvg || (p.dMin+p.dMax)/2;
+  const K   = p.fixedCost !== undefined ? p.fixedCost : 50;
+  const h   = p.holdPerUnit;
+  return Math.round(Math.sqrt(2*D*K/h));
+}
+
+// ════════════════════════════════════════════════
+// GAME STATE
+// ════════════════════════════════════════════════
+let GS = null;
+// Keep window.GS in sync so the Firebase config listener can read/write it
+Object.defineProperty(window, 'GS', {
+  get(){ return GS; },
+  set(v){ GS = v; },
+  configurable: true
+});
+
+function newState(playerName){
+  const o = (fn) => Object.fromEntries(PRODS.map(p=>[p.id, fn(p)]));
+  const cfg = window._GAME_CFG || {};
+  return {
+    player: playerName || 'Manager',
+    day:1, done:false,
+    cash: cfg.startingCash || 2500,
+    seed:42,
+    maxDay: cfg.rounds || 30,
+    inv: o(p=>p.initInv),
+    pipe: o(()=>[]),
+    sold: o(()=>0), lost: o(()=>0),
+    rev: o(()=>0), ordCost: o(()=>0),
+    holdCost: o(()=>0), lrev: o(()=>0),
+    suppBlocked: o(()=>({0:0})), // single supplier
+    selSupp: o(()=>0),
+    porders: o(()=>0),
+    log:[], totRev:0, totSold:0, totLost:0,
+    customers:[], particles:[],
+    sellPrice: o(p=>p.sell),
+    // history for charts (per-day snapshots)
+    history: [],
+  };
+}
+
+function stepDay(st, decisions){
+  let {day,cash,seed,inv,pipe,sold,lost,rev,ordCost,holdCost,lrev,suppBlocked,porders,log,totRev,totSold,totLost,selSupp,sellPrice,history} = st;
+  inv={...inv}; sold={...sold}; lost={...lost}; rev={...rev};
+  ordCost={...ordCost}; holdCost={...holdCost}; lrev={...lrev};
+  porders={...porders}; selSupp={...selSupp}; sellPrice={...sellPrice};
+  suppBlocked=Object.fromEntries(Object.entries(suppBlocked).map(([k,v])=>[k,{...v}]));
+  pipe=Object.fromEntries(Object.entries(pipe).map(([k,v])=>[k,[...v]]));
+  history=[...history];
+
+  const dayLog={day, prods:{}, events:[]};
+  const daySnap={day, inv:{}, pipe:{}, sold:{}, lost:{}, rev:{}};
+
+  PRODS.forEach(p=>{
+    const pid=p.id;
+    const suppIdx=selSupp[pid]||0;
+    const sup=p.suppliers[suppIdx];
+
+    // generate demand using normal distribution
+    const avg = p.demandAvg || (p.dMin+p.dMax)/2;
+    const std = p.demandStd || (p.dMax - p.dMin) / 6;
+    const dr = normalDemand(seed, avg, std); let dem = dr.v; seed = dr.n;
+    let lt=sup.ltMean||sup.ltDays||2, sp=sellPrice[pid], pevs=[];
+
+    // process events
+    (p.events||[]).forEach(ev=>{
+      if(ev.d!==day) return;
+      if(ev.t==='spike'){dem=Math.round(dem*ev.m); pevs.push({txt:ev.txt,impact:ev.impact,c:'spike'});}
+      if(ev.t==='delay' && (!ev.sup||ev.sup===sup.id)){lt+=ev.ex; pevs.push({txt:ev.txt,impact:ev.impact,c:'delay'});}
+      if(ev.t==='price'){sellPrice[pid]=ev.np; sp=ev.np; pevs.push({txt:ev.txt,impact:ev.impact,c:'price'});}
+      if(ev.t==='supplier_fail' && (!ev.sup||ev.sup===sup.id)){
+        suppBlocked[pid][suppIdx]=ev.days; pevs.push({txt:ev.txt,impact:ev.impact,c:'fail'});
+      }
+      if(ev.t==='stockout_warn'){pevs.push({txt:ev.txt,impact:ev.impact,c:'warn'});}
+    });
+
+    if(suppBlocked[pid][suppIdx]>0) suppBlocked[pid][suppIdx]--;
+
+    // MORNING RECEIVE — deliveries scheduled for this day arrive first
+    // (Deliveries scheduled for THIS day were already received at end of last step,
+    //  so they're already in inv. No morning receive here.)
+    let recv=0;
+
+    // sell
+    const s=Math.min(dem,inv[pid]), l=dem-s;
+    const r=s*sp, lr=l*sp;
+    inv[pid]-=s; cash+=r;
+    sold[pid]+=s; lost[pid]+=l; rev[pid]+=r; lrev[pid]+=lr;
+    totRev+=r; totSold+=s; totLost+=l;
+
+    // holding cost — on END inventory
+    const hc=inv[pid]*p.holdPerUnit;
+    cash-=hc; holdCost[pid]+=hc;
+
+    // place order if decision made
+    const oq=Math.max(0,Math.floor(decisions[pid]||0));
+    let oc=0, newOrd=null;
+    if(oq>0 && suppBlocked[pid][suppIdx]===0){
+      const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
+      oc = fc + oq*sup.cost; cash-=oc; ordCost[pid]+=oc;
+      // Reliability: random supplier failure based on rel score
+      // ── Stochastic supplier simulation ──────────────────────────────────────
+      // 1. Delivery success: roll against delivRel (fallback: rel, then 0.95)
+      const delivRel = sup.delivRel !== undefined ? sup.delivRel : (sup.rel !== undefined ? sup.rel : 0.95);
+      const relRoll = rng(seed); seed = relRoll.n;
+      if(relRoll.v > delivRel){
+        // Delivery failure — refund order cost
+        suppBlocked[pid][suppIdx] = 1 + Math.floor(rng(seed).v * 2); seed = rng(seed).n;
+        cash += oc; ordCost[pid] -= oc; oc = 0;
+        pevs.push({txt:`⚠️ ${sup.name} failed to deliver your ${p.name} order!`, impact:'Shipment lost — delivery reliability is below 100%.', c:'fail'});
+      } else {
+        // 2. Stochastic lead time: Normal(ltMean, ltStd), minimum 1 day
+        const ltMean = sup.ltMean !== undefined ? sup.ltMean : lt;
+        const ltStd  = sup.ltStd  !== undefined ? sup.ltStd  : 0;
+        let actualLT = lt;
+        if(ltStd > 0){
+          const u1r = rng(seed); seed = u1r.n;
+          const u2r = rng(seed); seed = u2r.n;
+          const u1 = Math.max(1e-9, u1r.v);
+          const z  = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2r.v);
+          actualLT = Math.max(1, Math.round(ltMean + ltStd * z));
+        }
+        // 3. Quality factor: Normal(qualMean%, qualStd%), clamp 0-100
+        const qualMean = sup.qualMean !== undefined ? sup.qualMean : 100;
+        const qualStd  = sup.qualStd  !== undefined ? sup.qualStd  : 0;
+        let qualFactor = 1.0;
+        if(qualStd > 0){
+          const u1r = rng(seed); seed = u1r.n;
+          const u2r = rng(seed); seed = u2r.n;
+          const u1 = Math.max(1e-9, u1r.v);
+          const z  = Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2r.v);
+          const rawQ = qualMean + qualStd * z;
+          qualFactor = Math.max(0, Math.min(100, rawQ)) / 100;
+        } else {
+          qualFactor = qualMean / 100;
+        }
+        const usableQty = Math.round(oq * qualFactor);
+        newOrd={q:usableQty, orderedQty:oq, qualFactor, ord:day, arr:day+actualLT, lt:actualLT, supName:sup.name};
+        pipe[pid].push(newOrd); porders[pid]++;
+        if(qualFactor < 0.98) pevs.push({txt:`📦 ${sup.name}: ${Math.round(qualFactor*100)}% quality — ${usableQty}/${oq} units usable.`, impact:'Some units were below quality standard.', c:'warn'});
+      }
+    }
+
+    dayLog.prods[pid]={dem,s,l,r,lr,hc,oc,recv,invEnd:inv[pid],oq,arr:newOrd?newOrd.arr:null,supName:sup.name};
+    dayLog.events.push(...pevs);
+
+    daySnap.inv[pid]=inv[pid];
+    daySnap.pipe[pid]=pipe[pid].reduce((a,o)=>a+o.q,0);
+    daySnap.sold[pid]=s;
+    daySnap.lost[pid]=l;
+    daySnap.rev[pid]=r;
+  });
+
+  // ── END-OF-STEP RECEIVE: any orders due tomorrow arrive now ──
+  // This way, when the player advances to the new day, goods scheduled
+  // for that day are ALREADY on the shelves (received in the morning).
+  const newDay = day + 1;
+  PRODS.forEach(p=>{
+    const pid=p.id;
+    let nightRecv=0;
+    pipe[pid]=pipe[pid].filter(o=>{
+      if(o.arr<=newDay){ inv[pid]+=o.q; nightRecv+=o.q; return false; }
+      return true;
+    });
+    if(nightRecv>0){
+      dayLog.prods[pid].recv=(dayLog.prods[pid].recv||0)+nightRecv;
+      daySnap.inv[pid]=inv[pid];
+      daySnap.pipe[pid]=pipe[pid].reduce((a,o)=>a+o.q,0);
+    }
+  });
+
+  history.push(daySnap);
+
+  const tD=totSold+totLost, svc=tD>0?totSold/tD:1;
+  const maxDay = window.GS?.maxDay || 30;
+  return{...st,day:day+1,done:day+1>maxDay,cash,seed,inv,pipe,sold,lost,rev,ordCost,holdCost,lrev,
+    suppBlocked,porders,selSupp,sellPrice,history,log:[...log,dayLog],totRev,totSold,totLost,svc:+svc.toFixed(4)};
+}
+
+// ════════════════════════════════════════════════
+// UI STATE
+// ════════════════════════════════════════════════
+let UI = {
+  tab:'overview', selProd:'coffee',
+  decs:{coffee:0,cookie:0},
+  pendOrd:{coffee:0,cookie:0},   // accumulated units queued this day
+  pendOrdCount:{coffee:0,cookie:0}, // how many separate orders placed
+  toastTm:null, time:0, extTime:0, mode:'interior', raf:null,
+  cv:null, ctx:null,
+  scenarioQueue:[], scenarioActive:false,
+};
+
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+function toast(msg, dur=2800){
+  const el=document.getElementById('toast');
+  if(!el)return; el.textContent=msg; el.style.opacity='1';
+  clearTimeout(UI.toastTm);
+  UI.toastTm=setTimeout(()=>{if(el)el.style.opacity='0';},dur);
+}
+
+// ════════════════════════════════════════════════
+// TOPBAR UPDATE
+// ════════════════════════════════════════════════
+function updateTopbar(){
+  if(!GS)return;
+  const maxDay = GS.maxDay || 30;
+  const day=GS.day-1;
+  document.getElementById('hday').textContent=GS.day;
+  const startCash = window._GAME_CFG?.startingCash || 2500;
+  const cc=GS.cash>startCash?'green':GS.cash>0?'gold':'red';
+  const hc=document.getElementById('hcash');
+  hc.textContent='$'+Math.round(GS.cash).toLocaleString();
+  hc.className='stat-v mono '+cc;
+  document.getElementById('hrev').textContent='$'+Math.round(GS.totRev).toLocaleString();
+  const svcEl=document.getElementById('hsvc');
+  const svcPct=GS.totSold+GS.totLost>0?(GS.svc*100).toFixed(1)+'%':'—';
+  const target = window._GAME_CFG?.svcTarget || 90;
+  svcEl.textContent=svcPct;
+  svcEl.className='stat-v mono '+(GS.svc*100>=target?'green':GS.svc*100>=75?'gold':'red');
+  const tgtEl=document.getElementById('hsvc-target');
+  if(tgtEl){ tgtEl.textContent='target '+target+'%'; tgtEl.style.color=GS.svc*100>=target?'#3ddc97':'var(--muted)'; }
+
+  const pipeU=PRODS.reduce((s,p)=>s+GS.pipe[p.id].reduce((a,o)=>a+o.q,0),0);
+  const pipeEl=document.getElementById('hpipe');
+  pipeEl.textContent=pipeU+'units';
+  // Show per-product breakdown as title tooltip
+  const pipeBreakdown=PRODS.map(p=>{ const u=GS.pipe[p.id].reduce((a,o)=>a+o.q,0); return u>0?p.emoji+' '+u+'units':''; }).filter(Boolean).join(' · ');
+  pipeEl.title = pipeBreakdown || 'No orders in transit';
+  const pct=Math.max(3,(day/maxDay)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent='Day '+day+'/'+maxDay;
+  const left=maxDay-day;
+  const pl=document.getElementById('prog-left');
+  pl.textContent=left+'d left';
+  pl.style.color=left<=5?'#ef476f':'var(--muted)';
+
+  // Disable/enable "Next Day" button based on round control gate
+  const isGated = (window._GAME_CFG?.roundControl) && GS && GS.day > (window._GAME_CFG?.allowedDay || 9999);
+  document.querySelectorAll('.btn-next').forEach(btn => {
+    btn.disabled = isGated;
+    if (isGated) {
+      btn.style.opacity = '0.45';
+      btn.style.cursor = 'not-allowed';
+      btn.textContent = '⏸ Waiting for Instructor…';
+    } else if (btn.textContent.startsWith('⏸')) {
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+      btn.textContent = '⏭ Next Day →';
+    }
+  });
+
+  // Round control indicator in topbar
+  let rcEl = document.getElementById('hround-ctrl');
+  if(window._GAME_CFG?.roundControl){
+    const allowed = window._GAME_CFG.allowedDay || 9999;
+    const isGated = GS.day > allowed;
+    if(!rcEl){
+      rcEl = document.createElement('div');
+      rcEl.id='hround-ctrl';
+      rcEl.style.cssText='display:flex;align-items:center;gap:5px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;font-family:"Space Mono",monospace;color:#ffd166';
+      document.getElementById('topbar-stats')?.appendChild(rcEl);
+    }
+    rcEl.textContent = isGated ? '⏸ Waiting D'+GS.day : '▶ D'+allowed+' open';
+    rcEl.style.color = isGated ? '#ffd166' : '#3ddc97';
+  } else if(rcEl){ rcEl.remove(); }
+}
+// Expose for Firebase config listener
+window.updateTopbar = updateTopbar;
+
+// ════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════
+function setTab(t){
+  UI.tab=t;
+  ['overview','order','costs','charts','log','all'].forEach((name,i)=>{
+    const el=document.getElementById('t'+i);
+    if(el) el.className='tab'+(name===t?' on':'');
+  });
+  renderPanel();
+}
+
+// ════════════════════════════════════════════════
+// PANEL RENDER
+// ════════════════════════════════════════════════
+function renderPanel(){
+  if(!GS)return;
+  const pc=document.getElementById('pc'); if(!pc)return;
+  if(UI.tab==='overview') pc.innerHTML=htmlOverview();
+  else if(UI.tab==='order') pc.innerHTML=htmlOrder();
+  else if(UI.tab==='costs') pc.innerHTML=htmlCosts();
+  else if(UI.tab==='charts'){ pc.innerHTML=htmlCharts(); requestAnimationFrame(drawCharts); }
+  else if(UI.tab==='log') pc.innerHTML=htmlLog();
+  else if(UI.tab==='all') pc.innerHTML=htmlAll();
+}
+// Expose for Firebase config listener
+window.renderPanel = renderPanel;
+
+function htmlAll(){
+  // Unified single-section: order controls for each product + pipeline + next day
+  let html = `<div style="background:rgba(255,122,61,.08);border:1px solid rgba(255,122,61,.3);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:var(--acc);font-weight:700">☕ Day ${GS.day} — Order & Advance</div>`;
+
+  PRODS.forEach(p=>{
+    const suppIdx=GS.selSupp[p.id]||0;
+    const sup=p.suppliers[suppIdx];
+    const inv=GS.inv[p.id];
+    const pipe=GS.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
+    const r=Math.max(0,Math.min(1,inv/p.maxShelf));
+    const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+    const eQ=calcEOQ(p,suppIdx);
+    const avgDem = p.demandAvg || 15;
+    const rop=Math.ceil(avgDem*sup.ltDays);
+    const pos=inv+pipeU;
+    const q=UI.decs[p.id]||0;
+    const pend=UI.pendOrd[p.id]||0;
+    const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
+    const orderCost=q>0?fc+q*sup.cost:0;
+    const needsOrder=pos<rop;
+    const hideDem = window._GAME_CFG?.hideDemand;
+
+    html+=`
+<div style="background:var(--panel);border:2px solid ${needsOrder?'rgba(239,71,111,.5)':p.color+'44'};border-radius:10px;padding:11px 13px;margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-weight:700;font-size:14px;color:${p.light}">${p.emoji} ${p.name}</div>
+    <div style="display:flex;gap:5px;align-items:center">
+      ${needsOrder?'<span class="tag" style="background:rgba(239,71,111,.15);color:#ef476f">⚠ ORDER NOW</span>':''}
+      ${pend>0?`<span class="tag" style="background:rgba(6,214,160,.12);color:#06d6a0">✓ ${pend}units queued</span>`:''}
+      ${!hideDem?`<span class="tag" style="background:rgba(127,211,255,.1);color:#7fd3ff">avg ${Math.round(avgDem)}units/day</span>`:''}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:${window._GAME_CFG?.hideRecommendations?'repeat(3,1fr)':'repeat(4,1fr)'};gap:4px;margin-bottom:8px">
+    <div class="ps"><strong style="color:${bc}">${inv}</strong>On hand</div>
+    <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
+    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Inv Position</div>
+    ${!window._GAME_CFG?.hideRecommendations?`<div class="ps"><strong style="color:#ffd166">${eQ}</strong>EOQ</div>`:''}
+  </div>
+  <div style="height:4px;background:var(--border2);border-radius:99px;overflow:hidden;margin-bottom:8px">
+    <div style="height:100%;background:${bc};width:${r*100}%;border-radius:99px;transition:width .5s"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+    <button class="qbtn" onclick="adjQ('${p.id}',-10)" style="width:32px;height:32px;font-size:16px">−</button>
+    <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}"
+      onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()"
+      style="font-size:17px;padding:4px 8px">
+    <button class="qbtn" onclick="adjQ('${p.id}',10)" style="width:32px;height:32px;font-size:16px">+</button>
+    ${!window._GAME_CFG?.hideRecommendations?`<button onclick="UI.decs['${p.id}']=${eQ};renderPanel()" style="flex:1;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700">EOQ ${eQ}units</button>`:''}
+  </div>
+  ${q>0?`<div style="font-size:10px;color:var(--muted);margin-bottom:5px;padding:5px 8px;background:var(--bg2);border-radius:5px">
+    Fixed ${fc.toFixed(2)} + ${q}units × ${sup.cost.toFixed(2)} = <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong> · Arrives <strong>Morning Day ${GS.day+sup.ltDays}</strong>
+  </div>`:''}
+  <button class="btn-order" onclick="placeOrder('${p.id}')" style="padding:9px;font-size:10px;margin-bottom:0">
+    ${pend>0?`📦 ADD MORE (+${q||0}units) — ${pend}units queued`:`📦 QUEUE ORDER`}
+  </button>
+  ${pipe.length>0?`<div style="margin-top:6px;font-size:10px;color:#73c2fb">🚚 ${pipe.map(o=>`${o.q}units → Day ${o.arr}`).join(' | ')}</div>`:''}
+</div>`;
+  });
+
+  html+=`
+<div style="border-top:2px solid var(--border2);padding-top:10px;margin-top:4px">
+  <button class="btn-next" onclick="advDay()">⏭ Next Day →</button>
+  <div class="kb-hint" style="margin-top:6px">Enter = next day · ↑↓ arrows = ±5 qty · Orders accumulate until you advance</div>
+</div>`;
+  return html;
+}
+
+// ── OVERVIEW TAB
+function htmlOverview(){
+  return PRODS.map(p=>{
+    const inv=GS.inv[p.id];
+    const r=Math.max(0,Math.min(1,inv/p.maxShelf));
+    const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+    const pend=UI.pendOrd[p.id];
+    const suppIdx=GS.selSupp[p.id]||0;
+    const sup=p.suppliers[suppIdx];
+    const blk=GS.suppBlocked[p.id][suppIdx]>0;
+    const pipeArr=GS.pipe[p.id];
+    const pipeU=pipeArr.reduce((s,o)=>s+o.q,0);
+    const eQ=calcEOQ(p,suppIdx);
+    const avgDem = p.demandAvg || 15;
+    const rop=Math.ceil(avgDem*sup.ltDays);
+    const pos=inv+pipeU;
+    const needsOrder=pos<rop;
+    const arrTomorrow=pipeArr.filter(o=>o.arr===GS.day+1).reduce((s,o)=>s+o.q,0);
+    const expTomorrow=Math.max(0,inv+arrTomorrow-avgDem);
+    const nextArr=pipeArr.length>0?pipeArr.reduce((m,o)=>o.arr<m.arr?o:m,pipeArr[0]):null;
+    const hideDem = window._GAME_CFG?.hideDemand;
+    return `
+<div class="prod-card${UI.selProd===p.id?' sel':''}${r<.15?' warn':''}" onclick="UI.selProd='${p.id}';setTab('order')">
+  <div class="prod-head">
+    <div class="prod-name" style="color:${p.light}">${p.emoji} ${p.name}</div>
+    <div style="display:flex;gap:4px;align-items:center">
+      ${needsOrder?'<span class="tag" style="background:rgba(239,71,111,.15);color:#ef476f">ORDER NOW</span>':''}
+      ${(pend||0)>0?`<span class="tag" style="background:rgba(6,214,160,.12);color:#06d6a0">✓ ${pend}units queued</span>`:''}
+      <span class="prod-badge" style="background:${bc}18;color:${bc}">${Math.round(r*100)}%</span>
+    </div>
+  </div>
+  <div class="prog2"><div class="prog2-fill" style="width:${r*100}%;background:${bc}"></div></div>
+  <div class="prod-stats" style="grid-template-columns:${window._GAME_CFG?.hideRecommendations?'repeat(3,1fr)':'repeat(4,1fr)'}">
+    <div class="ps"><strong>${inv}</strong>On hand</div>
+    <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
+    ${!window._GAME_CFG?.hideRecommendations?`<div class="ps"><strong style="color:#ffd166">${eQ}</strong>EOQ</div>`:''}
+    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Inv Position</div>
+  </div>
+  <div style="margin-top:8px;padding:7px 9px;background:rgba(127,211,255,.07);border:1px solid rgba(127,211,255,.18);border-radius:6px;font-size:11px;color:var(--muted);line-height:1.5">
+    <div>📅 Expected inventory tomorrow morning: <strong style="color:${expTomorrow<10?'#ef476f':'#7fd3ff'}">${Math.round(expTomorrow)}units</strong></div>
+    ${arrTomorrow>0?`<div style="color:#06d6a0">🚚 +${arrTomorrow}units arriving tomorrow morning</div>`:''}
+    ${nextArr&&nextArr.arr>GS.day+1?`<div>📦 Next shipment: <strong>${nextArr.q}units on Day ${nextArr.arr}</strong></div>`:''}
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:10px;color:var(--muted)">
+    <span>Hold: <strong style="color:#9b5de5">${p.holdPerUnit}/u/d</strong></span>
+    <span>LT: <strong>${sup.ltDays}d</strong></span>
+    ${!hideDem?`<span>Avg demand: <strong>${Math.round(avgDem)}units/d ± ${Math.round(p.demandStd||3)}</strong></span>`:`<span style="color:var(--dim)">Demand: hidden</span>`}
+  </div>
+</div>`;
+  }).join('')+`<div style="font-size:10px;color:var(--dim);text-align:center;padding:4px">Tap a product to manage it</div>`;
+}
+
+// ── ORDER TAB
+function htmlOrder(){
+  const p=PRODS.find(x=>x.id===UI.selProd);
+  if(!p) return '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">Select a product from Overview</div>';
+  const suppIdx=GS.selSupp[p.id]||0;
+  const sup=p.suppliers[suppIdx];
+  const inv=GS.inv[p.id];
+  const pipe=GS.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
+  const r=Math.max(0,Math.min(1,inv/p.maxShelf));
+  const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+  const eQ=calcEOQ(p,suppIdx);
+  const avgDem = p.demandAvg || 15;
+  const demStd = p.demandStd || 3;
+  const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
+  const rop=Math.ceil(avgDem*sup.ltDays);
+  const safetyStock=Math.ceil(demStd*sup.ltDays);
+  const pos=inv+pipeU, rec=pos<rop?eQ:0;
+  const q=UI.decs[p.id]||0, pend=UI.pendOrd[p.id]||0;
+  const blk=GS.suppBlocked[p.id][suppIdx]>0;
+  const orderCost=q>0?fc+q*sup.cost:0;
+
+  // product switcher
+  const sw=PRODS.map(pr=>`
+<button class="psw-btn${UI.selProd===pr.id?' on':''}" onclick="UI.selProd='${pr.id}';renderPanel()">${pr.emoji} ${pr.name}</button>`).join('');
+
+  // supplier cards
+  const suppCards=p.suppliers.map((s2,i)=>{
+    const isBlk=GS.suppBlocked[p.id][i]>0;
+    const isSel=suppIdx===i;
+    const relC=s2.rel>=.95?'#06d6a0':s2.rel>=.88?'#ffd166':'#ef476f';
+    return `
+<div class="supp-card${isSel?' sel':''}${isBlk?' blocked':''}" onclick="${isBlk?'':'selectSupp(\"'+p.id+'\",'+i+')'}" style="${isSel?'border-color:#73c2fb':''}">
+  <div class="supp-head">
+    <span class="supp-name">${s2.name} <span style="font-size:10px;color:var(--muted)">· ${s2.city}</span></span>
+    <span class="supp-tag" style="background:${s2.tagC}18;color:${s2.tagC}">${isBlk?'BLOCKED':s2.tag}</span>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${s2.note}</div>
+  <div class="supp-grid">
+    <div class="supp-stat"><strong style="color:#73c2fb">${s2.cost.toFixed(2)}</strong>Per unit</div>
+    <div class="supp-stat"><strong style="color:#ffd166">${s2.ltDays}d</strong>Lead time</div>
+    <div class="supp-stat">
+      <strong style="color:${relC}">${Math.round(s2.rel*100)}%</strong>Reliable
+      <div class="rel-bar"><div class="rel-fill" style="width:${s2.rel*100}%;background:${relC}"></div></div>
+    </div>
+  </div>
+  ${isSel?'<div style="font-size:10px;color:#73c2fb;margin-top:5px;text-align:center">✓ Currently selected</div>':''}
+  ${isBlk?`<div style="font-size:10px;color:#ef476f;margin-top:5px">Blocked ${GS.suppBlocked[p.id][i]} more day(s)</div>`:''}
+</div>`;
+  }).join('');
+
+  return `
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:10px">${sw}</div>
+
+<div class="section-title">Current Status — ${p.emoji} ${p.name}</div>
+<div class="info-box" style="border-color:${p.color}44">
+  <div class="info-row"><span class="lbl">On-hand inventory</span><span class="val" style="color:${bc}">${inv} units</span></div>
+  <div class="info-row"><span class="lbl">In transit (pipeline)</span><span class="val" style="color:#73c2fb">${pipeU} units</span></div>
+  <div class="info-row"><span class="lbl">Inventory position</span><span class="val" style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos} units ${!window._GAME_CFG?.hideRecommendations?(pos<rop?'⚠ BELOW ROP':'✓ OK'):''}</span></div>
+  <div class="info-row"><span class="lbl">Expected demand today</span><span class="val">${window._GAME_CFG?.hideDemand ? '—' : `avg ${Math.round(p.demandAvg||15)}units ± ${Math.round(p.demandStd||3)}`}</span></div>
+  <div class="info-row"><span class="lbl">Selling price</span><span class="val">${GS.sellPrice[p.id].toFixed(2)}/unit</span></div>
+  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">${p.holdPerUnit}/u/d (${p.holdNote})</span></div>
+  <div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;margin-top:6px">
+    <div style="height:100%;background:${bc};width:${r*100}%;border-radius:3px;transition:width .5s"></div>
+  </div>
+</div>
+
+<div class="hint-box" ${window._GAME_CFG?.hideRecommendations ? 'style="display:none"' : ''}>
+  💡 <strong>EOQ = ${eQ} units</strong> · ROP = <strong>${rop}units</strong> · Safety Stock ≈ <strong>${safetyStock}units</strong><br>
+  Daily holding on ${eQ}units order ≈ <strong>${(eQ*p.holdPerUnit/2).toFixed(2)}/day avg</strong><br>
+  ${rec>0?`<strong style="color:#ff6b35">→ Recommend ordering ${rec} units now</strong>`:'<strong style="color:#06d6a0">→ Inventory position looks adequate</strong>'}
+</div>
+
+<div class="section-title">Distributor</div>
+<div class="supp-card sel" style="border-color:#73c2fb">
+  <div class="supp-head">
+    <span class="supp-name">${sup.name} <span style="font-size:10px;color:var(--muted)">· ${sup.city}</span></span>
+    <span class="supp-tag" style="background:${sup.tagC}18;color:${sup.tagC}">${sup.tag}</span>
+  </div>
+  <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${sup.note}</div>
+  <div class="supp-grid">
+    <div class="supp-stat"><strong style="color:#73c2fb">${sup.cost.toFixed(2)}</strong>Per unit</div>
+    <div class="supp-stat"><strong style="color:#ffd166">${sup.ltDays}d</strong>Lead time</div>
+    <div class="supp-stat"><strong style="color:#06d6a0">${Math.round(sup.rel*100)}%</strong>Reliable</div>
+  </div>
+</div>
+
+<div class="section-title" style="margin-top:8px">Place Order</div>
+<div class="qty-row">
+  <button class="qbtn" onclick="adjQ('${p.id}',-10)">-</button>
+  <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}" onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()">
+  <button class="qbtn" onclick="adjQ('${p.id}',10)">+</button>
+</div>
+${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:6px;border-radius:4px;cursor:pointer;font-size:11px;margin-bottom:6px">Use EOQ recommendation (${rec} units)</button>`:''}
+<div class="cost-preview">
+  ${q>0
+    ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <span>Fixed fee: <strong>${fc.toFixed(2)}</strong></span>
+        <span>Units: <strong>${(q*sup.cost).toFixed(2)}</strong></span>
+        <span>Total cost: <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong></span>
+        <span>Arrives: <strong>Morning of Day ${GS.day+sup.ltDays}</strong></span>
+       </div>`
+    : 'No order — $0 cost'}
+</div>
+<button class="btn-order" onclick="placeOrder('${p.id}')">
+  ${pend>0?`📦 ADD MORE — ${pend}units already queued`:'📦 PLACE ORDER FOR '+p.name.toUpperCase()}
+</button>
+${pend>0?`<div style="background:rgba(6,214,160,.1);border:1px solid rgba(6,214,160,.3);border-radius:6px;padding:7px 10px;font-size:11px;color:#06d6a0;margin-bottom:6px">✓ <strong>${pend} units</strong> queued for Day ${GS.day} — you can add more or click Next Day</div>`:''}
+<button class="btn-next" onclick="advDay()">⏭ Next Day →</button>
+<div class="kb-hint">Enter/Space = next day · ↑↓ = ±5 qty · Orders queued until you advance</div>
+
+${pipe.length>0?`
+<div class="section-title" style="margin-top:10px">Pipeline — ${p.name}</div>
+${pipe.map(o=>`<div class="pipe-item" style="margin-bottom:4px">
+  <span><strong style="color:#73c2fb">${o.q} units</strong> from ${o.supName}</span>
+  <span style="color:#06d6a0">Arrives morning of Day ${o.arr}</span>
+</div>`).join('')}`:''}`;
+}
+
+// ── CHARTS TAB
+function htmlCharts(){
+  if(!GS.history||GS.history.length===0){
+    return '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">No data yet — play a few days to see charts</div>';
+  }
+  return `
+<div class="section-title">Performance Charts</div>
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📈 Daily Revenue</div>
+  <canvas id="chart-rev" style="width:100%;height:140px;display:block"></canvas>
+</div>
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📦 Inventory Over Time</div>
+  <canvas id="chart-inv" style="width:100%;height:160px;display:block"></canvas>
+  <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center">
+    ${PRODS.map(p=>`<span><span style="display:inline-block;width:10px;height:10px;background:${p.light};vertical-align:middle;margin-right:4px;border-radius:2px"></span>${p.emoji} ${p.name}</span>`).join('')}
+  </div>
+</div>
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📉 Lost Sales per Day</div>
+  <canvas id="chart-lost" style="width:100%;height:120px;display:block"></canvas>
+</div>
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">🚚 In-Transit Pipeline</div>
+  <canvas id="chart-pipe" style="width:100%;height:120px;display:block"></canvas>
+</div>`;
+}
+
+function drawCharts(){
+  if(!GS||!GS.history)return;
+  const hist=GS.history;
+  const setupCanvas=(id)=>{
+    const c=document.getElementById(id); if(!c)return null;
+    const dpr=window.devicePixelRatio||1;
+    const w=c.clientWidth, h=c.clientHeight;
+    c.width=w*dpr; c.height=h*dpr;
+    const x=c.getContext('2d'); x.scale(dpr,dpr);
+    return {ctx:x,w,h};
+  };
+  const axis=(x,w,h,title)=>{
+    x.fillStyle='var(--dim)';
+    x.strokeStyle='rgba(180,180,200,.18)';x.lineWidth=1;
+    x.beginPath();x.moveTo(28,h-18);x.lineTo(w-6,h-18);x.stroke();
+    x.beginPath();x.moveTo(28,6);x.lineTo(28,h-18);x.stroke();
+  };
+
+  // Revenue line
+  let r=setupCanvas('chart-rev');
+  if(r){
+    const {ctx,w,h}=r;
+    ctx.clearRect(0,0,w,h);
+    axis(ctx,w,h);
+    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.rev[p.id]||0),0));
+    const max=Math.max(10,...data);
+    ctx.strokeStyle='#06d6a0';ctx.lineWidth=2;ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=28+(w-34)*(data.length<=1?0:i/(data.length-1));
+      const y=h-18-(h-24)*(v/max);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // fill
+    ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
+    ctx.fillStyle='rgba(6,214,160,.12)';ctx.fill();
+    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillText('$'+Math.round(max),2,12);
+    ctx.fillText('$0',2,h-20);
+    ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
+  }
+
+  // Inventory multi-line
+  r=setupCanvas('chart-inv');
+  if(r){
+    const {ctx,w,h}=r;
+    ctx.clearRect(0,0,w,h);
+    axis(ctx,w,h);
+    let max=10;
+    PRODS.forEach(p=>{hist.forEach(s=>{if(s.inv[p.id]>max)max=s.inv[p.id];});});
+    PRODS.forEach(p=>{
+      ctx.strokeStyle=p.light;ctx.lineWidth=2;ctx.beginPath();
+      hist.forEach((s,i)=>{
+        const x=28+(w-34)*(hist.length<=1?0:i/(hist.length-1));
+        const y=h-18-(h-24)*((s.inv[p.id]||0)/max);
+        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    });
+    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
+    ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
+  }
+
+  // Lost sales bars
+  r=setupCanvas('chart-lost');
+  if(r){
+    const {ctx,w,h}=r;
+    ctx.clearRect(0,0,w,h);
+    axis(ctx,w,h);
+    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.lost[p.id]||0),0));
+    const max=Math.max(5,...data);
+    const bw=Math.max(2,(w-34)/data.length-2);
+    data.forEach((v,i)=>{
+      const x=28+(w-34)*(i/data.length);
+      const bh=(h-24)*(v/max);
+      ctx.fillStyle=v>0?'#ef476f':'rgba(239,71,111,.15)';
+      ctx.fillRect(x,h-18-bh,bw,bh);
+    });
+    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
+  }
+
+  // Pipeline area
+  r=setupCanvas('chart-pipe');
+  if(r){
+    const {ctx,w,h}=r;
+    ctx.clearRect(0,0,w,h);
+    axis(ctx,w,h);
+    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.pipe[p.id]||0),0));
+    const max=Math.max(10,...data);
+    ctx.strokeStyle='#7fd3ff';ctx.lineWidth=2;ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=28+(w-34)*(data.length<=1?0:i/(data.length-1));
+      const y=h-18-(h-24)*(v/max);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
+    ctx.fillStyle='rgba(127,211,255,.15)';ctx.fill();
+    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
+  }
+}
+
+// ── COSTS TAB
+function htmlCosts(){
+  const totHold=PRODS.reduce((s,p)=>s+GS.holdCost[p.id],0);
+  const totOrd=PRODS.reduce((s,p)=>s+GS.ordCost[p.id],0);
+  const totLrev=PRODS.reduce((s,p)=>s+GS.lrev[p.id],0);
+  const grossProfit=GS.totRev-totHold-totOrd-PRODS.reduce((s,p)=>s+(GS.sold[p.id]*(p.suppliers[GS.selSupp[p.id]||0].cost)),0);
+
+  return `
+<div class="section-title">Cost Summary — Day ${GS.day}</div>
+<div class="info-box" style="margin-bottom:8px">
+  <div class="info-row"><span class="lbl">Total Revenue</span><span class="val" style="color:#06d6a0">${Math.round(GS.totRev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Total Holding Cost</span><span class="val" style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Total Ordering Cost</span><span class="val" style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Lost Sales Revenue</span><span class="val" style="color:#ef476f">${Math.round(totLrev).toLocaleString()}</span></div>
+  <div class="info-row" style="border-top:1px solid var(--border2);padding-top:5px;margin-top:3px">
+    <span class="lbl" style="font-weight:700">Est. Gross Profit</span>
+    <span class="val" style="color:${grossProfit>0?'#06d6a0':'#ef476f'};font-size:15px">${Math.round(grossProfit).toLocaleString()}</span>
+  </div>
+</div>
+
+<div class="section-title">Per-Product Breakdown</div>
+${PRODS.map(p=>{
+  const suppIdx=GS.selSupp[p.id]||0;
+  const sup=p.suppliers[suppIdx];
+  const sl=GS.sold[p.id]+GS.lost[p.id]>0?(GS.sold[p.id]/(GS.sold[p.id]+GS.lost[p.id])*100).toFixed(1):100;
+  const slC=sl>=90?'#06d6a0':sl>=75?'#ffd166':'#ef476f';
+  const dailyHold=(GS.inv[p.id]*p.holdPerUnit).toFixed(2);
+  return `
+<div class="cost-card" style="margin-bottom:8px;border-color:${p.color}33">
+  <div class="cost-head">
+    <span style="font-size:16px">${p.emoji}</span>
+    <span style="font-weight:700;color:${p.light}">${p.name}</span>
+    <span style="margin-left:auto;font-size:10px;color:${slC}">${sl}% service level</span>
+  </div>
+  <div class="cost-rows">
+    <div class="cost-row"><span>Revenue earned</span><span class="val" style="color:#06d6a0">${Math.round(GS.rev[p.id])}</span></div>
+    <div class="cost-row"><span>Holding cost <span style="color:var(--dim)">(${p.holdPerUnit}/u/d)</span></span><span class="val" style="color:#9b5de5">${Math.round(GS.holdCost[p.id])}</span></div>
+    <div class="cost-row"><span>Ordering cost <span style="color:var(--dim)">(${(PRODS.find(x=>x.id===p.id)?.fixedCost||50).toFixed(0)} fixed + unit cost)</span></span><span class="val" style="color:#ffd166">${Math.round(GS.ordCost[p.id])}</span></div>
+    <div class="cost-row"><span>Lost sales value</span><span class="val" style="color:#ef476f">${Math.round(GS.lrev[p.id])}</span></div>
+    <div class="cost-row"><span>Units sold / lost</span><span class="val">${GS.sold[p.id]} / <span style="color:#ef476f">${GS.lost[p.id]}</span></span></div>
+    <div class="cost-row"><span>Supplier cost/unit</span><span class="val">${sup.cost.toFixed(2)} (${sup.name})</span></div>
+    <div class="cost-row"><span>Today's holding (${GS.inv[p.id]}units)</span><span class="val" style="color:#9b5de5">${dailyHold}/day</span></div>
+  </div>
+</div>`;
+}).join('')}
+<div style="background:rgba(155,93,229,.07);border:1px solid rgba(155,93,229,.2);border-radius:6px;padding:10px 12px;font-size:11px;color:#c4a0ff;line-height:1.7;margin-top:4px">
+  <strong>💡 Holding Cost Trade-off:</strong> Water costs only ${PRODS[1].holdPerUnit}/u/day — safe to over-stock. Chocolate costs ${PRODS[0].holdPerUnit}/u/day — avoid excess. EOQ balances these costs against ordering fees automatically.
+</div>`;
+}
+
+// ── LOG TAB
+function htmlLog(){
+  if(!GS||!GS.log.length) return '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">No days played yet</div>';
+  return [...GS.log].reverse().slice(0,25).map(e=>{
+    const totS=PRODS.reduce((s,p)=>s+e.prods[p.id].s,0);
+    const totL=PRODS.reduce((s,p)=>s+e.prods[p.id].l,0);
+    const totR=PRODS.reduce((s,p)=>s+e.prods[p.id].r,0);
+    const totH=PRODS.reduce((s,p)=>s+e.prods[p.id].hc,0);
+    const hasEvt=e.events.length>0;
+    return `
+<div class="log-entry" style="border-left-color:${totL>0?'#ef476f':hasEvt?'#ffd166':'#2a2640'}">
+  <div class="log-day">Day ${e.day}</div>
+  <div class="log-grid">
+    ${PRODS.map(p=>{const pe=e.prods[p.id];return`<div class="log-prod" style="color:${pe.l>0?'#ef476f':'var(--muted)'}">${p.emoji} ${pe.s}/${pe.dem}${pe.recv>0?`<span style="color:#06d6a0">+${pe.recv}</span>`:''}</div>`;}).join('')}
+  </div>
+  Rev <strong style="color:#06d6a0">${totR.toFixed(0)}</strong> · Hold <strong style="color:#9b5de5">${totH.toFixed(1)}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}units</strong>`:''}
+  ${e.events.map(ev=>`<div style="color:#ffd166;margin-top:2px">${ev.txt}</div>`).join('')}
+</div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════════════
+function adjQ(pid, delta){
+  UI.decs[pid]=Math.max(0,(UI.decs[pid]||0)+delta);
+  const inp=document.getElementById('qinp-'+pid);
+  if(inp) inp.value=UI.decs[pid];
+  renderPanel();
+}
+
+function selectSupp(pid, idx){
+  GS.selSupp[pid]=idx;
+  renderPanel();
+}
+
+function placeOrder(pid){
+  const q=UI.decs[pid]||0;
+  if(q<=0){toast('Set a quantity > 0 first');return;}
+  UI.pendOrd[pid]=(UI.pendOrd[pid]||0)+q;
+  UI.pendOrdCount[pid]=(UI.pendOrdCount[pid]||0)+1;
+  UI.decs[pid]=0;
+  toast('📦 '+PRODS.find(p=>p.id===pid).name+': +'+q+' units queued! (Total: '+UI.pendOrd[pid]+'u)');
+  renderPanel();
+}
+
+// Scenario popup queue
+function showScenario(ev){
+  UI.scenarioActive=true;
+  document.getElementById('scenario-body').textContent=ev.txt;
+  document.getElementById('scenario-impact').textContent=ev.impact||'This event affects today\'s simulation.';
+  document.getElementById('scenario-modal').classList.remove('hidden');
+}
+function nextScenario(){
+  document.getElementById('scenario-modal').classList.add('hidden');
+  UI.scenarioActive=false;
+  if(UI.scenarioQueue.length>0){
+    const ev=UI.scenarioQueue.shift();
+    setTimeout(()=>showScenario(ev),250);
+  }
+}
+
+function advDay(){
+  if(!GS||GS.done||UI.scenarioActive)return;
+
+  // Round control gate — check if operator has released this day
+  const cfg = window._GAME_CFG || {};
+  if(cfg.roundControl && GS.day > (cfg.allowedDay||1)){
+    // Show waiting popup
+    showRoundGate(GS.day);
+    return;
+  }
+
+  const dec={};
+  PRODS.forEach(p=>{dec[p.id]=UI.pendOrd[p.id]||0;});
+  UI.mode='exterior'; UI.extTime=0;
+  GS.customers=[];
+  setTimeout(()=>{
+    const next=stepDay(GS,dec);
+    const entry=next.log[next.log.length-1];
+    let totS=0,totL=0;
+    PRODS.forEach(p=>{totS+=entry.prods[p.id].s;totL+=entry.prods[p.id].l;});
+    for(let i=0;i<Math.min(6,totS);i++) setTimeout(()=>spawnCust(totL===0),i*130);
+    if(totL>0) for(let i=0;i<Math.min(4,totL);i++) setTimeout(()=>spawnCust(false),i*150+250);
+    const W=UI.cv?UI.cv.width:400,H=UI.cv?UI.cv.height:300;
+    PRODS.forEach(p=>{const pe=entry.prods[p.id];if(pe.recv>0)setTimeout(()=>spawnPart(W*.5,H*.28,'+'+pe.recv+' '+p.emoji,p.light),1800);});
+    if(next.totRev>GS.totRev) setTimeout(()=>spawnPart(W*.3+Math.random()*W*.3,H*.42,'G+'+PRODS.reduce((s,p)=>s+entry.prods[p.id].r,0).toFixed(0),'#ffd166'),2100);
+    GS={...next,customers:GS.customers,particles:GS.particles};
+    // Firebase: save full state after every day
+    if(window.fbSaveDay) window.fbSaveDay(GS);
+    PRODS.forEach(p=>{UI.pendOrd[p.id]=0;UI.pendOrdCount[p.id]=0;UI.decs[p.id]=0;});
+    setTimeout(()=>{UI.mode='interior';},2200);
+    // SCENARIO POPUPS for events
+    if(entry.events.length>0){
+      setTimeout(()=>{
+        UI.scenarioQueue=entry.events.slice(1);
+        showScenario(entry.events[0]);
+      },2300);
+    }
+    if(next.done){
+      clearSavedState(); // remove save when game completes
+      setTimeout(showResults,3500);
+    } else {
+      saveStateToStorage(); // auto-save after each day
+    }
+    updateTopbar(); renderPanel();
+  },500);
+}
+
+function spawnCust(happy){
+  if(!GS)return;
+  const SK=['#f4c27a','#d4956a','#c68642','#8d5524','#fdbcb4'];
+  const SH=['#ff6b35','#118ab2','#06d6a0','#9b5de5','#f72585','#4cc9f0','#e8930a'];
+  const HA=['#1a1428','#8b4513','#f4c27a','#bb2200','#333'];
+  GS.customers.push({x:-60-Math.random()*50, wy:30+Math.random()*120,
+    sp:1.1+Math.random()*.9,happy,
+    sc:.72+Math.random()*.28,fr:~~(Math.random()*20),
+    skin:SK[~~(Math.random()*5)],shirt:SH[~~(Math.random()*7)],
+    hair:HA[~~(Math.random()*5)],pants:['#2c3e50','#4a3560','#1a2030'][~~(Math.random()*3)],done:false});
+}
+
+function spawnPart(x,y,txt,col){
+  if(!GS)return;
+  GS.particles.push({x,y,vy:-1.3,t:txt,c:col,l:1});
+}
+
+// ════════════════════════════════════════════════
+// CANVAS — TOP-DOWN RPG STORE (sprite-based, like reference image)
+// ════════════════════════════════════════════════
+const SPR={loaded:{},pat:{}};
+function loadSpr(name,src){
+  if(SPR.loaded[name]) return SPR.loaded[name];
+  const im=new Image();im.src=src;
+  SPR.loaded[name]=im;
+  return im;
+}
+function drawInterior(ctx,W,H,t){
+  ctx.clearRect(0,0,W,H);
+  ctx.imageSmoothingEnabled=true;
+
+  // Backdrop sprites (cafe + warehouse references)
+  const sprWarehouse=loadSpr('warehouse','sprites/warehouse.png');
+  const sprCafe=loadSpr('cafe','sprites/cafe-pixel.png');
+  const sprBagCoffee=loadSpr('coffeeBag','sprites/coffee-bag.png');
+  const sprBagCookie=loadSpr('cookieBag','sprites/cookies-bag.png');
+
+  // Split scene: warehouse (back / top) + cafe (front / bottom)
+  const WH_H=Math.round(H*0.56);
+  const CF_Y=WH_H;
+  const CF_H=H-WH_H;
+
+  // ── WAREHOUSE BACKDROP
+  ctx.save();
+  if(sprWarehouse.complete && sprWarehouse.naturalWidth){
+    // cover-fit
+    const ar=sprWarehouse.naturalWidth/sprWarehouse.naturalHeight;
+    let dw=W,dh=W/ar;
+    if(dh<WH_H){dh=WH_H;dw=WH_H*ar;}
+    ctx.drawImage(sprWarehouse,(W-dw)/2,(WH_H-dh)/2,dw,dh);
+    ctx.fillStyle='rgba(20,14,8,0.55)';ctx.fillRect(0,0,W,WH_H);
+  } else {
+    const g=ctx.createLinearGradient(0,0,0,WH_H);
+    g.addColorStop(0,'#2a221b');g.addColorStop(1,'#3a2e22');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,WH_H);
+  }
+  // Warehouse label
+  ctx.fillStyle='rgba(15,10,6,.7)';
+  ctx.fillRect(12,10,118,22);
+  ctx.fillStyle='#e8b770';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
+  ctx.fillText('▣  WAREHOUSE',20,25);
+  ctx.restore();
+
+  // ── WAREHOUSE SHELVES with stacked inventory boxes (each box ≈ 5 units)
+  const shelfPadX=Math.round(W*0.06);
+  const shelfTop=44;
+  const shelfBottom=WH_H-18;
+  const shelfH=shelfBottom-shelfTop;
+  const shelfGap=18;
+  const slotW=Math.floor((W-shelfPadX*2-shelfGap*(PRODS.length-1))/PRODS.length);
+
+  PRODS.forEach((p,i)=>{
+    const sx=shelfPadX+i*(slotW+shelfGap);
+    const sy=shelfTop;
+    const sw=slotW, sh=shelfH;
+    const inv=GS?GS.inv[p.id]:p.initInv;
+    const ratio=Math.max(0,Math.min(1,inv/p.maxShelf));
+
+    // Shelf frame (rusted industrial rack)
+    ctx.save();
+    ctx.fillStyle='rgba(10,6,3,.55)';
+    ctx.fillRect(sx-2,sy+sh-6,sw+4,8);
+    // uprights
+    ctx.fillStyle='#3a2a1c';
+    ctx.fillRect(sx-3,sy,4,sh);
+    ctx.fillRect(sx+sw-1,sy,4,sh);
+    // 3 shelves
+    const levels=3;
+    const levelH=Math.floor(sh/levels);
+    for(let lv=0;lv<levels;lv++){
+      const ly=sy+lv*levelH;
+      ctx.fillStyle='#5a3e26';ctx.fillRect(sx-3,ly,sw+6,4);
+      ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(sx-3,ly+4,sw+6,2);
+    }
+    ctx.restore();
+
+    // Boxes: each represents 5 units. distribute on the 3 shelves bottom→up.
+    const unitsPerBox=5;
+    const totalBoxes=Math.ceil(inv/unitsPerBox);
+    const colsPerShelf=Math.max(3,Math.floor((sw-12)/40));
+    const boxesPerShelf=colsPerShelf; // 1 row per shelf
+    const bagImg=p.id==='coffee'?sprBagCoffee:sprBagCookie;
+    const boxW=Math.floor((sw-12)/colsPerShelf)-4;
+    const boxH=levelH-12;
+    let placed=0;
+    // bottom shelf first
+    for(let lv=levels-1;lv>=0 && placed<totalBoxes;lv--){
+      const baseY=sy+lv*levelH+levelH-boxH-4;
+      for(let c=0;c<boxesPerShelf && placed<totalBoxes;c++){
+        const bx=sx+6+c*(boxW+4);
+        // shadow
+        ctx.fillStyle='rgba(0,0,0,.4)';
+        ctx.fillRect(bx+2,baseY+boxH-2,boxW,3);
+        if(bagImg.complete && bagImg.naturalWidth){
+          ctx.drawImage(bagImg,bx,baseY,boxW,boxH);
+        } else {
+          ctx.fillStyle=p.dark;ctx.fillRect(bx,baseY,boxW,boxH);
+          ctx.fillStyle=p.color;ctx.fillRect(bx+2,baseY+2,boxW-4,boxH-4);
+        }
+        placed++;
+      }
+    }
+    // empty shelf hint
+    if(totalBoxes===0){
+      ctx.fillStyle='rgba(255,80,80,.6)';
+      ctx.font='600 10px Inter,system-ui';ctx.textAlign='center';
+      ctx.fillText('EMPTY',sx+sw/2,sy+sh/2);
+    }
+
+    // Header label
+    ctx.fillStyle='rgba(8,5,3,.78)';
+    ctx.fillRect(sx,sy-22,sw,20);
+    ctx.fillStyle='#f0e4d0';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
+    ctx.fillText(p.emoji+' '+p.name,sx+8,sy-8);
+    // count badge right
+    ctx.fillStyle=ratio>.5?'#8db580':ratio>.2?'#e8b770':'#d96860';
+    ctx.font='700 12px JetBrains Mono,monospace';ctx.textAlign='right';
+    ctx.fillText(inv+'units',sx+sw-8,sy-8);
+
+    // Low stock pulse
+    if(ratio<.15){
+      const pulse=.15+.2*Math.abs(Math.sin(t*.2));
+      ctx.fillStyle=`rgba(217,104,96,${pulse})`;
+      ctx.fillRect(sx-4,sy-2,sw+8,sh+4);
+    }
+    // Pending order glow
+    if(GS&&UI.pendOrd&&UI.pendOrd[p.id]>0){
+      ctx.strokeStyle='#8db580';ctx.lineWidth=2;
+      ctx.strokeRect(sx-4,sy-2,sw+8,sh+4);
+    }
+  });
+
+  // ── DIVIDER / DOORWAY between warehouse and cafe
+  ctx.fillStyle='#1a1108';ctx.fillRect(0,WH_H-4,W,8);
+  ctx.fillStyle='rgba(232,183,112,.35)';ctx.fillRect(0,WH_H+4,W,1);
+  // swinging door in middle
+  const doorW=Math.min(70,W*.1), doorH=26;
+  const dx=W/2-doorW/2, dy=WH_H-doorH-2;
+  ctx.fillStyle='#3b2519';ctx.fillRect(dx,dy,doorW,doorH);
+  ctx.fillStyle='#a67b5b';ctx.fillRect(dx+3,dy+3,doorW-6,doorH-6);
+  ctx.fillStyle='#e8b770';ctx.font='600 8px Inter,system-ui';ctx.textAlign='center';
+  ctx.fillText('TO CAFÉ',W/2,dy+16);
+
+  // ── CAFE BACKDROP
+  ctx.save();
+  if(sprCafe.complete && sprCafe.naturalWidth){
+    const ar=sprCafe.naturalWidth/sprCafe.naturalHeight;
+    let dw=W,dh=W/ar;
+    if(dh<CF_H){dh=CF_H;dw=CF_H*ar;}
+    ctx.drawImage(sprCafe,(W-dw)/2,CF_Y+(CF_H-dh)/2,dw,dh);
+    // warm tint
+    ctx.fillStyle='rgba(60,28,12,0.35)';ctx.fillRect(0,CF_Y,W,CF_H);
+  } else {
+    const g=ctx.createLinearGradient(0,CF_Y,0,H);
+    g.addColorStop(0,'#5a3a22');g.addColorStop(1,'#3a2418');
+    ctx.fillStyle=g;ctx.fillRect(0,CF_Y,W,CF_H);
+  }
+  // Cafe label
+  ctx.fillStyle='rgba(15,10,6,.7)';
+  ctx.fillRect(12,CF_Y+10,86,22);
+  ctx.fillStyle='#e8b770';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
+  ctx.fillText('☕ CAFÉ',20,CF_Y+25);
+  ctx.restore();
+
+  // ── CAFE COUNTER with bag products on display + price tags
+  const counterY=CF_Y+CF_H-Math.min(78,CF_H*.6);
+  const counterH=H-counterY-26;
+  ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,counterY+counterH-3,W,5);
+  // counter top (warm wood)
+  const wood=ctx.createLinearGradient(0,counterY,0,counterY+counterH);
+  wood.addColorStop(0,'#7a4a26');wood.addColorStop(1,'#4a2a14');
+  ctx.fillStyle=wood;ctx.fillRect(0,counterY,W,counterH);
+  // gold trim
+  ctx.fillStyle='#e8b770';ctx.fillRect(0,counterY,W,2);
+
+  // Place product bag samples on counter with price tag
+  const samplesY=counterY-Math.min(56,CF_H*.42);
+  const sampleH=counterY-samplesY-4;
+  PRODS.forEach((p,i)=>{
+    const slotW2=Math.min(140,W/(PRODS.length+1));
+    const cx=W*(i+1)/(PRODS.length+1)-slotW2/2;
+    const bag=p.id==='coffee'?sprBagCoffee:sprBagCookie;
+    const bagH=sampleH, bagW=bagH*0.78;
+    const bx=cx+slotW2/2-bagW/2;
+    // gentle bob
+    const bob=Math.sin(t*.04+i)*2;
+    if(bag.complete && bag.naturalWidth){
+      ctx.drawImage(bag,bx,samplesY+bob,bagW,bagH);
+    }
+    // price chalkboard tag
+    const tagW=70, tagH=22;
+    const tx2=cx+slotW2/2-tagW/2, ty2=counterY+8;
+    ctx.fillStyle='#1a120a';ctx.fillRect(tx2,ty2,tagW,tagH);
+    ctx.strokeStyle='#e8b770';ctx.lineWidth=1;ctx.strokeRect(tx2+.5,ty2+.5,tagW-1,tagH-1);
+    ctx.fillStyle='#f0e4d0';ctx.font='600 10px Fraunces,serif';ctx.textAlign='center';
+    ctx.fillText(p.emoji+' '+p.name,tx2+tagW/2,ty2+10);
+    ctx.fillStyle='#e8b770';ctx.font='700 10px JetBrains Mono,monospace';
+    ctx.fillText('$'+(GS?GS.sellPrice[p.id]:p.sell).toFixed(2),tx2+tagW/2,ty2+20);
+  });
+
+  // Hanging Edison bulb
+  const fl=.85+.15*Math.sin(t*.18);
+  ctx.fillStyle=`rgba(255,209,140,${fl*.18})`;
+  ctx.beginPath();ctx.arc(W*.5,CF_Y+10,40,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(W*.5,CF_Y+10,3,0,Math.PI*2);ctx.fill();
+
+  // ── CUSTOMERS — walk along the cafe floor in front of counter
+  if(GS&&GS.customers){
+    const walkY=counterY-10;
+    GS.customers.forEach(c=>{
+      if(c.done)return;
+      const cx=(c.x*0.9)%(W+40)-20;
+      drawTopDownChar(ctx,cx,walkY,c.skin,c.shirt,c.hair,false,c.happy);
+      c.x+=c.sp; c.fr++;
+      if(c.x>W*2) c.done=true;
+    });
+    GS.customers=GS.customers.filter(c=>!c.done);
+  }
+  // Barista behind counter
+  const bob2=Math.abs(Math.sin(t*.05))*1.5;
+  drawTopDownChar(ctx,W*.08,counterY+4-bob2,'#f4c27a','#7a3a1a','#3a2418',true,false);
+
+  // ── PARTICLES
+  if(GS&&GS.particles){
+    GS.particles.forEach(p=>{
+      ctx.save();ctx.globalAlpha=p.l;
+      ctx.font=`bold ${11+(1-p.l)*4}px DM Sans,system-ui`;ctx.textAlign='center';
+      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(p.t,p.x+1,p.y+1);
+      ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y);ctx.restore();
+      p.y+=p.vy;p.l-=.018;
+    });
+    GS.particles=GS.particles.filter(p=>p.l>0);
+  }
+
+  // ── PROGRESS BAR overlay
+  if(GS){
+    ctx.fillStyle='rgba(15,10,6,.78)';ctx.fillRect(0,H-22,W,22);
+    ctx.fillStyle='#2a1a10';ctx.fillRect(8,H-14,W-16,8);
+    const pct2=Math.max(.02,(GS.day-1)/30);
+    const pg2=ctx.createLinearGradient(8,0,8+(W-16)*pct2,0);
+    pg2.addColorStop(0,'#d97742');pg2.addColorStop(1,'#e8b770');
+    ctx.fillStyle=pg2;ctx.fillRect(8,H-14,(W-16)*pct2,8);
+    ctx.font='600 9px Inter,system-ui';ctx.fillStyle='#f0e4d0';ctx.textAlign='left';
+    ctx.fillText('Day '+(GS.day-1)+' / 30',10,H-17);
+    const dl2=30-GS.day+1;
+    ctx.textAlign='right';ctx.fillStyle=dl2<=5?'#d96860':'#cdb89a';
+    ctx.fillText(dl2+'d left',W-10,H-17);
+    const allEvts2=PRODS.flatMap(p=>(p.events||[]).filter(e=>e.d>=GS.day&&e.d<=GS.day+4).map(e=>({...e,pem:p.emoji})));
+    if(allEvts2.length>0){
+      const ne2=allEvts2[0],inD2=ne2.d-GS.day+1;
+      ctx.fillStyle='rgba(232,183,112,.16)';ctx.strokeStyle='rgba(232,183,112,.55)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.roundRect(W/2-115,3,230,20,3);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#e8b770';ctx.font='600 9px Inter,system-ui';ctx.textAlign='center';
+      ctx.fillText(ne2.pem+' '+ne2.txt.slice(0,35)+'... in '+inD2+'d',W/2,15);
+    }
+  }
+}
+
+// Top-down RPG character sprite (like reference image)
+function drawTopDownChar(ctx,x,y,skin,shirt,hair,isCashier,happy){
+  const S=14; // sprite size
+  // Shadow
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(x+S/2,y+S+3,S/2,3,0,0,Math.PI*2);ctx.fill();
+  // Body (top-down = oval torso)
+  ctx.fillStyle=shirt;ctx.beginPath();ctx.ellipse(x+S/2,y+S/2+2,S/2-1,S/2,0,0,Math.PI*2);ctx.fill();
+  // Head (top-down = circle, taking most of sprite)
+  ctx.fillStyle=skin;ctx.beginPath();ctx.arc(x+S/2,y+S/2-1,S/2,0,Math.PI*2);ctx.fill();
+  // Hair
+  ctx.fillStyle=hair;ctx.beginPath();ctx.arc(x+S/2,y+S/2-1,S/2,Math.PI,0);ctx.fill();
+  ctx.fillStyle=hair;ctx.fillRect(x+1,y+S/2-1,S-2,3);
+  // Eyes (two dots)
+  ctx.fillStyle='#1a1428';
+  ctx.beginPath();ctx.arc(x+S/2-3,y+S/2+1,1.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+S/2+3,y+S/2+1,1.2,0,Math.PI*2);ctx.fill();
+  // Mouth
+  if(happy){ctx.strokeStyle='#1a1428';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+S/2,y+S/2+3,2,.1,Math.PI-.1);ctx.stroke();}
+  else if(!isCashier){ctx.strokeStyle='#1a1428';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+S/2,y+S/2+5,2,Math.PI+.1,-.1);ctx.stroke();}
+  // Shopping basket for customers
+  if(!isCashier&&happy){
+    ctx.fillStyle='#ffd166';ctx.fillRect(x+S-2,y+S/2,6,5);
+    ctx.strokeStyle='#aa8800';ctx.lineWidth=1;ctx.strokeRect(x+S-2,y+S/2,6,5);
+  }
+  if(isCashier){
+    // Name tag
+    ctx.fillStyle='#fff';ctx.fillRect(x+S/2-5,y+S/2+2,10,5);
+    ctx.fillStyle='#0a0818';ctx.font='3px DM Sans,system-ui';ctx.textAlign='center';
+    ctx.fillText('SAM',x+S/2,y+S/2+6);
+  }
+}
+
+// ── EXTERIOR (night + store facade)
+function drawExterior(ctx,W,H,t){
+  ctx.clearRect(0,0,W,H);
+  // Sky
+  const sk=ctx.createLinearGradient(0,0,0,H*.42);sk.addColorStop(0,'#0d0b20');sk.addColorStop(1,'#1e1848');
+  ctx.fillStyle=sk;ctx.fillRect(0,0,W,H*.42);
+  // Stars
+  [[.06,.08],[.18,.13],[.3,.04],[.45,.16],[.6,.06],[.75,.11],[.9,.08],[.22,.21],[.68,.18],[.5,.1]].forEach(([sx,sy],i)=>{
+    ctx.globalAlpha=.3+.7*Math.abs(Math.sin(t*.05+i*1.8));
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx*W,sy*H*.42,.9,0,Math.PI*2);ctx.fill();
+  });
+  ctx.globalAlpha=1;
+  // Moon
+  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(W*.87,H*.1,13,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#1a1540';ctx.beginPath();ctx.arc(W*.87-4,H*.1-3,10,0,Math.PI*2);ctx.fill();
+  // Ground
+  ctx.fillStyle='#1a1230';ctx.fillRect(0,H*.42,W,H*.58);
+  ctx.fillStyle='#221a40';ctx.fillRect(0,H*.65,W,H*.35);
+  // Road
+  ctx.strokeStyle='rgba(255,209,102,.18)';ctx.lineWidth=2;ctx.setLineDash([18,14]);
+  ctx.beginPath();ctx.moveTo(0,H*.82);ctx.lineTo(W,H*.82);ctx.stroke();ctx.setLineDash([]);
+  // Lamps
+  [W*.07,W*.93].forEach(lx=>{
+    ctx.fillStyle='#2c2650';ctx.fillRect(lx-2,H*.46,5,H*.2);
+    ctx.fillStyle='#443878';ctx.fillRect(lx-10,H*.46,21,8);
+    const g=ctx.createRadialGradient(lx,H*.48,2,lx,H*.48,40);
+    g.addColorStop(0,'rgba(255,209,102,.18)');g.addColorStop(1,'rgba(255,209,102,0)');
+    ctx.fillStyle=g;ctx.fillRect(lx-40,H*.4,80,70);
+  });
+  // Building
+  const bw=Math.min(W*.66,420),bh=H*.44,bx=(W-bw)/2,by=H*.2;
+  ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(bx+6,by+bh,bw,10);
+  ctx.fillStyle='#22194a';ctx.beginPath();ctx.roundRect(bx,by,bw,bh,6);ctx.fill();
+  // Awning
+  ctx.fillStyle='#cc4422';
+  ctx.beginPath();ctx.moveTo(bx-13,by);ctx.lineTo(bx+bw/2,by-36);ctx.lineTo(bx+bw+13,by);ctx.closePath();ctx.fill();
+  for(let i=0;i<12;i++){const fx=bx-13+i*(bw+26)/11,sw=Math.sin(t*.07+i*.65)*2.5;ctx.strokeStyle='#ff8c5a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(fx,by);ctx.lineTo(fx+sw,by+10);ctx.stroke();}
+  // Sign
+  ctx.fillStyle='#160e2a';ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.fill();
+  ctx.strokeStyle='#ffd166';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.stroke();
+  ctx.globalAlpha=.85+.15*Math.sin(t*.19);ctx.fillStyle='#ffd166';ctx.font='bold 11px DM Sans,system-ui';ctx.textAlign='center';
+  ctx.fillText('★  THE CAFE  ★',bx+bw/2,by+27);ctx.globalAlpha=1;
+  // Windows
+  const totInv=GS?PRODS.reduce((a,p)=>a+GS.inv[p.id],0):200;
+  const maxInv=PRODS.reduce((a,p)=>a+p.initInv,0);
+  const rat=Math.max(0,Math.min(1,totInv/maxInv));
+  const sc=rat>.5?'#06d6a0':rat>.25?'#ffd166':'#ef476f';
+  [[bx+14,by+44,bw*.32,bh*.28],[bx+bw-bw*.32-14,by+44,bw*.32,bh*.28]].forEach(([wx,wy,ww,wh])=>{
+    ctx.fillStyle='#160e2a';ctx.fillRect(wx,wy,ww,wh);
+    ctx.strokeStyle='#3c2e6a';ctx.lineWidth=2;ctx.strokeRect(wx,wy,ww,wh);
+    for(let r2=0;r2<3;r2++){
+      const ry=wy+4+r2*(wh-4)/3;ctx.fillStyle='#2c2060';ctx.fillRect(wx+2,ry+(wh-4)/3-4,ww-4,3);
+      const fp=Math.round(rat*5);
+      for(let p=0;p<5;p++){const pw=(ww-8)/5,px=wx+4+p*pw,py=ry+(wh-4)/3-14;
+        if(p<fp){ctx.fillStyle=p%2===0?sc:sc+'aa';ctx.fillRect(px,py,pw-2,10);}
+        else{ctx.fillStyle='rgba(239,71,111,.08)';ctx.fillRect(px,py,pw-2,10);}
+      }
+    }
+    ctx.fillStyle=sc;ctx.font='8px DM Sans,system-ui';ctx.textAlign='center';ctx.fillText(Math.round(rat*100)+'%',wx+ww/2,wy+wh+12);
+  });
+  // Door
+  const dw=bw*.17,dh=bh*.36,dx=bx+bw/2-bw*.085,dy=by+bh-dh;
+  ctx.fillStyle='#2c2260';ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.fill();
+  ctx.strokeStyle='#4a3a90';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.stroke();
+  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(dx+dw*.65,dy+dh*.5,2.5,0,Math.PI*2);ctx.fill();
+  ctx.font='bold 7px DM Sans,system-ui';ctx.textAlign='center';ctx.fillStyle='#06d6a0';ctx.fillText('OPEN',dx+dw/2,dy+12);
+  // Truck
+  const pipeU=GS?PRODS.reduce((s,p)=>s+GS.pipe[p.id].reduce((a,o)=>a+o.q,0),0):1;
+  const tx=((t*1.3)%(W+280))-140;
+  ctx.save();ctx.translate(tx,H*.62);
+  ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.ellipse(0,24,50,5,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#0c5a72';ctx.fillRect(-66,-25,66,25);
+  ctx.fillStyle='#1a8ab2';ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(28,-25);ctx.lineTo(32,-16);ctx.lineTo(32,0);ctx.lineTo(0,0);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(115,194,251,.28)';ctx.beginPath();ctx.moveTo(2,-23);ctx.lineTo(26,-23);ctx.lineTo(30,-16);ctx.lineTo(2,-16);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#73c2fb';ctx.font='bold 7px DM Sans,system-ui';ctx.textAlign='center';ctx.fillText('SUPPLY CO',-33,-12);
+  if(pipeU>0){ctx.fillStyle='#06d6a0';ctx.font='bold 8px DM Sans,system-ui';ctx.fillText('+'+pipeU+'units',-33,-22);}
+  const gl=ctx.createRadialGradient(33,-8,1,33,-8,16);gl.addColorStop(0,'rgba(255,248,180,.45)');gl.addColorStop(1,'rgba(255,248,180,0)');
+  ctx.fillStyle=gl;ctx.fillRect(20,-18,26,26);ctx.fillStyle='#fff8c4';ctx.fillRect(30,-11,4,4);
+  [[-40,22],[-15,22],[21,22]].forEach(([wx2,wy2])=>{
+    ctx.fillStyle='#16112a';ctx.beginPath();ctx.arc(wx2,wy2,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#2c2460';ctx.beginPath();ctx.arc(wx2,wy2,4,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.translate(wx2,wy2);ctx.rotate(t*.1);
+    ctx.strokeStyle='#48408a';ctx.lineWidth=1;
+    for(let s=0;s<4;s++){const a=s/4*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*3.5,Math.sin(a)*3.5);ctx.stroke();}
+    ctx.restore();
+  });
+  ctx.restore();
+  // Walking customers outside
+  if(GS&&GS.customers){
+    const gy=H*.668;
+    GS.customers.forEach(c=>{
+      if(c.done)return;
+      drawCustomer(ctx,c.x,gy,c);
+      c.x+=c.sp;c.fr++;
+      if(c.x>W+70)c.done=true;
+    });
+    GS.customers=GS.customers.filter(c=>!c.done);
+  }
+  // Particles
+  if(GS&&GS.particles){
+    GS.particles.forEach(p=>{
+      ctx.save();ctx.globalAlpha=p.l;ctx.font=`bold ${11+(1-p.l)*4}px DM Sans,system-ui`;ctx.textAlign='center';
+      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(p.t,p.x+1,p.y+1);ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y);ctx.restore();
+      p.y+=p.vy;p.l-=.018;
+    });
+    GS.particles=GS.particles.filter(p=>p.l>0);
+  }
+}
+
+function drawCustomer(ctx,x,y,c){
+  ctx.save();ctx.translate(x,y);ctx.scale(c.sc,c.sc);
+  const ls=Math.sin(c.fr*.28)*5,ab=Math.abs(Math.sin(c.fr*.28))*1.5;
+  ctx.fillStyle='rgba(0,0,0,.14)';ctx.beginPath();ctx.ellipse(0,25+ab,8,2,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=c.pants;
+  [[-4,16+ab,ls*.04],[4,16+ab,-ls*.04]].forEach(([dx,dy2,r])=>{ctx.save();ctx.translate(dx,dy2);ctx.rotate(r);ctx.fillRect(-3,0,5,12);ctx.restore();});
+  ctx.fillStyle=c.shirt;ctx.fillRect(-8,ab,16,17);
+  ctx.fillStyle=c.skin;
+  [[-8,3+ab,-ls*.05],[8,3+ab,ls*.05]].forEach(([dx,dy2,r],ii)=>{ctx.save();ctx.translate(dx,dy2);ctx.rotate(r);ctx.fillRect(ii===0?-3:0,0,3,10);ctx.restore();});
+  ctx.fillStyle=c.skin;ctx.beginPath();ctx.arc(0,ab-8,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=c.hair;ctx.beginPath();ctx.arc(0,ab-13,7,Math.PI,0);ctx.fill();
+  ctx.fillStyle='#0d0b18';
+  if(c.happy){
+    ctx.beginPath();ctx.arc(-3,ab-10,1.5,Math.PI,0);ctx.fill();
+    ctx.beginPath();ctx.arc(3,ab-10,1.5,Math.PI,0);ctx.fill();
+    ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,ab-5,3.5,.1,Math.PI-.1);ctx.stroke();
+    if(x>80){ctx.fillStyle='#ffd166';ctx.fillRect(9,6+ab,7,9);}
+  }else{
+    ctx.fillRect(-4,ab-11,3,2.5);ctx.fillRect(2,ab-11,3,2.5);
+    ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,ab-4,3.5,Math.PI+.1,-.1);ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ════════════════════════════════════════════════
+// ANIMATION LOOP
+// ════════════════════════════════════════════════
+function loop(){
+  UI.time++;
+  if(UI.mode==='exterior') UI.extTime++;
+  if(UI.cv&&UI.ctx){
+    const par=UI.cv.parentElement;
+    if(par&&(UI.cv.width!==par.offsetWidth||UI.cv.height!==par.offsetHeight)){
+      UI.cv.width=par.offsetWidth;UI.cv.height=par.offsetHeight;
+    }
+    if(UI.mode==='interior') drawInterior(UI.ctx,UI.cv.width,UI.cv.height,UI.time);
+    else drawExterior(UI.ctx,UI.cv.width,UI.cv.height,UI.extTime);
+  }
+  UI.raf=requestAnimationFrame(loop);
+}
+
+// ════════════════════════════════════════════════
+// RESULTS
+// ════════════════════════════════════════════════
+function showResults(){
+  const gs=GS;
+  const totHold=PRODS.reduce((s,p)=>s+gs.holdCost[p.id],0);
+  const totOrd=PRODS.reduce((s,p)=>s+gs.ordCost[p.id],0);
+  const gp=gs.totRev-totHold-totOrd-PRODS.reduce((s,p)=>s+gs.sold[p.id]*(p.suppliers[gs.selSupp[p.id]||0].cost),0);
+  const svc=gs.svc||0;
+  let gr,gc;
+  if(svc>=.95&&gp>800){gr='A+';gc='#06d6a0';}
+  else if(svc>=.90&&gp>500){gr='A';gc='#06d6a0';}
+  else if(svc>=.85&&gp>200){gr='B';gc='#ffd166';}
+  else if(svc>=.75){gr='C';gc='#ffd166';}
+  else if(svc>=.6){gr='D';gc='#ff6b35';}
+  else{gr='F';gc='#ef476f';}
+
+  const prodRows=PRODS.map(p=>{
+    const sl=gs.sold[p.id]+gs.lost[p.id]>0?(gs.sold[p.id]/(gs.sold[p.id]+gs.lost[p.id])*100).toFixed(1):100;
+    const slC=sl>=90?'#06d6a0':sl>=75?'#ffd166':'#ef476f';
+    const eQ=calcEOQ(p,gs.selSupp[p.id]||0);
+    const avgOrd=gs.porders[p.id]>0?Math.round((gs.sold[p.id]+gs.lost[p.id])/gs.porders[p.id]):0;
+    return`<div class="prod-res">
+      <span style="color:${p.light};font-weight:700">${p.emoji} ${p.name}</span>
+      <span style="color:var(--muted);font-size:10px">Sold ${gs.sold[p.id]} · Lost <span style="color:#ef476f">${gs.lost[p.id]}</span></span>
+      <span style="color:${slC};font-weight:700">${sl}% SVC</span>
+      <span style="color:#9b5de5;font-size:10px">Hold ${Math.round(gs.holdCost[p.id])}</span>
+      <span style="color:var(--muted);font-size:10px">EOQ ${eQ}units · avg order ${avgOrd}units</span>
+    </div>`;
+  }).join('');
+
+  let debrief='';
+  if(gs.totLost>20) debrief=`You had <strong>${gs.totLost} stockouts</strong> across all products. Use the Reorder Point more actively and consider faster suppliers for high-demand items.`;
+  else if(totHold>totOrd*3) debrief=`Holding costs (${Math.round(totHold)}) were very high relative to ordering costs. You may be over-stocking. Let EOQ guide your order sizes.`;
+  else debrief=`Good balance! Service level was ${(svc*100).toFixed(1)}% and profit was ${Math.round(gp).toLocaleString()}. Multi-supplier management adds real flexibility — use cheaper suppliers for stable products, premium for critical ones.`;
+
+  document.getElementById('res-content').innerHTML=`
+<div class="px" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);text-align:center;margin-bottom:6px">THE CAFE — 30 DAYS COMPLETE</div>
+<div class="grade" style="color:${gc}">${gr}</div>
+<div class="grade-lbl">Final Grade</div>
+<div class="res-grid">
+  <div class="res-cell"><div class="rv" style="color:#06d6a0">${Math.round(gs.totRev).toLocaleString()}</div><div class="rl">Revenue</div></div>
+  <div class="res-cell"><div class="rv" style="color:${gp>0?'#06d6a0':'#ef476f'}">${Math.round(gp).toLocaleString()}</div><div class="rl">Profit</div></div>
+  <div class="res-cell"><div class="rv" style="color:${svc>=.9?'#06d6a0':'#ffd166'}">${(svc*100).toFixed(1)}%</div><div class="rl">Service Level</div></div>
+  <div class="res-cell"><div class="rv" style="color:#ef476f">${gs.totLost}</div><div class="rl">Lost Sales</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:12px">
+  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(155,93,229,.3)"><span style="color:var(--muted)">Holding costs</span><br><strong style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</strong></div>
+  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(255,209,102,.2)"><span style="color:var(--muted)">Ordering costs</span><br><strong style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</strong></div>
+</div>
+<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Per-Product Results</div>
+${prodRows}
+<div class="debrief"><strong>Debrief:</strong> ${debrief}</div>
+<div class="res-btns">
+  <button class="btn-replay" onclick="startGame()">↺ REPLAY</button>
+  <button class="btn-ghost" onclick="showTitle()">← Menu</button>
+</div>`;
+  document.getElementById('screen-results').classList.remove('hidden');
+}
+
+// ════════════════════════════════════════════════
+// SAVE STATE — localStorage persistence
+// ════════════════════════════════════════════════
+const SAVE_KEY = 'gies-cafe-save-v2';
+
+function saveStateToStorage(){
+  if(!GS) return;
+  try {
+    const snapshot = JSON.parse(JSON.stringify(GS)); // deep clone
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      gs: snapshot,
+      savedAt: Date.now(),
+      version: 2
+    }));
+  } catch(e){ console.warn('Save failed:', e); }
+}
+
+function loadStateFromStorage(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj || !obj.gs || obj.version !== 2) return null;
+    return obj;
+  } catch(e){ return null; }
+}
+
+function clearSavedState(){
+  try { localStorage.removeItem(SAVE_KEY); } catch(e){}
+}
+
+function updateTitleScreenButtons(){
+  const saved = loadStateFromStorage();
+  const banner = document.getElementById('save-state-banner');
+  const info   = document.getElementById('save-state-info');
+  const btnResume = document.getElementById('btn-resume-game');
+  const btnOpen   = document.getElementById('btn-open-cafe');
+  const extraBtns = document.getElementById('menu-extra-btns');
+  const btnSaveResults = document.getElementById('btn-save-results');
+
+  if(saved && saved.gs && !saved.gs.done){
+    // Active saved game
+    const gs = saved.gs;
+    const dayAgo = Math.round((Date.now() - saved.savedAt) / 60000);
+    const timeStr = dayAgo < 1 ? 'just now' : dayAgo < 60 ? dayAgo+'m ago' : Math.round(dayAgo/60)+'h ago';
+    const svcPct = gs.totSold+gs.totLost>0 ? (gs.svc*100).toFixed(1)+'%' : '—';
+    if(info) info.innerHTML = `Day <strong style="color:var(--text)">${gs.day-1}/${gs.maxDay||30}</strong> · Cash <strong style="color:var(--green)">${Math.round(gs.cash).toLocaleString()}</strong> · Service <strong style="color:var(--sky)">${svcPct}</strong><br>Saved ${timeStr}`;
+    if(banner) banner.style.display='block';
+    if(btnResume){ btnResume.style.display='block'; btnResume.textContent = '▶ RESUME — Day '+(gs.day-1)+'/'+( gs.maxDay||30); }
+    if(btnOpen){ btnOpen.textContent='▶ NEW GAME'; btnOpen.style.background=''; btnOpen.style.boxShadow=''; }
+    if(extraBtns) extraBtns.style.display='flex';
+    if(btnSaveResults) btnSaveResults.style.display = 'none'; // Can't save mid-game
+  } else if(saved && saved.gs && saved.gs.done){
+    // Completed saved game
+    if(info) info.innerHTML = `Game complete — Day ${saved.gs.maxDay||30}/${saved.gs.maxDay||30}`;
+    if(banner) banner.style.display='block';
+    if(btnResume) btnResume.style.display='none';
+    if(btnOpen){ btnOpen.textContent='▶ NEW GAME'; }
+    if(extraBtns) extraBtns.style.display='flex';
+    if(btnSaveResults) btnSaveResults.style.display='flex';
+  } else {
+    // No saved game
+    if(banner) banner.style.display='none';
+    if(btnResume) btnResume.style.display='none';
+    if(btnOpen){ btnOpen.textContent='▶ OPEN THE CAFE'; }
+    if(extraBtns) extraBtns.style.display='none';
+  }
+}
+
+// ════════════════════════════════════════════════
+// INIT / NAVIGATION
+// ════════════════════════════════════════════════
+function _launchGame(gs, isNew){
+  const nameEl = document.getElementById('auth-display-name');
+  let pname = gs ? gs.player : ((nameEl && nameEl.textContent && nameEl.textContent !== '—') ? nameEl.textContent.trim() : 'Manager');
+  pname = pname.slice(0,24);
+
+  document.getElementById('screen-title').classList.add('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-auth').style.display = 'none';
+  document.getElementById('scenario-modal').classList.add('hidden');
+
+  GS = gs || newState(pname);
+
+  if(isNew){
+    if(window.fbInitRun) window.fbInitRun(pname);
+  }
+
+  const logo=document.getElementById('logo-text');
+  if(logo) logo.textContent='CAFE SUPPLY CHAIN · '+pname.toUpperCase();
+  UI.tab='all'; UI.selProd='coffee';
+  UI.decs={coffee:0,cookie:0};
+  UI.pendOrd={coffee:0,cookie:0};
+  UI.pendOrdCount={coffee:0,cookie:0};
+  UI.scenarioQueue=[]; UI.scenarioActive=false;
+  UI.mode='interior'; UI.time=0; UI.extTime=0;
+  UI.cv=document.getElementById('SC');
+  UI.ctx=UI.cv.getContext('2d');
+  const par=UI.cv.parentElement;
+  UI.cv.width=par.offsetWidth; UI.cv.height=par.offsetHeight;
+  if(UI.raf) cancelAnimationFrame(UI.raf);
+  loop();
+  setTab('all');
+  updateTopbar();
+}
+
+function startGame(){
+  clearSavedState();
+  _launchGame(null, true);
+}
+
+function resumeGame(){
+  const saved = loadStateFromStorage();
+  if(!saved || !saved.gs){ startGame(); return; }
+  _launchGame(saved.gs, false);
+}
+
+function confirmRestartGame(){
+  if(!confirm('Start a brand new game? Your current progress will be lost.')) return;
+  clearSavedState();
+  _launchGame(null, true);
+}
+
+function saveAndViewResults(){
+  if(GS && GS.done){
+    showResults();
+    document.getElementById('screen-title').classList.add('hidden');
+  }
+}
+
+function showTitle(){
+  // Save current game state before going to menu
+  if(GS && !GS.done) saveStateToStorage();
+  document.getElementById('screen-title').classList.remove('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+  updateTitleScreenButtons();
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('screen-title')&&!document.getElementById('screen-title').classList.contains('hidden'))return;
+  if(document.getElementById('screen-results')&&!document.getElementById('screen-results').classList.contains('hidden'))return;
+  if(e.key==='Enter'||e.key===' '){e.preventDefault();advDay();}
+  if(e.key==='ArrowUp'){e.preventDefault();adjQ(UI.selProd,5);}
+  if(e.key==='ArrowDown'){e.preventDefault();adjQ(UI.selProd,-5);}
+  if(e.key==='1') setTab('overview');
+  if(e.key==='2') setTab('order');
+  if(e.key==='3') setTab('costs');
+  if(e.key==='4') setTab('log');
+  if(e.key==='5') setTab('all');
+});
+
+// ── THEME TOGGLE ──
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('cafe-sc-theme',t);}catch(e){}
+  const btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent = t==='light'?'☀️':'🌙';
+}
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme')||'dark';
+  applyTheme(cur==='dark'?'light':'dark');
+}
+(function(){
+  let saved='dark';
+  try{saved=localStorage.getItem('cafe-sc-theme')||'dark';}catch(e){}
+  applyTheme(saved);
+})();
+
+</script>
+
+<!-- INFO MODAL -->
+<div id="info-modal" class="hidden">
+  <div class="info-modal-card">
+    <div class="info-header">
+      <h2>📖 The Cafe — Complete Guide</h2>
+      <button class="info-close" onclick="hideInfo()">✕</button>
+    </div>
+    <div class="info-body">
+
+      <div class="info-section">
+        <h3>🎯 Objective</h3>
+        <p>You are the supply chain manager of <strong>The Cafe</strong>. Over <strong>30 days</strong>, manage inventory for 4 products — Chocolate, Water, Snacks, and Soda. Your goal is to keep shelves stocked, minimize costs, and maximize your service level. The game ends after Day 30 and you receive a grade (A+ to F).</p>
+        <div class="tip-box">🏆 Target: <strong>≥90% service level</strong> + positive gross profit = Grade A or better</div>
+      </div>
+
+      <div class="info-section">
+        <h3>📦 Core Concept — Inventory Management</h3>
+        <p>Each day customers arrive and buy products. If you don't have enough inventory, you <strong>lose sales</strong> (stockout). If you hold too much, you pay <strong>holding costs</strong> every day. The challenge is finding the balance.</p>
+        <ul>
+          <li><strong>On-hand inventory</strong> — units physically in your store right now</li>
+          <li><strong>Pipeline / In-Transit</strong> — units you've ordered but haven't arrived yet. Count these when deciding whether to reorder!</li>
+          <li><strong>Inventory Position</strong> = On-hand + Pipeline. This is what actually matters for ordering decisions.</li>
+          <li><strong>Service Level</strong> = Total units sold ÷ Total customer demand. A stockout hurts this permanently.</li>
+        </ul>
+      </div>
+
+      <div class="info-section">
+        <h3>📐 EOQ — Economic Order Quantity</h3>
+        <p>EOQ is the mathematically optimal order size that minimizes total inventory cost (holding cost + ordering cost). Named after Ford Harris (1913).</p>
+        <div class="info-formula">EOQ = √( 2 × D × K / h )</div>
+        <ul>
+          <li><strong>D</strong> = average daily demand</li>
+          <li><strong>K</strong> = fixed order cost (set by your instructor per product)</li>
+          <li><strong>h</strong> = holding cost per unit per day</li>
+        </ul>
+        <p>The game calculates EOQ for you and shows it on the Order tab. Order sizes near EOQ minimize your total cost over time.</p>
+      </div>
+
+      <div class="info-section">
+        <h3>🚚 Lead Time & Reorder Point (ROP)</h3>
+        <p>When you place an order it doesn't arrive immediately — there's a <strong>lead time</strong> (1–3 days depending on supplier). You need to order <em>before</em> you run out.</p>
+        <div class="info-formula">ROP = Average Daily Demand × Lead Time</div>
+        <p>When your <strong>Inventory Position</strong> drops below the ROP, it's time to reorder. The game shows "ORDER NOW" on the overview when this happens.</p>
+        <div class="tip-box">💡 Always check <strong>Inventory Position</strong> (on-hand + pipeline), not just on-hand. You might already have stock on the way!</div>
+      </div>
+
+      <div class="info-section">
+        <h3>💰 Holding Costs — Why They Differ Per Product</h3>
+        <p>Holding cost = cost of keeping 1 unit in stock for 1 day. It covers storage space, spoilage risk, and tied-up capital. Different products have different rates:</p>
+        <table class="info-table">
+          <tr><th>Product</th><th>Hold Cost/unit/day</th><th>Why</th></tr>
+          <tr><td>🍫 Chocolate</td><td style="color:#9b5de5">$0.12</td><td>Moderate perishability, climate control needed</td></tr>
+          <tr><td>💧 Water</td><td style="color:#9b5de5">$0.03</td><td>Long shelf life, bulk storage fine</td></tr>
+          <tr><td>🍿 Snacks</td><td style="color:#9b5de5">$0.08</td><td>Chips go stale, packaging fragile</td></tr>
+          <tr><td>🥤 Soda</td><td style="color:#9b5de5">$0.06</td><td>Heavy cans take floor space</td></tr>
+        </table>
+        <p style="margin-top:8px">Water is cheapest to hold → safe to over-stock. Chocolate is expensive → order closer to EOQ and avoid excess.</p>
+      </div>
+
+      <div class="info-section">
+        <h3>🏭 Suppliers — Trade-offs</h3>
+        <p>Each product has <strong>2 suppliers</strong> to choose from. You can switch between them any day before placing an order. Key trade-offs:</p>
+        <ul>
+          <li><strong>Cost vs Reliability</strong> — cheaper suppliers are often less reliable</li>
+          <li><strong>Lead Time vs Price</strong> — express suppliers charge more but arrive faster</li>
+          <li><strong>Supplier Blocking</strong> — some suppliers get blocked by events (factory pause, shipping crisis). Switching to the backup supplier is your escape.</li>
+        </ul>
+        <div class="tip-box">💡 For critical products (water during a heat wave), use the premium reliable supplier. For stable products, the budget option saves money.</div>
+      </div>
+
+      <div class="info-section">
+        <h3>⚡ Events — Product-Specific Disruptions</h3>
+        <p>Random events hit specific products on specific days. An upcoming event is shown at the top of the canvas. Types:</p>
+        <ul>
+          <li><strong>Demand Spike (×multiplier)</strong> — demand suddenly increases. Stock up before the event hits!</li>
+          <li><strong>Supplier Delay (+X days)</strong> — your order takes longer. Order earlier or switch suppliers.</li>
+          <li><strong>Supplier Fail</strong> — that supplier is blocked for N days. Switch immediately.</li>
+          <li><strong>Price Change</strong> — selling price changes. Affects your revenue.</li>
+        </ul>
+        <div class="tip-box">⚠️ Events are shown on the canvas banner up to 4 days ahead. Use this to pre-order before a spike hits!</div>
+      </div>
+
+      <div class="info-section">
+        <h3>🕹️ How to Play — Day by Day</h3>
+        <ul>
+          <li><strong>1. Check Overview tab</strong> — see both products at a glance. "ORDER NOW" badges mean you're below ROP.</li>
+          <li><strong>2. Go to Order tab</strong> — pick a product, choose your supplier, enter a quantity (or use EOQ recommendation), and click <em>Place Order</em>.</li>
+          <li><strong>3. Repeat for each product you need to order.</strong> Orders are queued (shown with ✓ badge) until you advance.</li>
+          <li><strong>4. Click "Next Day →"</strong> — the day animation plays, customers arrive, sales happen, deliveries come in, holding costs are deducted.</li>
+          <li><strong>5. Check Costs tab</strong> — monitor holding costs, ordering costs, and profit over time.</li>
+          <li><strong>6. Check Log tab</strong> — see exactly what happened each day.</li>
+        </ul>
+      </div>
+
+      <div class="info-section">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <ul>
+          <li><strong>Enter / Space</strong> — Next Day</li>
+          <li><strong>↑ / ↓ arrows</strong> — Adjust quantity by ±5</li>
+          <li><strong>1</strong> — Overview tab &nbsp; <strong>2</strong> — Order tab &nbsp; <strong>3</strong> — Costs tab &nbsp; <strong>4</strong> — Log tab</li>
+        </ul>
+      </div>
+
+      <div class="info-section">
+        <h3>🏆 Grading</h3>
+        <table class="info-table">
+          <tr><th>Grade</th><th>Service Level</th><th>Gross Profit</th></tr>
+          <tr><td style="color:#06d6a0">A+</td><td>≥ 95%</td><td>> $800</td></tr>
+          <tr><td style="color:#06d6a0">A</td><td>≥ 90%</td><td>> $500</td></tr>
+          <tr><td style="color:#ffd166">B</td><td>≥ 85%</td><td>> $200</td></tr>
+          <tr><td style="color:#ffd166">C</td><td>≥ 75%</td><td>Any</td></tr>
+          <tr><td style="color:#ff6b35">D</td><td>≥ 60%</td><td>Any</td></tr>
+          <tr><td style="color:#ef476f">F</td><td>< 60%</td><td>Any</td></tr>
+        </table>
+      </div>
+
+      <div style="text-align:center;margin-top:8px">
+        <button onclick="hideInfo()" style="background:var(--acc);color:#fff;border:none;padding:11px 32px;border-radius:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;box-shadow:0 3px 0 var(--acc2)">▶ GOT IT — BACK TO GAME</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function showInfo(){document.getElementById('info-modal').classList.remove('hidden');}
+function hideInfo(){document.getElementById('info-modal').classList.add('hidden');}
+document.getElementById('info-modal').addEventListener('click',function(e){if(e.target===this)hideInfo();});
+</script>
+
+</body>
+</html>

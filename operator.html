@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supply Chain — Operator Console</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+:root{
+  --bg:#0f0c1a;--bg2:#17132a;--surf:#1a1628;--panel:#221e36;--panel2:#2a2642;
+  --border:#332c50;--border2:#403868;--text:#f2eeff;--muted:#9088bb;--dim:#504878;
+  --acc:#ff7a3d;--acc2:#c14a18;--gold:#ffd166;--green:#3ddc97;--red:#ff5c7a;
+  --sky:#7fd3ff;--purple:#b07bff;--coffee:#a67b5b;--cookie:#e0b07a;
+  --shadow:0 8px 32px -8px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;overflow:hidden}
+
+/* topbar */
+#topbar{background:linear-gradient(180deg,var(--surf),var(--panel));border-bottom:2px solid var(--border2);padding:10px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.4);flex-shrink:0;flex-wrap:wrap}
+.logo{font-family:'Fraunces',serif;font-size:15px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.logo-tag{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-dot 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.top-stat{background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px;display:flex;flex-direction:column;align-items:center;min-width:72px}
+.top-stat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.top-stat-v{font-size:14px;font-weight:700;font-family:'Space Mono',monospace}
+.btn-top{padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .13s;border:none}
+.btn-green{background:rgba(61,220,151,.12);border:1px solid rgba(61,220,151,.35)!important;color:#3ddc97}
+.btn-green:hover{background:rgba(61,220,151,.22)}
+.btn-acc{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 3px 0 var(--acc2)}
+.btn-acc:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--acc2)}
+.btn-ghost{background:var(--panel2);border:1px solid var(--border2)!important;color:var(--text)}
+.btn-ghost:hover{border-color:var(--acc)!important;color:var(--acc)}
+
+/* layout */
+#layout{flex:1;display:grid;grid-template-columns:310px 1fr;overflow:hidden;min-height:0}
+
+/* left settings */
+#settings{background:var(--surf);border-right:2px solid var(--border2);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+#settings::-webkit-scrollbar{width:4px}
+#settings::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.s-card{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:12px 14px}
+.s-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.s-title::before{content:"";width:10px;height:2px;background:var(--acc);border-radius:1px}
+.field{margin-bottom:8px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;background:var(--bg2);border:1.5px solid var(--border2);color:var(--text);font-size:12px;padding:6px 9px;border-radius:6px;font-family:'Space Mono',monospace;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--acc)}
+.field input[type=range]{padding:0;background:none;border:none;cursor:pointer;margin-top:8px}
+.field textarea{resize:vertical;min-height:60px;font-size:10px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.prod-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:9px}
+.ptb{padding:6px;background:var(--bg2);border:2px solid var(--border2);border-radius:6px;cursor:pointer;font-size:11px;text-align:center;font-weight:700;color:var(--muted);transition:all .15s}
+.ptb.on{border-color:var(--acc);background:rgba(255,122,61,.1);color:var(--acc)}
+.info-pill{background:rgba(127,211,255,.07);border:1px solid rgba(127,211,255,.18);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--sky);line-height:1.6}
+
+/* toggle switches */
+.tog-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.tog-row:last-child{border-bottom:none;padding-bottom:0}
+.tog-wrap{position:relative;flex-shrink:0;width:36px;height:20px;margin-top:1px}
+.tog-inp{position:absolute;opacity:0;width:0;height:0}
+.tog-track{position:absolute;inset:0;border-radius:99px;background:var(--border2);transition:background .2s;cursor:pointer}
+.tog-inp:checked~.tog-track{background:var(--acc)}
+.tog-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tog-inp:checked~.tog-track .tog-thumb{transform:translateX(16px)}
+.tog-info{flex:1}
+.tog-label{font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px}
+.tog-desc{font-size:10px;color:var(--muted);line-height:1.4}
+
+/* right panel */
+#right{display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.panel-tabs{display:flex;border-bottom:2px solid var(--border2);background:var(--panel);flex-shrink:0}
+.rtab{flex:1;padding:10px 4px;font-size:11px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .18s;font-weight:700;letter-spacing:.4px}
+.rtab:hover:not(.on){color:var(--text);background:var(--panel2)}
+.rtab.on{color:var(--acc);border-bottom-color:var(--acc);background:var(--surf)}
+.panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.panel-body::-webkit-scrollbar{width:5px}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* player cards */
+.player-card{background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .18s;animation:slide-in .3s ease-out}
+@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.player-card:hover{border-color:var(--dim);transform:translateY(-1px)}
+.player-card.expanded{border-color:var(--acc)}
+.player-top{display:flex;align-items:center;gap:10px}
+.player-name{font-weight:700;font-size:14px;flex:1}
+.status-pill{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:700;font-family:'Space Mono',monospace}
+.status-complete{background:rgba(61,220,151,.15);color:#3ddc97;border:1px solid rgba(61,220,151,.3)}
+.status-progress{background:rgba(255,209,102,.12);color:#ffd166;border:1px solid rgba(255,209,102,.3)}
+.player-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.pstat{text-align:center;background:var(--bg2);border-radius:6px;padding:6px 4px}
+.pstat-v{font-size:13px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:1px}
+.pstat-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.grade-big{font-size:28px;font-weight:800;font-family:'Space Mono',monospace;min-width:44px;text-align:center}
+.svc-track{height:5px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:4px}
+.svc-fill{height:100%;border-radius:99px;transition:width .6s}
+.day-progress{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted)}
+.day-track{flex:1;height:6px;background:var(--border2);border-radius:99px;overflow:hidden}
+.day-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:99px;transition:width .5s}
+.day-log-table{width:100%;border-collapse:collapse;font-size:11px}
+.day-log-table th{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);font-weight:700;padding:4px 6px;text-align:left;border-bottom:1px solid var(--border)}
+.day-log-table td{padding:5px 6px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+.day-log-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* round control */
+.round-ctrl-panel{background:linear-gradient(135deg,rgba(255,122,61,.08),rgba(255,209,102,.05));border:2px solid rgba(255,122,61,.4);border-radius:10px;padding:14px;margin-bottom:10px}
+.round-ctrl-day{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:4px}
+.round-ctrl-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px}
+.btn-release{width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 var(--acc2);transition:all .12s}
+.btn-release:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
+.btn-release:disabled{opacity:.5;transform:none;cursor:not-allowed}
+.waiting-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
+.waiting-chip{background:var(--panel2);border:1px solid var(--border2);border-radius:6px;padding:5px 4px;text-align:center;font-size:10px}
+.waiting-chip.ready{border-color:rgba(61,220,151,.4);background:rgba(61,220,151,.07);color:#3ddc97}
+.waiting-chip.waiting{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.05);color:#ffd166}
+
+/* leaderboard */
+.lb-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;animation:slide-in .3s ease-out}
+.lb-row.gold-row{border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.05)}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.stat-box{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center}
+.stat-box-v{font-size:18px;font-weight:700;font-family:'Space Mono',monospace;margin-bottom:2px}
+.stat-box-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+
+/* scenarios */
+.scen-row{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 40px;gap:6px;padding:8px 12px;background:var(--panel);border:1px solid var(--border);border-radius:7px;font-size:11px;align-items:center;margin-bottom:5px;cursor:pointer;transition:border-color .15s}
+.scen-row:hover{border-color:var(--dim)}
+.scen-row.sel{border-color:var(--acc)}
+.scen-header{display:grid;grid-template-columns:50px 80px 1fr 80px 70px 40px;gap:6px;padding:5px 12px;font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);font-weight:700;margin-bottom:4px}
+.type-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;text-align:center}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.85);backdrop-filter:blur(6px)}
+.modal.hidden{display:none}
+.modal-card{background:var(--surf);border:2px solid var(--border2);border-radius:14px;padding:22px;max-width:440px;width:100%;box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:13px;font-weight:700;color:var(--acc);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+
+/* notify */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--surf);border:2px solid var(--green);border-radius:10px;padding:10px 18px;color:var(--green);font-size:12px;font-weight:700;box-shadow:var(--shadow);z-index:500;transition:opacity .35s;pointer-events:none}
+.notif.hidden{opacity:0}
+.empty-state{text-align:center;padding:50px 20px;color:var(--dim)}
+.empty-state div:first-child{font-size:32px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="op-auth-screen" style="position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;background:radial-gradient(900px 500px at 30% 30%,rgba(255,122,61,.12),transparent 60%),linear-gradient(160deg,#0f0c1a,#1a132e);padding:20px">
+  <div style="background:#1a1628;border:2px solid #403868;border-radius:18px;padding:32px 30px;width:100%;max-width:380px;box-shadow:0 18px 40px rgba(0,0,0,.6)">
+    <div style="text-align:center;margin-bottom:26px">
+      <div style="font-size:40px;margin-bottom:8px">🎮</div>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:#ff7a3d;letter-spacing:2px;font-weight:700;margin-bottom:4px">INSTRUCTOR ACCESS ONLY</div>
+      <div style="font-family:'Fraunces',serif;font-size:20px;color:#ffd166;font-weight:700">Operator Console</div>
+      <div style="font-size:11px;color:#9088bb;margin-top:6px">Cafe Supply Chain · Prof. Moshref Javadi</div>
+    </div>
+    <div class="field"><label style="color:#9088bb">Email</label>
+      <input id="op-email" type="email" placeholder="moshref@illinois.edu"
+        onfocus="this.style.borderColor='#ff7a3d'" onblur="this.style.borderColor='#403868'"
+        onkeydown="if(event.key==='Enter')document.getElementById('op-pass').focus()">
+    </div>
+    <div class="field" style="margin-bottom:18px"><label style="color:#9088bb">Password</label>
+      <div style="position:relative">
+        <input id="op-pass" type="password" placeholder="••••••••" style="padding-right:38px"
+          onfocus="this.style.borderColor='#ff7a3d'" onblur="this.style.borderColor='#403868'"
+          onkeydown="if(event.key==='Enter')opLogin()">
+        <button onclick="var i=document.getElementById('op-pass');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9088bb;cursor:pointer;font-size:14px">👁</button>
+      </div>
+    </div>
+    <button onclick="opLogin()" id="op-login-btn" style="width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 #8a2e0a;transition:all .12s;margin-bottom:10px">🎮 Sign In as Instructor</button>
+    <button onclick="opForgot()" style="width:100%;background:none;border:none;color:#9088bb;font-size:11px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;padding:4px">Forgot password?</button>
+    <div id="op-auth-error" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(255,92,122,.1);border:1px solid rgba(255,92,122,.35);border-radius:8px;font-size:12px;color:#ff5c7a;text-align:center"></div>
+    <div id="op-auth-success" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.35);border-radius:8px;font-size:12px;color:#3ddc97;text-align:center"></div>
+    <div style="margin-top:16px;padding:10px 12px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.18);border-radius:8px;font-size:11px;color:#9088bb;text-align:center;line-height:1.5">🔒 Restricted to authorized instructors only.</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar" style="display:none">
+  <div class="logo">☕ Supply Chain <span class="logo-tag">OPERATOR CONSOLE</span></div>
+  <div class="live-dot"></div>
+  <div class="top-stat"><span class="top-stat-l">Players</span><span class="top-stat-v" id="stat-players" style="color:#3ddc97">—</span></div>
+  <div class="top-stat"><span class="top-stat-l">Complete</span><span class="top-stat-v" id="stat-complete" style="color:#ffd166">—</span></div>
+  <div class="top-stat"><span class="top-stat-l">Avg SVC</span><span class="top-stat-v" id="stat-avgsvc" style="color:#7fd3ff">—</span></div>
+  <div class="top-stat"><span class="top-stat-l">Avg Profit</span><span class="top-stat-v" id="stat-avgprofit" style="color:#b07bff">—</span></div>
+  <button class="btn-top btn-acc" onclick="applyConfig()">✓ Push Config</button>
+  <button class="btn-top btn-green" onclick="refreshRuns()">↺ Refresh</button>
+  <button class="btn-top btn-green" onclick="doExportCSV()">⬇ Export CSV</button>
+  <button class="btn-top btn-ghost" onclick="doClearRuns()" style="font-size:10px;opacity:.6">🗑 Clear Runs</button>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border2);border-radius:8px;padding:5px 12px">
+    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff" id="op-avatar">P</div>
+    <div style="font-size:11px;color:var(--muted)" id="op-user-label">—</div>
+    <button onclick="opSignOut()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Out</button>
+    <button onclick="openChangePw()" style="background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif">🔑 Change PW</button>
+  </div>
+</div>
+
+<div id="layout" style="display:none">
+  <!-- LEFT SETTINGS -->
+  <div id="settings">
+
+    <!-- GAME PARAMETERS -->
+    <div class="s-card">
+      <div class="s-title">Game Parameters</div>
+      <div class="field-row">
+        <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
+        <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
+        <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
+      </div>
+      <!-- Toggles -->
+      <div style="margin-top:10px;border:1px solid var(--border2);border-radius:8px;padding:10px 12px;background:var(--bg2)">
+        <label class="tog-row" style="padding-top:0">
+          <div class="tog-wrap"><input type="checkbox" id="cfg-round-control" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <div class="tog-info"><div class="tog-label">🎮 Operator Round Control</div><div class="tog-desc">Students must wait for you to release each day</div></div>
+        </label>
+        <label class="tog-row">
+          <div class="tog-wrap"><input type="checkbox" id="cfg-hide-demand" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <div class="tog-info"><div class="tog-label">👁 Hide Avg Demand</div><div class="tog-desc">Students won't see expected demand values</div></div>
+        </label>
+        <label class="tog-row">
+          <div class="tog-wrap"><input type="checkbox" id="cfg-hide-rec" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+          <div class="tog-info"><div class="tog-label">💡 Hide Recommendations</div><div class="tog-desc">Hide EOQ/ROP hint box from students</div></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- DEMAND -->
+    <div class="s-card">
+      <div class="s-title">Demand Parameters</div>
+      <div class="prod-tabs">
+        <div class="ptb on" id="dtab-coffee" onclick="setDemandProd('coffee')">☕ Coffee</div>
+        <div class="ptb" id="dtab-cookie" onclick="setDemandProd('cookie')">🍪 Cookies</div>
+      </div>
+      <div id="demand-fields"></div>
+    </div>
+
+    <!-- LT + RELIABILITY + COSTS -->
+    <div class="s-card">
+      <div class="s-title">Lead Time · Reliability · Costs</div>
+      <div id="lt-fields"></div>
+    </div>
+
+    <!-- CONFIG JSON -->
+    <div class="s-card">
+      <div class="s-title">Config JSON</div>
+      <textarea id="config-json" style="height:90px;font-size:9px;color:#9b5de5" readonly></textarea>
+      <button onclick="copyConfigJSON()" style="width:100%;margin-top:6px;background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700">📋 Copy JSON</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="right">
+    <div class="panel-tabs">
+      <div class="rtab on" id="rt0" onclick="setRTab('players')">👥 Players</div>
+      <div class="rtab" id="rt1" onclick="setRTab('leaderboard')">🏆 Leaderboard</div>
+      <div class="rtab" id="rt2" onclick="setRTab('scenarios')">⚡ Scenarios</div>
+    </div>
+    <div class="panel-body" id="panel-body">
+      <div class="empty-state"><div>⏳</div>Connecting…</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="changepw-modal" class="modal hidden">
+  <div class="modal-card" style="max-width:380px">
+    <div class="modal-title"><span>🔑 Change Password</span><button onclick="closeChangePw()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button></div>
+    <div class="field"><label>Current Password</label><div style="position:relative"><input id="cpw-current" type="password" placeholder="••••••••" style="padding-right:38px" onkeydown="if(event.key==='Enter')document.getElementById('cpw-new').focus()"><button onclick="toggleCpw('cpw-current',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button></div></div>
+    <div class="field"><label>New Password <span style="color:var(--dim);font-weight:400">(min 6 chars)</span></label><div style="position:relative"><input id="cpw-new" type="password" placeholder="••••••••" style="padding-right:38px" oninput="updatePwStrength(this.value)" onkeydown="if(event.key==='Enter')document.getElementById('cpw-confirm').focus()"><button onclick="toggleCpw('cpw-new',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button></div><div style="height:3px;background:var(--border2);border-radius:99px;overflow:hidden;margin-top:5px"><div id="pw-str-bar" style="height:100%;width:0%;border-radius:99px;transition:all .3s"></div></div><div id="pw-str-lbl" style="font-size:10px;color:var(--dim);margin-top:2px"></div></div>
+    <div class="field"><label>Confirm New Password</label><div style="position:relative"><input id="cpw-confirm" type="password" placeholder="••••••••" style="padding-right:38px" onkeydown="if(event.key==='Enter')doChangePw()"><button onclick="toggleCpw('cpw-confirm',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px">👁</button></div></div>
+    <div id="cpw-error" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(255,92,122,.1);border:1px solid rgba(255,92,122,.3);border-radius:7px;font-size:12px;color:#ff5c7a"></div>
+    <div id="cpw-success" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);border-radius:7px;font-size:12px;color:#3ddc97"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeChangePw()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Cancel</button>
+      <button onclick="doChangePw()" id="cpw-btn" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 3px 0 var(--acc2)">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENARIO EDIT MODAL -->
+<div id="scen-modal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-title"><span>✏ Edit Scenario</span><button onclick="closeScenModal()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button></div>
+    <div id="scen-modal-body"></div>
+  </div>
+</div>
+
+<!-- NOTIFY -->
+<div id="notif" class="notif hidden"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const FB = { apiKey:"AIzaSyC6RT8MyXytw99rld5o-Ozr2uq9hZ6sXik", authDomain:"gies-supply-chain-game.firebaseapp.com", projectId:"gies-supply-chain-game", storageBucket:"gies-supply-chain-game.firebasestorage.app", messagingSenderId:"477604882387", appId:"1:477604882387:web:7c4c60f7e3d89fa21e3126" };
+const app = initializeApp(FB);
+const db  = getFirestore(app);
+const auth= getAuth(app);
+
+const PROFESSOR_EMAILS = ['moshref@illinois.edu', 'dthaker3@illinois.edu'];
+const PRODS = [
+  {id:'coffee',emoji:'☕',name:'Coffee',color:'#a67b5b'},
+  {id:'cookie',emoji:'🍪',name:'Cookies',color:'#e0b07a'}
+];
+
+// ── CONFIG STATE ──────────────────────────────────────────────────────────────
+let CFG = {
+  rounds:30, cash:2500, seed:42, svcTarget:90,
+  roundControl:false, hideDemand:false, hideRecommendations:false,
+  products:{
+    coffee:{demandAvg:15,demandStd:3,ltMean:2,ltStd:0.5,delivRel:0.95,qualMean:98,qualStd:2,fixedCost:50,unitCost:2.20,sell:4.50,holdPerUnit:0.10},
+    cookie:{demandAvg:12,demandStd:2,ltMean:2,ltStd:0.5,delivRel:0.95,qualMean:98,qualStd:2,fixedCost:50,unitCost:1.10,sell:2.50,holdPerUnit:0.06}
+  }
+};
+
+let SCENARIOS = [
+  {id:1,day:6, product:'coffee',type:'spike',multiplier:1.8,extra:0,desc:'❄️ Cold snap — coffee demand up 80%'},
+  {id:2,day:10,product:'cookie',type:'spike',multiplier:1.6,extra:0,desc:'🎉 Welcome event — cookies spike'},
+  {id:3,day:14,product:'coffee',type:'delay',multiplier:1,extra:2,desc:'🚛 Distributor delay +2d'},
+  {id:4,day:18,product:'cookie',type:'price',multiplier:1,extra:0,newPrice:3.00,desc:'📈 Cookie price → $3.00'},
+  {id:5,day:22,product:'coffee',type:'spike',multiplier:2.0,extra:0,desc:'📚 Finals week — coffee doubles'},
+  {id:6,day:25,product:'cookie',type:'spike',multiplier:1.8,extra:0,desc:'🎓 Graduation — cookie surge'},
+];
+let scen_id=7, selScen=null, rTab='players', RUNS={}, expandedRun=null;
+let CURRENT_ALLOWED_DAY=1;
+let unsubRuns=null, unsubControl=null, selDProd='coffee';
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user=>{
+  if(user && PROFESSOR_EMAILS.map(e=>e.toLowerCase()).includes(user.email.toLowerCase())){
+    showDashboard(user);
+  } else if(user){
+    // Signed in but not a professor — sign out and show login screen
+    await signOut(auth);
+    document.getElementById('op-auth-screen').style.display='flex';
+  } else {
+    // Not signed in — just show the login screen
+    document.getElementById('op-auth-screen').style.display='flex';
+  }
+});
+
+function showDashboard(user){
+  document.getElementById('op-auth-screen').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('layout').style.display='grid';
+  const name=user.displayName||user.email.split('@')[0];
+  const init=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('op-avatar').textContent=init;
+  document.getElementById('op-user-label').textContent=name+' ('+user.email+')';
+  startListeners();
+  renderSettings();
+}
+
+// ── FIREBASE LISTENERS ────────────────────────────────────────────────────────
+function startListeners(){
+  if(unsubRuns) unsubRuns();
+  unsubRuns=onSnapshot(collection(db,'runs'),snap=>{
+    snap.docChanges().forEach(c=>{
+      if(c.type==='removed') delete RUNS[c.doc.id];
+      else RUNS[c.doc.id]={id:c.doc.id,...c.doc.data()};
+    });
+    updateTopStats(); renderPanel();
+  });
+  if(unsubControl) unsubControl();
+  unsubControl=onSnapshot(doc(db,'control','round'),snap=>{
+    if(snap.exists()){
+      const savedDay = snap.data().allowedDay || 1;
+      // If allowedDay is 9999 it means gating was off — treat as day 1 when re-enabling
+      CURRENT_ALLOWED_DAY = (savedDay >= 9999) ? 1 : savedDay;
+      CFG.roundControl=snap.data().roundControl||false;
+      document.getElementById('cfg-round-control').checked=CFG.roundControl;
+    }
+    renderPanel();
+  });
+}
+
+function updateTopStats(){
+  const runs=Object.values(RUNS);
+  document.getElementById('stat-players').textContent=runs.length||'0';
+  const done=runs.filter(r=>r.status==='complete');
+  document.getElementById('stat-complete').textContent=done.length+'/'+runs.length;
+  if(runs.length){
+    document.getElementById('stat-avgsvc').textContent=(runs.reduce((s,r)=>s+(r.svc||0),0)/runs.length).toFixed(1)+'%';
+    document.getElementById('stat-avgprofit').textContent='$'+Math.round(runs.reduce((s,r)=>s+(r.profit||0),0)/runs.length);
+  }
+}
+
+// ── PUSH CONFIG ───────────────────────────────────────────────────────────────
+async function applyConfig(){
+  CFG.rounds  =parseInt(document.getElementById('cfg-rounds').value)||30;
+  CFG.cash    =parseInt(document.getElementById('cfg-cash').value)||2500;
+  CFG.seed    =parseInt(document.getElementById('cfg-seed').value)||42;
+  CFG.svcTarget=parseFloat(document.getElementById('cfg-svc-target').value)||90;
+  CFG.roundControl       =document.getElementById('cfg-round-control').checked;
+  CFG.hideDemand         =document.getElementById('cfg-hide-demand').checked;
+  CFG.hideRecommendations=document.getElementById('cfg-hide-rec').checked;
+  PRODS.forEach(p=>{
+    const pc=CFG.products[p.id];
+    const g=id=>{ const el=document.getElementById(id); return el?parseFloat(el.value):null; };
+    const gi=id=>{ const el=document.getElementById(id); return el?parseInt(el.value):null; };
+    if(g(`d-avg-${p.id}`)!==null) pc.demandAvg=g(`d-avg-${p.id}`);
+    if(g(`d-std-${p.id}`)!==null) pc.demandStd=g(`d-std-${p.id}`);
+    if(g(`lt-mean-${p.id}`)!==null)  pc.ltMean   =g(`lt-mean-${p.id}`);
+    if(g(`lt-std-${p.id}`)!==null)   pc.ltStd    =g(`lt-std-${p.id}`);
+    if(g(`drel-${p.id}`)!==null)     pc.delivRel =g(`drel-${p.id}`);
+    if(g(`qmean-${p.id}`)!==null)    pc.qualMean =g(`qmean-${p.id}`);
+    if(g(`qstd-${p.id}`)!==null)     pc.qualStd  =g(`qstd-${p.id}`);
+    if(g(`fc-${p.id}`)!==null)    pc.fixedCost=g(`fc-${p.id}`);
+    if(g(`uc-${p.id}`)!==null)    pc.unitCost =g(`uc-${p.id}`);
+    if(g(`sell-${p.id}`)!==null)  pc.sell     =g(`sell-${p.id}`);
+    if(g(`hold-${p.id}`)!==null)  pc.holdPerUnit=g(`hold-${p.id}`);
+  });
+  const payload=buildPayload();
+  try{
+    await setDoc(doc(db,'config','game'),{...payload,updatedAt:serverTimestamp()});
+    // Update round control gate
+    await setDoc(doc(db,'control','round'),{
+      allowedDay:CFG.roundControl ? CURRENT_ALLOWED_DAY : 9999,
+      roundControl:CFG.roundControl,
+      updatedAt:serverTimestamp()
+    });
+    showNotif('✓ Config pushed to all students');
+  }catch(e){showNotif('⚠ Push failed: '+e.message);}
+  updateConfigJSON();
+  renderPanel();
+}
+
+function buildPayload(){
+  return {
+    rounds:CFG.rounds, startingCash:CFG.cash, rngSeed:CFG.seed,
+    svcTarget:CFG.svcTarget, roundControl:CFG.roundControl,
+    hideDemand:CFG.hideDemand, hideRecommendations:CFG.hideRecommendations,
+    products:JSON.parse(JSON.stringify(CFG.products)),
+    scenarios:SCENARIOS.map(s=>({
+      day:s.day,product:s.product,type:s.type,desc:s.desc,
+      ...(s.type==='spike'?{multiplier:s.multiplier}:{}),
+      ...(s.type==='delay'?{extraDays:s.extra}:{}),
+      ...(s.type==='price'?{newPrice:s.newPrice||0}:{}),
+    }))
+  };
+}
+
+function updateConfigJSON(){
+  const el=document.getElementById('config-json');
+  if(el) el.value=JSON.stringify(buildPayload(),null,2);
+}
+
+// ── ROUND CONTROL ─────────────────────────────────────────────────────────────
+async function resetToDay1(){
+  if(!confirm('Reset round control to Day 1? Students will be blocked until you release each day again.')) return;
+  CURRENT_ALLOWED_DAY=1;
+  try{
+    await setDoc(doc(db,'control','round'),{allowedDay:1,roundControl:true,updatedAt:serverTimestamp()});
+    CFG.roundControl=true;
+    document.getElementById('cfg-round-control').checked=true;
+    showNotif('↺ Reset to Day 1');
+  }catch(e){showNotif('⚠ '+e.message);}
+  renderPanel();
+}
+window.resetToDay1=resetToDay1;
+
+async function releaseNextDay(){
+  CURRENT_ALLOWED_DAY++;
+  try{
+    await setDoc(doc(db,'control','round'),{allowedDay:CURRENT_ALLOWED_DAY,roundControl:true,updatedAt:serverTimestamp()});
+    showNotif(`✓ Day ${CURRENT_ALLOWED_DAY} released`);
+  }catch(e){showNotif('⚠ '+e.message);CURRENT_ALLOWED_DAY--;}
+  renderPanel();
+}
+
+async function releaseAllDays(){
+  if(!confirm('Turn off round gating? All students will be able to play freely. You can re-enable it from the settings.')) return;
+  try{
+    await setDoc(doc(db,'control','round'),{allowedDay:9999,roundControl:false,updatedAt:serverTimestamp()});
+    CURRENT_ALLOWED_DAY=1;
+    CFG.roundControl=false;
+    document.getElementById('cfg-round-control').checked=false;
+    showNotif('✓ Round gating disabled — students play freely');
+  }catch(e){showNotif('⚠ '+e.message);}
+  renderPanel();
+}
+
+// ── SETTINGS RENDERING ────────────────────────────────────────────────────────
+function renderSettings(){
+  renderDemandFields();
+  renderLTFields();
+  updateConfigJSON();
+}
+
+function renderDemandFields(){
+  const pc=CFG.products[selDProd];
+  const p=PRODS.find(x=>x.id===selDProd);
+  const lo=Math.max(0,Math.round(pc.demandAvg-2*pc.demandStd));
+  const hi=Math.round(pc.demandAvg+2*pc.demandStd);
+  const eoq=Math.round(Math.sqrt(2*pc.demandAvg*pc.fixedCost/Math.max(0.001,pc.holdPerUnit)));
+  document.getElementById('demand-fields').innerHTML=`
+<div class="field-row">
+  <div class="field">
+    <label>${p.emoji} Avg Demand (units/day)</label>
+    <input type="number" id="d-avg-${p.id}" value="${pc.demandAvg}" min="0" step="0.5"
+      oninput="updDemandCFG('demandAvg','${p.id}',this.value)">
+  </div>
+  <div class="field">
+    <label>Std Deviation (units)</label>
+    <input type="number" id="d-std-${p.id}" value="${pc.demandStd}" min="0" step="0.5"
+      oninput="updDemandCFG('demandStd','${p.id}',this.value)">
+  </div>
+</div>
+<div class="info-pill" id="demand-info-${p.id}">
+  ~95% of daily demand: <strong style="color:var(--text)">${lo}–${hi} u/day</strong> · EOQ ≈ <strong style="color:var(--gold)">${eoq} units</strong>
+</div>`;
+}
+
+// ── SUPPLIER RELIABILITY SCORE ───────────────────────────────────────────────
+// +40 pts delivery reliability, +40 pts quality mean, -10 pts LT-std, -10 pts qual-std
+function calcSupplierReliability(pc){
+  const delivScore = (pc.delivRel||0.95)*40;
+  const qualScore  = ((pc.qualMean||98)/100)*40;
+  const ltVarPen   = Math.min((pc.ltStd||0.5)/7,1)*10;
+  const qVarPen    = Math.min((pc.qualStd||2)/20,1)*10;
+  return Math.round(Math.max(0,Math.min(100,delivScore+qualScore-ltVarPen-qVarPen)));
+}
+
+function scoreColor(s){return s>=90?'#3ddc97':s>=75?'#ffd166':s>=60?'#ff7a3d':'#ff5c7a';}
+
+function refreshSupplierScore(pid){
+  const pc=CFG.products[pid];
+  const score=calcSupplierReliability(pc);
+  const el=document.getElementById('sup-score-'+pid);
+  if(el){el.textContent=score+'%';el.style.color=scoreColor(score);}
+}
+
+function renderLTFields(){
+  document.getElementById('lt-fields').innerHTML=PRODS.map(p=>{
+    const pc=CFG.products[p.id];
+    const score=calcSupplierReliability(pc);
+    const sc=scoreColor(score);
+    const drelPct=Math.round((pc.delivRel||0.95)*100);
+    const drelC=(pc.delivRel||0.95)>=0.9?'#3ddc97':(pc.delivRel||0.95)>=0.75?'#ffd166':'#ff5c7a';
+    return `
+<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border2)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:11px;font-weight:700;color:${p.color}">${p.emoji} ${p.name}</div>
+    <div style="text-align:right;background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:5px 10px">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700">Supplier Reliability</div>
+      <div id="sup-score-${p.id}" style="font-size:18px;font-weight:800;font-family:monospace;color:${sc}">${score}%</div>
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Lead Time Mean (days)</label>
+      <input type="number" id="lt-mean-${p.id}" value="${pc.ltMean||2}" min="1" max="14" step="0.5"
+        oninput="updSupplierCFG('ltMean','${p.id}',this.value)">
+    </div>
+    <div class="field">
+      <label>Lead Time Std Dev (days)</label>
+      <input type="number" id="lt-std-${p.id}" value="${pc.ltStd||0.5}" min="0" max="7" step="0.1"
+        oninput="updSupplierCFG('ltStd','${p.id}',this.value)">
+    </div>
+  </div>
+  <div class="field">
+    <label>Delivery Reliability (%) <span id="drel-lbl-${p.id}" style="color:${drelC};font-weight:700">${drelPct}%</span></label>
+    <input type="range" id="drel-${p.id}" value="${pc.delivRel||0.95}" min="0.5" max="1.0" step="0.01"
+      style="accent-color:${drelC}" oninput="updDelivRelCFG('${p.id}',this.value)">
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Quality Mean (% usable)</label>
+      <input type="number" id="qmean-${p.id}" value="${pc.qualMean||98}" min="50" max="100" step="1"
+        oninput="updSupplierCFG('qualMean','${p.id}',this.value)">
+    </div>
+    <div class="field">
+      <label>Quality Std Dev (%)</label>
+      <input type="number" id="qstd-${p.id}" value="${pc.qualStd||2}" min="0" max="20" step="0.5"
+        oninput="updSupplierCFG('qualStd','${p.id}',this.value)">
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Fixed Order Cost (G)</label>
+      <input type="number" id="fc-${p.id}" value="${pc.fixedCost}" min="0" step="1" oninput="updLTCFG('fixedCost','${p.id}',this.value)">
+    </div>
+    <div class="field">
+      <label>Unit Cost (G/unit)</label>
+      <input type="number" id="uc-${p.id}" value="${pc.unitCost}" min="0.01" step="0.01" oninput="updLTCFG('unitCost','${p.id}',this.value)">
+    </div>
+  </div>
+  <div class="field-row">
+    <div class="field">
+      <label>Sell Price (G/unit)</label>
+      <input type="number" id="sell-${p.id}" value="${pc.sell}" min="0.01" step="0.01" oninput="updLTCFG('sell','${p.id}',this.value)">
+    </div>
+    <div class="field">
+      <label>Hold Cost (G/u/day)</label>
+      <input type="number" id="hold-${p.id}" value="${pc.holdPerUnit}" min="0.001" step="0.005" oninput="updLTCFG('holdPerUnit','${p.id}',this.value)">
+    </div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+// Live update helpers — called from oninput on rendered fields
+window.updDemandCFG=function(k,pid,v){
+  const n=parseFloat(v); if(isNaN(n)) return;
+  CFG.products[pid][k]=Math.max(0,n);
+  const pc=CFG.products[pid];
+  const lo=Math.max(0,Math.round(pc.demandAvg-2*pc.demandStd));
+  const hi=Math.round(pc.demandAvg+2*pc.demandStd);
+  const eoq=Math.round(Math.sqrt(2*pc.demandAvg*pc.fixedCost/Math.max(0.001,pc.holdPerUnit)));
+  const el=document.getElementById('demand-info-'+pid);
+  if(el) el.innerHTML=`~95% of daily demand: <strong style="color:var(--text)">${lo}–${hi} u/day</strong> · EOQ ≈ <strong style="color:var(--gold)">${eoq} units</strong>`;
+  updateConfigJSON();
+};
+window.updLTCFG=function(k,pid,v){
+  const n=parseFloat(v); if(isNaN(n)) return;
+  CFG.products[pid][k]=Math.max(0,n);
+  updateConfigJSON();
+};
+window.updSupplierCFG=function(k,pid,v){
+  const n=parseFloat(v); if(isNaN(n)) return;
+  CFG.products[pid][k]=Math.max(0,n);
+  refreshSupplierScore(pid);
+  updateConfigJSON();
+};
+window.updDelivRelCFG=function(pid,v){
+  const n=parseFloat(v); if(isNaN(n)) return;
+  CFG.products[pid].delivRel=n;
+  const pct=Math.round(n*100);
+  const c=n>=0.9?'#3ddc97':n>=0.75?'#ffd166':'#ff5c7a';
+  const lbl=document.getElementById('drel-lbl-'+pid);
+  const inp=document.getElementById('drel-'+pid);
+  if(lbl){lbl.textContent=pct+'%';lbl.style.color=c;}
+  if(inp) inp.style.accentColor=c;
+  refreshSupplierScore(pid);
+  updateConfigJSON();
+};
+window.setDemandProd=function(id){
+  selDProd=id;
+  ['coffee','cookie'].forEach(p=>document.getElementById('dtab-'+p).className='ptb'+(p===id?' on':''));
+  renderDemandFields();
+};
+window.copyConfigJSON=function(){navigator.clipboard.writeText(document.getElementById('config-json').value||'').then(()=>showNotif('📋 Copied!'));};
+
+// ── PANEL RENDERING ───────────────────────────────────────────────────────────
+function renderPanel(){
+  if(rTab==='players')     renderPlayers();
+  else if(rTab==='leaderboard') renderLeaderboard();
+  else if(rTab==='scenarios')   renderScenarios();
+}
+window.setRTab=function(t){
+  rTab=t;
+  ['players','leaderboard','scenarios'].forEach((n,i)=>{
+    document.getElementById('rt'+i).className='rtab'+(n===t?' on':'');
+  });
+  renderPanel();
+};
+
+// Round control panel HTML
+function roundCtrlHTML(){
+  if(!CFG.roundControl) return '';
+  const runs=Object.values(RUNS);
+  const waiting=runs.filter(r=>r.status==='in_progress'&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY);
+  const done=runs.filter(r=>r.status==='complete');
+  return `<div class="round-ctrl-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--acc)">🎮 Round Control — ACTIVE</div>
+    <div style="display:flex;gap:6px">
+      <button onclick="resetToDay1()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer">↺ Reset to Day 1</button>
+      <button onclick="releaseAllDays()" style="background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer">Release All</button>
+    </div>
+  </div>
+  <div class="round-ctrl-day">Day ${CURRENT_ALLOWED_DAY}</div>
+  <div class="round-ctrl-sub">Released · ${waiting.length} waiting · ${done.length} done</div>
+  <button class="btn-release" onclick="releaseNextDay()">▶ Release Day ${CURRENT_ALLOWED_DAY+1}</button>
+  ${runs.length?`<div class="waiting-grid">${runs.slice(0,8).map(r=>{
+    const isDone=r.status==='complete';
+    const isWait=!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
+    return `<div class="waiting-chip ${isDone?'ready':isWait?'waiting':'ready'}">
+      <div>${isDone?'✓':isWait?'⏳':'▶'}</div>
+      <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${(r.player||'?').split(' ')[0]}</div>
+      <div style="font-size:9px;opacity:.7">${isDone?'Done':'D'+(r.currentDay||1)}</div>
+    </div>`;}).join('')}${runs.length>8?`<div class="waiting-chip" style="color:var(--dim)">+${runs.length-8}</div>`:''}</div>`:''}
+</div>`;
+}
+
+// ── PLAYERS ───────────────────────────────────────────────────────────────────
+function renderPlayers(){
+  const body=document.getElementById('panel-body');
+  const runs=Object.values(RUNS).sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));
+  body.innerHTML = roundCtrlHTML() + (runs.length
+    ? runs.map(r=>playerCardHTML(r)).join('')
+    : `<div class="empty-state"><div>👥</div><strong>No players yet</strong><br>Students appear here when they start playing.</div>`);
+}
+
+function gradeFor(svc,profit){
+  const s=svc/100;
+  if(s>=.95&&profit>800) return 'A+';
+  if(s>=.90&&profit>500) return 'A';
+  if(s>=.85&&profit>200) return 'B';
+  if(s>=.75) return 'C';
+  if(s>=.60) return 'D';
+  return 'F';
+}
+function gradeColor(g){return g==='A+'||g==='A'?'#3ddc97':g==='B'||g==='C'?'#ffd166':g==='D'?'#ff6b35':'#ff5c7a';}
+
+function playerCardHTML(r){
+  const done=r.status==='complete';
+  const svc=r.svc||0; const profit=r.profit||0;
+  const grade=done?(r.grade||gradeFor(svc,profit)):null;
+  const svcC=svc>=90?'#3ddc97':svc>=75?'#ffd166':'#ff5c7a';
+  const dayPct=Math.round(((r.currentDay||1)-1)/(r.totalDays||30)*100);
+  const isExp=expandedRun===r.id;
+  let detail='';
+  if(isExp){
+    if(r.dayLog&&r.dayLog.length){
+      detail=`<div style="margin-top:12px;border-top:1px solid var(--border2);padding-top:10px">
+  <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin-bottom:8px">📋 Day-by-Day Log (${r.dayLog.length} days)</div>
+  <table class="day-log-table"><thead><tr>
+    <th>Day</th><th>☕ Dem</th><th>☕ Sold/Lost</th><th>☕ Order</th>
+    <th>🍪 Dem</th><th>🍪 Sold/Lost</th><th>🍪 Order</th>
+    <th>Hold</th><th>Rev</th><th>Events</th>
+  </tr></thead><tbody>
+  ${r.dayLog.map(d=>{
+    const cf=d.prods?.coffee||{}; const ck=d.prods?.cookie||{};
+    const totHold=((cf.holdCost||0)+(ck.holdCost||0)).toFixed(2);
+    const totRev=((cf.revenue||0)+(ck.revenue||0)).toFixed(2);
+    const hasLost=(cf.lost||0)+(ck.lost||0)>0;
+    return `<tr style="${hasLost?'background:rgba(255,92,122,.05)':''}">
+      <td style="color:#ffd166;font-weight:700;font-family:'Space Mono',monospace">D${d.day}</td>
+      <td>${cf.demand||0} units</td>
+      <td style="color:${(cf.lost||0)>0?'#ff5c7a':'var(--muted)'}">${cf.sold||0}/${cf.lost||0}</td>
+      <td style="color:${(cf.orderQty||0)>0?'#7fd3ff':'var(--dim)'}">${cf.orderQty||0} units${cf.orderQty>0?' →D'+(cf.arrDay||'?'):''}</td>
+      <td>${ck.demand||0} units</td>
+      <td style="color:${(ck.lost||0)>0?'#ff5c7a':'var(--muted)'}">${ck.sold||0}/${ck.lost||0}</td>
+      <td style="color:${(ck.orderQty||0)>0?'#7fd3ff':'var(--dim)'}">${ck.orderQty||0} units${ck.orderQty>0?' →D'+(ck.arrDay||'?'):''}</td>
+      <td style="color:#9b5de5">$${totHold}</td>
+      <td style="color:#3ddc97">$${totRev}</td>
+      <td style="color:#ffd166;font-size:10px;max-width:130px">${(d.events||[]).join(', ')||'—'}</td>
+    </tr>`;}).join('')}
+  </tbody></table></div>`;
+    } else {
+      detail=`<div style="margin-top:10px;font-size:12px;color:var(--dim)">No day log yet.</div>`;
+    }
+  }
+  return `<div class="player-card${isExp?' expanded':''}" onclick="toggleExpand('${r.id}')">
+  <div class="player-top">
+    <div class="player-name">${r.player||'Unknown'}</div>
+    ${done?`<span class="status-pill status-complete">✓ COMPLETE</span>`:`<span class="status-pill status-progress">⏳ Day ${r.currentDay||1}/${r.totalDays||30}</span>`}
+    ${grade?`<div class="grade-big" style="color:${gradeColor(grade)}">${grade}</div>`:''}
+  </div>
+  <div class="day-progress">
+    <span style="font-size:10px;color:var(--dim);min-width:50px">Day ${r.currentDay||1}/${r.totalDays||30}</span>
+    <div class="day-track"><div class="day-fill" style="width:${dayPct}%"></div></div>
+    <span style="font-size:10px;color:var(--dim)">${dayPct}%</span>
+  </div>
+  <div class="player-stats">
+    <div class="pstat"><div class="pstat-v" style="color:${svcC}">${svc.toFixed(1)}%</div><div class="pstat-l">Service</div><div class="svc-track"><div class="svc-fill" style="width:${svc}%;background:${svcC}"></div></div></div>
+    <div class="pstat"><div class="pstat-v" style="color:${profit>0?'#3ddc97':'#ff5c7a'}">$${(profit||0).toLocaleString()}</div><div class="pstat-l">Profit</div></div>
+    <div class="pstat"><div class="pstat-v" style="color:#3ddc97">$${(r.totRev||0).toLocaleString()}</div><div class="pstat-l">Revenue</div></div>
+    <div class="pstat"><div class="pstat-v" style="color:${(r.totLost||0)>20?'#ff5c7a':'var(--muted)'}">${r.totLost||0} units</div><div class="pstat-l">Lost Sales</div></div>
+  </div>
+  <div style="font-size:10px;color:var(--dim);margin-top:6px;text-align:right">${isExp?'▲ Hide log':'▼ Click for day-by-day log'}</div>
+  ${detail}
+</div>`;
+}
+window.toggleExpand=function(id){expandedRun=expandedRun===id?null:id;renderPanel();};
+
+// ── LEADERBOARD ───────────────────────────────────────────────────────────────
+function renderLeaderboard(){
+  const body=document.getElementById('panel-body');
+  const runs=Object.values(RUNS);
+  if(!runs.length){body.innerHTML=`<div class="empty-state"><div>🏆</div>No runs yet.</div>`;return;}
+  const sorted=[...runs].sort((a,b)=>(b.svc||0)-(a.svc||0)||((b.profit||0)-(a.profit||0)));
+  const gradeGroups={'A+':[],'A':[],'B':[],'C':[],'D':[],'F':[]};
+  runs.forEach(r=>{const g=r.grade||gradeFor(r.svc||0,r.profit||0);if(gradeGroups[g])gradeGroups[g].push(r);});
+  const avgSvc=runs.reduce((s,r)=>s+(r.svc||0),0)/runs.length;
+  const avgP=runs.reduce((s,r)=>s+(r.profit||0),0)/runs.length;
+  const statsHTML=`<div class="stat-grid">
+    <div class="stat-box"><div class="stat-box-v" style="color:#3ddc97">${runs.length}</div><div class="stat-box-l">Players</div></div>
+    <div class="stat-box"><div class="stat-box-v" style="color:#ffd166">${runs.filter(r=>r.status==='complete').length}/${runs.length}</div><div class="stat-box-l">Complete</div></div>
+    <div class="stat-box"><div class="stat-box-v" style="color:#7fd3ff">${avgSvc.toFixed(1)}%</div><div class="stat-box-l">Avg SVC</div></div>
+    <div class="stat-box"><div class="stat-box-v" style="color:#b07bff">$${Math.round(avgP)}</div><div class="stat-box-l">Avg Profit</div></div>
+  </div>`;
+  const distHTML=`<div class="s-card"><div class="s-title">Grade Distribution</div>
+  <div style="display:flex;gap:5px;align-items:flex-end;height:70px;margin-bottom:8px">
+    ${Object.entries(gradeGroups).map(([g,ps])=>{
+      const c=gradeColor(g);const h=runs.length?Math.max(8,Math.round(ps.length/runs.length*60)):8;
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+        <div style="font-size:10px;color:${c};font-weight:700">${ps.length}</div>
+        <div style="width:100%;height:${h}px;background:${c}33;border:1px solid ${c}44;border-radius:3px 3px 0 0"></div>
+        <div style="font-size:11px;font-weight:800;color:${c}">${g}</div>
+      </div>`;}).join('')}
+  </div></div>`;
+  const rowsHTML=sorted.map((r,i)=>{
+    const g=r.grade||gradeFor(r.svc||0,r.profit||0);
+    const svcC=(r.svc||0)>=90?'#3ddc97':(r.svc||0)>=75?'#ffd166':'#ff5c7a';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+    return `<div class="lb-row${i<3?' gold-row':''}">
+      <div style="font-size:14px;min-width:24px">${medal}</div>
+      <div style="flex:1;font-weight:700">${r.player||'?'}</div>
+      ${r.status!=='complete'?`<span class="status-pill status-progress" style="font-size:9px">D${r.currentDay||1}</span>`:''}
+      <div style="font-family:'Space Mono',monospace;color:${svcC};font-size:12px;min-width:52px;text-align:right">${(r.svc||0).toFixed(1)}%</div>
+      <div style="font-family:'Space Mono',monospace;color:${(r.profit||0)>0?'#3ddc97':'#ff5c7a'};font-size:12px;min-width:60px;text-align:right">$${(r.profit||0).toLocaleString()}</div>
+      <div style="font-size:16px;font-weight:800;color:${gradeColor(g)};min-width:32px;text-align:right">${g}</div>
+    </div>`;}).join('');
+  body.innerHTML=statsHTML+distHTML+`<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;margin:8px 0 4px">Ranked Standings</div>`+rowsHTML;
+}
+
+// ── SCENARIOS ─────────────────────────────────────────────────────────────────
+function renderScenarios(){
+  const body=document.getElementById('panel-body');
+  const tc={spike:'#ff7a3d',delay:'#ffd166',price:'#b07bff',supplier_fail:'#ff5c7a'};
+  const tl={spike:'SPIKE',delay:'DELAY',price:'PRICE',supplier_fail:'FAIL'};
+  const header=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div class="info-pill" style="flex:1;margin-right:10px;font-size:10px">Edit scenarios then hit <strong>Push Config</strong></div>
+    <button onclick="addScenario()" style="background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif">+ Add</button>
+  </div>
+  <div class="scen-header"><div>Day</div><div>Product</div><div>Description</div><div>Type</div><div>Value</div><div></div></div>`;
+  const rows=[...SCENARIOS].sort((a,b)=>a.day-b.day).map(s=>{
+    const c=tc[s.type]||'#9c95bd'; const l=tl[s.type]||s.type;
+    const v=s.type==='spike'?`×${s.multiplier}`:s.type==='delay'?`+${s.extra}d`:s.type==='price'?`$${s.newPrice}`:'—';
+    const prod=PRODS.find(p=>p.id===s.product);
+    return `<div class="scen-row${selScen===s.id?' sel':''}" onclick="editScenario(${s.id})">
+      <div style="color:var(--gold);font-weight:700;font-family:'Space Mono',monospace">D${s.day}</div>
+      <div style="color:${prod?.color||'var(--muted)'}">${prod?.emoji||''} ${prod?.name||s.product}</div>
+      <div style="font-size:10px;color:var(--muted)">${s.desc}</div>
+      <div><span class="type-badge" style="background:${c}18;color:${c}">${l}</span></div>
+      <div style="font-family:'Space Mono',monospace;color:${c}">${v}</div>
+      <div><button onclick="event.stopPropagation();removeScenario(${s.id})" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px">✕</button></div>
+    </div>`;}).join('');
+  body.innerHTML=header+rows;
+}
+
+window.editScenario=function(id){
+  selScen=id; const s=SCENARIOS.find(x=>x.id===id); if(!s) return;
+  const valLabel={spike:'Demand Multiplier (e.g. 1.8)',delay:'Extra Days',price:'New Price (G)',supplier_fail:'Block Duration (days)'};
+  const valVal={spike:s.multiplier,delay:s.extra,price:s.newPrice||0,supplier_fail:s.extra||3};
+  document.getElementById('scen-modal-body').innerHTML=`
+  <div class="field-row">
+    <div class="field"><label>Day</label><input type="number" id="se-day" value="${s.day}" min="1" max="${CFG.rounds}"></div>
+    <div class="field"><label>Product</label><select id="se-prod">${PRODS.map(p=>`<option value="${p.id}"${s.product===p.id?' selected':''}>${p.emoji} ${p.name}</option>`).join('')}</select></div>
+  </div>
+  <div class="field-row">
+    <div class="field"><label>Type</label><select id="se-type"><option value="spike"${s.type==='spike'?' selected':''}>Demand Spike</option><option value="delay"${s.type==='delay'?' selected':''}>Supplier Delay</option><option value="price"${s.type==='price'?' selected':''}>Price Change</option><option value="supplier_fail"${s.type==='supplier_fail'?' selected':''}>Supplier Fail</option></select></div>
+    <div class="field"><label>${valLabel[s.type]||'Value'}</label><input type="number" id="se-val" value="${valVal[s.type]||1}" step="0.1"></div>
+  </div>
+  <div class="field"><label>Description</label><input type="text" id="se-desc" value="${s.desc}" maxlength="80"></div>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button onclick="closeScenModal()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Cancel</button>
+    <button onclick="saveScenario()" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Save Changes</button>
+  </div>`;
+  document.getElementById('scen-modal').classList.remove('hidden');
+};
+window.closeScenModal=function(){document.getElementById('scen-modal').classList.add('hidden');};
+window.saveScenario=function(){
+  const s=SCENARIOS.find(x=>x.id===selScen); if(!s) return;
+  s.day=parseInt(document.getElementById('se-day').value)||s.day;
+  s.product=document.getElementById('se-prod').value;
+  s.type=document.getElementById('se-type').value;
+  s.desc=document.getElementById('se-desc').value||s.desc;
+  const v=parseFloat(document.getElementById('se-val').value)||1;
+  if(s.type==='spike') s.multiplier=v;
+  else if(s.type==='delay') s.extra=v;
+  else if(s.type==='price') s.newPrice=v;
+  else s.extra=v;
+  closeScenModal(); updateConfigJSON(); renderScenarios();
+  showNotif('✓ Scenario saved — push to apply');
+};
+window.removeScenario=function(id){
+  SCENARIOS=SCENARIOS.filter(s=>s.id!==id);
+  if(selScen===id) selScen=null;
+  updateConfigJSON(); renderScenarios();
+};
+window.addScenario=function(){
+  const s={id:scen_id++,day:15,product:'coffee',type:'spike',multiplier:1.5,extra:0,desc:'New scenario'};
+  SCENARIOS.push(s); renderScenarios(); window.editScenario(s.id);
+};
+
+// ── CHANGE PASSWORD ───────────────────────────────────────────────────────────
+window.openChangePw=function(){
+  document.getElementById('changepw-modal').classList.remove('hidden');
+  ['cpw-current','cpw-new','cpw-confirm'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['cpw-error','cpw-success'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';});
+  document.getElementById('pw-str-bar').style.width='0%';
+  document.getElementById('pw-str-lbl').textContent='';
+  setTimeout(()=>document.getElementById('cpw-current').focus(),100);
+};
+window.closeChangePw=function(){document.getElementById('changepw-modal').classList.add('hidden');};
+window.toggleCpw=function(id,btn){const i=document.getElementById(id);if(!i)return;i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';};
+window.updatePwStrength=function(pw){
+  let s=0;
+  if(pw.length>=8)s++;if(pw.length>=12)s++;
+  if(/[A-Z]/.test(pw)&&/[a-z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;
+  s=Math.min(4,s);
+  const c=['','#ff5c7a','#ffd166','#3ddc97','#3ddc97'][s];
+  const l=['','Weak','Fair','Good','Strong'][s];
+  document.getElementById('pw-str-bar').style.cssText=`height:100%;width:${s*25}%;background:${c||''};border-radius:99px;transition:all .3s`;
+  const lbl=document.getElementById('pw-str-lbl');lbl.textContent=l;lbl.style.color=c||'var(--dim)';
+};
+window.doChangePw=async function(){
+  const cur=document.getElementById('cpw-current').value;
+  const nw=document.getElementById('cpw-new').value;
+  const cf=document.getElementById('cpw-confirm').value;
+  const err=el=>{ const e=document.getElementById('cpw-error');e.textContent='⚠ '+el;e.style.display='block';document.getElementById('cpw-success').style.display='none'; };
+  if(!cur) return err('Enter your current password.');
+  if(nw.length<6) return err('New password must be at least 6 characters.');
+  if(nw!==cf) return err('Passwords do not match.');
+  if(nw===cur) return err('New password must be different.');
+  const btn=document.getElementById('cpw-btn');btn.disabled=true;btn.textContent='Updating…';btn.style.opacity='.7';
+  try{
+    const {EmailAuthProvider,reauthenticateWithCredential,updatePassword}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    const cred=EmailAuthProvider.credential(auth.currentUser.email,cur);
+    await reauthenticateWithCredential(auth.currentUser,cred);
+    await updatePassword(auth.currentUser,nw);
+    const ok=document.getElementById('cpw-success');ok.textContent='✓ Password updated!';ok.style.display='block';
+    document.getElementById('cpw-error').style.display='none';
+    setTimeout(()=>window.closeChangePw(),2000);
+    showNotif('✓ Password changed');
+  }catch(e){
+    const m={'auth/wrong-password':'Current password incorrect.','auth/invalid-credential':'Current password incorrect.','auth/too-many-requests':'Too many attempts.'};
+    err(m[e.code]||'Error: '+e.message);
+  }finally{btn.disabled=false;btn.textContent='Update Password';btn.style.opacity='1';}
+};
+
+// ── AUTH ACTIONS ──────────────────────────────────────────────────────────────
+window.opLogin=async function(){
+  const email=document.getElementById('op-email').value.trim();
+  const pass=document.getElementById('op-pass').value;
+  if(!email||!pass){setOpErr('Enter email and password.');return;}
+  const btn=document.getElementById('op-login-btn');btn.disabled=true;btn.textContent='Signing in…';btn.style.opacity='.7';
+  try{
+    const cred=await signInWithEmailAndPassword(auth,email,pass);
+    if(!PROFESSOR_EMAILS.map(e=>e.toLowerCase()).includes(cred.user.email.toLowerCase())){
+      await signOut(auth);btn.disabled=false;btn.textContent='🎮 Sign In as Instructor';btn.style.opacity='1';
+      setOpErr('⛔ Not an instructor account.');return;
+    }
+  }catch(e){
+    btn.disabled=false;btn.textContent='🎮 Sign In as Instructor';btn.style.opacity='1';
+    const m={'auth/invalid-credential':'Incorrect email or password.','auth/too-many-requests':'Too many attempts.'};
+    setOpErr(m[e.code]||'Sign-in failed.');
+  }
+};
+window.opSignOut=async function(){await signOut(auth);window.location.href='index.html';};
+window.opForgot=async function(){
+  const email=document.getElementById('op-email').value.trim();
+  if(!email){setOpErr('Enter your email first.');return;}
+  try{await sendPasswordResetEmail(auth,email);setOpOk('Reset email sent to '+email);}catch(e){setOpErr('Could not send reset email.');}
+};
+function setOpErr(m){const e=document.getElementById('op-auth-error');e.textContent=m;e.style.display='block';document.getElementById('op-auth-success').style.display='none';}
+function setOpOk(m){const e=document.getElementById('op-auth-success');e.textContent=m;e.style.display='block';document.getElementById('op-auth-error').style.display='none';}
+
+// ── MISC ──────────────────────────────────────────────────────────────────────
+window.applyConfig=applyConfig;
+window.refreshRuns=function(){startListeners();showNotif('↺ Refreshed');};
+window.releaseNextDay=releaseNextDay;
+window.releaseAllDays=releaseAllDays;
+window.doExportCSV=function(){
+  const runs=Object.values(RUNS);if(!runs.length){showNotif('No data');return;}
+  const hdr='Name,Status,Day,SVC%,Profit,Revenue,LostSales,Grade';
+  const rows=runs.map(r=>`"${r.player||'?'}","${r.status||'?'}",${r.currentDay||0},${r.svc||0},${r.profit||0},${r.totRev||0},${r.totLost||0},"${r.grade||'?'}"`);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([[hdr,...rows].join('\n')],{type:'text/csv'}));a.download='gies-runs.csv';a.click();
+  showNotif('⬇ CSV exported');
+};
+window.doClearRuns=async function(){
+  if(!confirm('Delete ALL run data? Cannot be undone.')) return;
+  const snap=await getDocs(collection(db,'runs'));
+  for(const d of snap.docs) await deleteDoc(doc(db,'runs',d.id));
+  showNotif('All runs deleted');
+};
+
+let notifTm;
+function showNotif(msg){
+  const el=document.getElementById('notif');
+  el.textContent=msg;el.classList.remove('hidden');
+  clearTimeout(notifTm);notifTm=setTimeout(()=>el.classList.add('hidden'),2800);
+}
+window.notify=showNotif;
+</script>
+</body>
+</html>
