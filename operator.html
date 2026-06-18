@@ -585,7 +585,25 @@ let SCENARIOS = [
 ];
 let scen_id=7, selScen=null, rTab='players', RUNS={}, expandedRun=null;
 let CURRENT_ALLOWED_DAY=1;
-let unsubRuns=null, unsubControl=null, selDProd='coffee';
+let unsubRuns=null, unsubControl=null, unsubConfig=null, selDProd='coffee';
+
+// Populate all config inputs from current CFG/SCENARIOS state
+function populateConfigInputs(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
+  const setChk=(id,v)=>{const el=document.getElementById(id);if(el)el.checked=!!v;};
+  set('cfg-rounds',CFG.rounds);
+  set('cfg-cash',CFG.cash);
+  set('cfg-seed',CFG.seed);
+  set('cfg-svc-target',CFG.svcTarget);
+  setChk('cfg-round-control',CFG.roundControl);
+  setChk('cfg-hide-demand',CFG.hideDemand);
+  setChk('cfg-hide-rec',CFG.hideRecommendations);
+  // Re-render demand+LT fields so per-product inputs reflect CFG
+  if(typeof renderDemandFields==='function') renderDemandFields();
+  if(typeof renderLTFields==='function') renderLTFields();
+  if(typeof updateConfigJSON==='function'){ updateConfigJSON(); clearDirty(); }
+  if(typeof renderScenarios==='function') renderScenarios();
+}
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user=>{
@@ -632,8 +650,35 @@ function startListeners(){
     if(snap.exists()){
       CURRENT_ALLOWED_DAY=snap.data().allowedDay||1;
       CFG.roundControl=snap.data().roundControl||false;
-      document.getElementById('cfg-round-control').checked=CFG.roundControl;
+      const rc=document.getElementById('cfg-round-control'); if(rc) rc.checked=CFG.roundControl;
     }
+    renderPanel();
+  });
+  if(unsubConfig) unsubConfig();
+  unsubConfig=onSnapshot(doc(db,'config','game'),snap=>{
+    if(!snap.exists()) return;
+    const d=snap.data();
+    if(typeof d.rounds==='number') CFG.rounds=d.rounds;
+    if(typeof d.startingCash==='number') CFG.cash=d.startingCash;
+    if(typeof d.rngSeed==='number') CFG.seed=d.rngSeed;
+    if(typeof d.svcTarget==='number') CFG.svcTarget=d.svcTarget;
+    if(typeof d.roundControl==='boolean') CFG.roundControl=d.roundControl;
+    if(typeof d.hideDemand==='boolean') CFG.hideDemand=d.hideDemand;
+    if(typeof d.hideRecommendations==='boolean') CFG.hideRecommendations=d.hideRecommendations;
+    if(d.products){
+      for(const k of Object.keys(CFG.products)){
+        if(d.products[k]) Object.assign(CFG.products[k], d.products[k]);
+      }
+    }
+    if(Array.isArray(d.scenarios)){
+      SCENARIOS=d.scenarios.map((s,i)=>({
+        id:i+1, day:s.day, product:s.product, type:s.type, desc:s.desc,
+        multiplier:s.multiplier||1, extra:s.extraDays||0, newPrice:s.newPrice||0,
+        active:true
+      }));
+      scen_id=SCENARIOS.length+1;
+    }
+    populateConfigInputs();
     renderPanel();
   });
 }
