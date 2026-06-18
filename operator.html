@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Supply Chain — Operator Console</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 :root{
-  --bg:#0f0c1a;--bg2:#17132a;--surf:#1a1628;--panel:#221e36;--panel2:#2a2642;
-  --border:#332c50;--border2:#403868;--text:#f2eeff;--muted:#9088bb;--dim:#504878;
-  --acc:#ff7a3d;--acc2:#c14a18;--gold:#ffd166;--green:#3ddc97;--red:#ff5c7a;
-  --sky:#7fd3ff;--purple:#b07bff;--coffee:#a67b5b;--cookie:#e0b07a;
+  --bg:#1a120b;--bg2:#241810;--surf:#20160e;--panel:#2a1d12;--panel2:#36251a;
+  --border:#4a3220;--border2:#5e4128;--text:#f5e9d0;--muted:#b8a585;--dim:#7a634a;
+  --acc:#d4873c;--acc2:#a8651f;--gold:#e8b860;--green:#9bbf7a;--red:#d96a5a;
+  --sky:#d8c4a0;--purple:#b88a5c;--coffee:#6b4423;--cookie:#d4a574;
   --shadow:0 8px 32px -8px rgba(0,0,0,.6);
   --nav-w:220px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtree',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
 
 /* ── AUTH SCREEN ── */
 #op-auth-screen{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;
@@ -32,7 +32,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
   display:flex;align-items:center;padding:0 20px;gap:14px;
   box-shadow:0 2px 16px rgba(0,0,0,.4);z-index:50;
 }
-.logo{font-family:'Fraunces',serif;font-size:16px;color:var(--gold);display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:8px}
+.logo{font-family:'Outfit',serif;font-size:16px;color:var(--gold);display:flex;align-items:center;gap:8px;text-decoration:none;margin-right:8px}
 .logo-sub{font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1.2px;display:block;line-height:1}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.4s ease-in-out infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
@@ -42,7 +42,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .top-kpi-v{font-size:13px;font-weight:700;font-family:'Space Mono',monospace}
 .tb-spacer{flex:1}
 .tb-btn{padding:6px 13px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;
-  font-family:'DM Sans',sans-serif;border:none;transition:all .13s}
+  font-family:'Figtree',sans-serif;border:none;transition:all .13s}
 .tb-btn-acc{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 3px 0 var(--acc2)}
 .tb-btn-acc:hover{transform:translateY(-1px);box-shadow:0 5px 0 var(--acc2)}
 .tb-btn-ghost{background:var(--panel2);border:1px solid var(--border2)!important;color:var(--text)}
@@ -138,13 +138,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .round-progress-fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--gold));border-radius:99px;transition:width .5s}
 .btn-release-big{width:100%;padding:13px;border-radius:9px;border:none;cursor:pointer;
   background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
-  font-size:13px;font-weight:800;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:800;font-family:'Figtree',sans-serif;
   box-shadow:0 4px 0 var(--acc2);transition:all .12s;letter-spacing:.3px}
 .btn-release-big:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
 .btn-release-big:disabled{opacity:.45;transform:none;cursor:not-allowed}
 .btn-lock{width:100%;margin-top:8px;padding:8px;border-radius:7px;border:1px solid var(--border2);
   background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;
-  font-family:'DM Sans',sans-serif;transition:all .15s}
+  font-family:'Figtree',sans-serif;transition:all .15s}
 .btn-lock:hover{border-color:var(--red);color:var(--red)}
 
 /* Recent activity */
@@ -229,6 +229,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .notif.hidden{opacity:0}
 .empty-state{text-align:center;padding:50px 20px;color:var(--dim)}
 .empty-state div:first-child{font-size:32px;margin-bottom:10px}
+@keyframes pulse-btn{from{box-shadow:0 4px 0 var(--acc2),0 0 0 0 rgba(255,122,61,.4)}to{box-shadow:0 4px 0 var(--acc2),0 0 12px 4px rgba(255,122,61,.25)}}
 
 /* Round control full-page styling */
 .round-ctrl-section{background:linear-gradient(135deg,rgba(255,122,61,.08),rgba(255,209,102,.05));
@@ -241,7 +242,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 .round-setting-val{font-size:12px;font-weight:700;font-family:'Space Mono',monospace;color:var(--gold)}
 .round-action-btn{width:100%;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid var(--border2);
   background:var(--panel2);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;
-  font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s}
+  font-family:'Figtree',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s}
 .round-action-btn:hover{border-color:var(--acc);color:var(--acc)}
 </style>
 </head>
@@ -253,7 +254,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
     <div style="text-align:center;margin-bottom:26px">
       <div style="font-size:40px;margin-bottom:8px">🎮</div>
       <div style="font-family:'Space Mono',monospace;font-size:10px;color:#ff7a3d;letter-spacing:2px;font-weight:700;margin-bottom:4px">INSTRUCTOR ACCESS ONLY</div>
-      <div style="font-family:'Fraunces',serif;font-size:20px;color:#ffd166;font-weight:700">Operator Console</div>
+      <div style="font-family:'Outfit',serif;font-size:20px;color:#ffd166;font-weight:700">Operator Console</div>
       <div style="font-size:11px;color:#9088bb;margin-top:6px">Cafe Supply Chain · Prof. Moshref Javadi</div>
     </div>
     <div class="field"><label style="color:#9088bb">Email</label>
@@ -269,8 +270,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
         <button onclick="var i=document.getElementById('op-pass');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9088bb;cursor:pointer;font-size:14px">👁</button>
       </div>
     </div>
-    <button onclick="opLogin()" id="op-login-btn" style="width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 #8a2e0a;transition:all .12s;margin-bottom:10px">🎮 Sign In as Instructor</button>
-    <button onclick="opForgot()" style="width:100%;background:none;border:none;color:#9088bb;font-size:11px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;padding:4px">Forgot password?</button>
+    <button onclick="opLogin()" id="op-login-btn" style="width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:13px;font-weight:700;font-family:'Figtree',sans-serif;box-shadow:0 4px 0 #8a2e0a;transition:all .12s;margin-bottom:10px">🎮 Sign In as Instructor</button>
+    <button onclick="opForgot()" style="width:100%;background:none;border:none;color:#9088bb;font-size:11px;cursor:pointer;text-decoration:underline;font-family:'Figtree',sans-serif;padding:4px">Forgot password?</button>
     <div id="op-auth-error" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(255,92,122,.1);border:1px solid rgba(255,92,122,.35);border-radius:8px;font-size:12px;color:#ff5c7a;text-align:center"></div>
     <div id="op-auth-success" style="display:none;margin-top:14px;padding:10px 14px;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.35);border-radius:8px;font-size:12px;color:#3ddc97;text-align:center"></div>
     <div style="margin-top:16px;padding:10px 12px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.18);border-radius:8px;font-size:11px;color:#9088bb;text-align:center;line-height:1.5">🔒 Restricted to authorized instructors only.</div>
@@ -282,17 +283,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 
   <!-- TOP BAR -->
   <div id="topbar">
-    <div class="logo">☕ <div><span style="font-family:'Fraunces',serif;font-size:15px;color:var(--gold)">Supply Chain</span><span class="logo-sub">OPERATOR CONSOLE</span></div></div>
+    <div class="logo">☕ <div><span style="font-family:'Outfit',serif;font-size:15px;color:var(--gold)">Supply Chain</span><span class="logo-sub">OPERATOR CONSOLE</span></div></div>
     <div class="live-dot"></div>
     <div class="top-kpi"><span class="top-kpi-l">Players</span><span class="top-kpi-v" id="stat-players" style="color:#3ddc97">—</span></div>
     <div class="top-kpi"><span class="top-kpi-l">Complete</span><span class="top-kpi-v" id="stat-complete" style="color:#ffd166">—</span></div>
     <div class="top-kpi"><span class="top-kpi-l">Avg SVC</span><span class="top-kpi-v" id="stat-avgsvc" style="color:#7fd3ff">—</span></div>
     <div class="top-kpi"><span class="top-kpi-l">Avg Profit</span><span class="top-kpi-v" id="stat-avgprofit" style="color:#b07bff">—</span></div>
     <div class="tb-spacer"></div>
-    <button class="tb-btn tb-btn-acc" onclick="applyConfig()">✓ Push Config</button>
-    <button class="tb-btn tb-btn-green" onclick="refreshRuns()">↺ Refresh</button>
-    <button class="tb-btn tb-btn-ghost" onclick="doExportCSV()">⬇ CSV</button>
-    <button class="tb-btn tb-btn-ghost" onclick="doClearRuns()" style="font-size:10px;opacity:.55">🗑</button>
+    <button id="submit-changes-btn" class="tb-btn tb-btn-acc" onclick="applyConfig()"
+      style="display:none;animation:pulse-btn .8s ease-in-out infinite alternate">✓ Submit Changes</button>
     <div class="user-chip">
       <div class="user-avatar" id="op-avatar">P</div>
       <div style="font-size:11px;color:var(--muted)" id="op-user-label">—</div>
@@ -325,59 +324,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
       <div class="nav-divider"></div>
       <div class="nav-section-label">Configuration</div>
       <a class="nav-item" id="nav-settings" onclick="showPage('settings')">
-        <span class="nav-icon">⚙️</span>Settings
+        <span class="nav-icon">⚙️</span>Configuration
       </a>
 
-      <!-- SETTINGS PANEL — shown only when settings page is active -->
-      <div id="settings-panel">
-        <!-- GAME PARAMETERS -->
-        <div class="s-card">
-          <div class="s-title">Game Parameters</div>
-          <div class="field-row">
-            <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
-            <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
-            <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
-          </div>
-          <div style="margin-top:8px;border:1px solid var(--border2);border-radius:7px;padding:8px 10px;background:var(--bg2)">
-            <label class="tog-row" style="padding-top:0">
-              <div class="tog-wrap"><input type="checkbox" id="cfg-round-control" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-              <div class="tog-info"><div class="tog-label">🎮 Round Control</div><div class="tog-desc">Gate students by day</div></div>
-            </label>
-            <label class="tog-row">
-              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-demand" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-              <div class="tog-info"><div class="tog-label">👁 Hide Avg Demand</div><div class="tog-desc">Students won't see expected demand</div></div>
-            </label>
-            <label class="tog-row">
-              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-rec" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
-              <div class="tog-info"><div class="tog-label">💡 Hide Recommendations</div><div class="tog-desc">Hide EOQ/ROP hints</div></div>
-            </label>
-          </div>
-        </div>
-        <!-- DEMAND -->
-        <div class="s-card">
-          <div class="s-title">Demand Parameters</div>
-          <div class="prod-tabs">
-            <div class="ptb on" id="dtab-coffee" onclick="setDemandProd('coffee')">☕ Coffee</div>
-            <div class="ptb" id="dtab-cookie" onclick="setDemandProd('cookie')">🍪 Cookies</div>
-          </div>
-          <div id="demand-fields"></div>
-        </div>
-        <!-- LT + RELIABILITY + COSTS -->
-        <div class="s-card">
-          <div class="s-title">Supplier · Reliability · Costs</div>
-          <div id="lt-fields"></div>
-        </div>
-        <!-- CONFIG JSON -->
-        <div class="s-card">
-          <div class="s-title">Config JSON</div>
-          <textarea id="config-json" style="height:80px;font-size:9px;color:#9b5de5;width:100%;background:var(--bg2);border:1.5px solid var(--border2);color:#9b5de5;padding:6px;border-radius:6px;font-family:'Space Mono',monospace;resize:vertical" readonly></textarea>
-          <button onclick="copyConfigJSON()" style="width:100%;margin-top:6px;background:rgba(176,123,255,.1);border:1px solid rgba(176,123,255,.3);color:#b07bff;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:700">📋 Copy JSON</button>
-        </div>
-      </div>
-      <!-- end settings-panel -->
     </div>
     <!-- end sidebar -->
 
@@ -421,6 +370,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
             <div id="dash-activity"></div>
           </div>
         </div>
+        <!-- Quick Access Row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 24px 20px">
+          <div onclick="showPage('roundcontrol')" style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;gap:12px" onmouseover="this.style.borderColor='var(--acc)'" onmouseout="this.style.borderColor='var(--border2)'">
+            <div style="font-size:22px">🎮</div>
+            <div><div style="font-size:12px;font-weight:700">Round Control</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Release days · manage flow</div></div>
+          </div>
+          <div onclick="showPage('scenarios')" style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;gap:12px" onmouseover="this.style.borderColor='var(--acc)'" onmouseout="this.style.borderColor='var(--border2)'">
+            <div style="font-size:22px">⚡</div>
+            <div><div style="font-size:12px;font-weight:700">Scenarios</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Events · demand spikes · delays</div></div>
+          </div>
+          <div onclick="showPage('settings')" style="background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;gap:12px" onmouseover="this.style.borderColor='var(--acc)'" onmouseout="this.style.borderColor='var(--border2)'">
+            <div style="font-size:22px">⚙️</div>
+            <div><div style="font-size:12px;font-weight:700">Configuration</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Demand · suppliers · costs</div></div>
+          </div>
+        </div>
       </div>
 
       <!-- ══ ROUND CONTROL PAGE ══ -->
@@ -453,18 +417,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
               <div class="round-setting-row"><span class="round-setting-label">Round Control</span>
                 <label class="tog-wrap" style="width:34px;height:19px">
                   <input type="checkbox" id="rc-round-control-mirror" class="tog-inp" onchange="mirrorRoundControl(this)">
-                  <div class="tog-track"><div class="tog-thumb"></div></div>
-                </label>
-              </div>
-              <div class="round-setting-row"><span class="round-setting-label">Hide Avg Demand</span>
-                <label class="tog-wrap" style="width:34px;height:19px">
-                  <input type="checkbox" id="rc-hide-demand-mirror" class="tog-inp" onchange="mirrorHideDemand(this)">
-                  <div class="tog-track"><div class="tog-thumb"></div></div>
-                </label>
-              </div>
-              <div class="round-setting-row"><span class="round-setting-label">Hide EOQ/ROP</span>
-                <label class="tog-wrap" style="width:34px;height:19px">
-                  <input type="checkbox" id="rc-hide-rec-mirror" class="tog-inp" onchange="mirrorHideRec(this)">
                   <div class="tog-track"><div class="tog-thumb"></div></div>
                 </label>
               </div>
@@ -511,10 +463,57 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
 
       <!-- ══ SETTINGS PAGE ══ -->
       <div class="panel-page" id="page-settings">
-        <div class="page-header"><h1>Settings</h1><p>Configure game parameters and push to students.</p></div>
-        <div style="padding:16px 24px;font-size:13px;color:var(--muted)">
-          ← Use the settings panel in the sidebar to configure and then hit <strong style="color:var(--acc)">Push Config</strong> in the top bar.
+        <div class="page-header"><h1>Configuration</h1><p>Adjust game parameters, supplier settings and costs.</p></div>
+      <div id="settings-panel" class="visible" style="display:flex;flex-direction:column;gap:0;flex:1;overflow-y:auto;padding:4px 24px 24px">
+        <!-- GAME PARAMETERS -->
+        <div class="s-card">
+          <div class="s-title">Game Parameters</div>
+          <div class="field-row">
+            <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
+            <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
+            <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
+          </div>
+          <div style="margin-top:8px;border:1px solid var(--border2);border-radius:7px;padding:8px 10px;background:var(--bg2)">
+            <label class="tog-row" style="padding-top:0; display:none">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-round-control" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">🎮 Round Control</div><div class="tog-desc">Gate students by day</div></div>
+            </label>
+            <label class="tog-row">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-demand" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">👁 Hide Avg Demand</div><div class="tog-desc">Students won't see expected demand</div></div>
+            </label>
+            <label class="tog-row">
+              <div class="tog-wrap"><input type="checkbox" id="cfg-hide-rec" class="tog-inp"><div class="tog-track"><div class="tog-thumb"></div></div></div>
+              <div class="tog-info"><div class="tog-label">💡 Hide Recommendations</div><div class="tog-desc">Hide EOQ/ROP hints</div></div>
+            </label>
+          </div>
         </div>
+        <!-- DEMAND -->
+        <div class="s-card">
+          <div class="s-title">Demand Parameters</div>
+          <div class="prod-tabs">
+            <div class="ptb on" id="dtab-coffee" onclick="setDemandProd('coffee')">☕ Coffee</div>
+            <div class="ptb" id="dtab-cookie" onclick="setDemandProd('cookie')">🍪 Cookies</div>
+          </div>
+          <div id="demand-fields"></div>
+        </div>
+        <!-- LT + RELIABILITY + COSTS -->
+        <div class="s-card">
+          <div class="s-title">Supplier · Reliability · Costs</div>
+          <div id="lt-fields"></div>
+        </div>
+        <!-- hidden config json kept for JS compatibility -->
+        <textarea id="config-json" style="display:none" readonly></textarea>
+        <div class="s-card" style="padding:12px">
+          <button onclick="applyConfig()" style="width:100%;padding:10px;border-radius:8px;border:none;cursor:pointer;
+            background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;font-size:12px;font-weight:700;
+            font-family:'Figtree',sans-serif;box-shadow:0 3px 0 var(--acc2)">✓ Submit Changes</button>
+        </div>
+      </div>
+      <!-- end settings-panel -->
       </div>
 
     </div><!-- end #main -->
@@ -531,8 +530,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM San
     <div id="cpw-error" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(255,92,122,.1);border:1px solid rgba(255,92,122,.3);border-radius:7px;font-size:12px;color:#ff5c7a"></div>
     <div id="cpw-success" style="display:none;margin-bottom:10px;padding:8px 12px;background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);border-radius:7px;font-size:12px;color:#3ddc97"></div>
     <div style="display:flex;gap:8px">
-      <button onclick="closeChangePw()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Cancel</button>
-      <button onclick="doChangePw()" id="cpw-btn" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 3px 0 var(--acc2)">Update Password</button>
+      <button onclick="closeChangePw()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif">Cancel</button>
+      <button onclick="doChangePw()" id="cpw-btn" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif;box-shadow:0 3px 0 var(--acc2)">Update Password</button>
     </div>
   </div>
 </div>
@@ -577,12 +576,12 @@ let CFG = {
 };
 
 let SCENARIOS = [
-  {id:1,day:6, product:'coffee',type:'spike',multiplier:1.8,extra:0,desc:'❄️ Cold snap — coffee demand up 80%'},
-  {id:2,day:10,product:'cookie',type:'spike',multiplier:1.6,extra:0,desc:'🎉 Welcome event — cookies spike'},
-  {id:3,day:14,product:'coffee',type:'delay',multiplier:1,extra:2,desc:'🚛 Distributor delay +2d'},
-  {id:4,day:18,product:'cookie',type:'price',multiplier:1,extra:0,newPrice:3.00,desc:'📈 Cookie price → $3.00'},
-  {id:5,day:22,product:'coffee',type:'spike',multiplier:2.0,extra:0,desc:'📚 Finals week — coffee doubles'},
-  {id:6,day:25,product:'cookie',type:'spike',multiplier:1.8,extra:0,desc:'🎓 Graduation — cookie surge'},
+  {id:1,day:6, product:'coffee',type:'spike',multiplier:1.8,extra:0,desc:'❄️ Cold snap — coffee demand up 80%',active:true},
+  {id:2,day:10,product:'cookie',type:'spike',multiplier:1.6,extra:0,desc:'🎉 Welcome event — cookies spike',active:true},
+  {id:3,day:14,product:'coffee',type:'delay',multiplier:1,extra:2,desc:'🚛 Distributor delay +2d',active:true},
+  {id:4,day:18,product:'cookie',type:'price',multiplier:1,extra:0,newPrice:3.00,desc:'📈 Cookie price → $3.00',active:true},
+  {id:5,day:22,product:'coffee',type:'spike',multiplier:2.0,extra:0,desc:'📚 Finals week — coffee doubles',active:true},
+  {id:6,day:25,product:'cookie',type:'spike',multiplier:1.8,extra:0,desc:'🎓 Graduation — cookie surge',active:true},
 ];
 let scen_id=7, selScen=null, rTab='players', RUNS={}, expandedRun=null;
 let CURRENT_ALLOWED_DAY=1;
@@ -684,7 +683,7 @@ async function applyConfig(){
       roundControl:CFG.roundControl,
       updatedAt:serverTimestamp()
     });
-    showNotif('✓ Config pushed to all students');
+    showNotif('✓ Config pushed to all students'); clearDirty();
   }catch(e){showNotif('⚠ Push failed: '+e.message);}
   updateConfigJSON();
   renderPanel();
@@ -705,7 +704,19 @@ function buildPayload(){
   };
 }
 
+let _isDirty=false;
+function markDirty(){
+  if(_isDirty) return; _isDirty=true;
+  const btn=document.getElementById('submit-changes-btn');
+  if(btn) btn.style.display='flex';
+}
+function clearDirty(){
+  _isDirty=false;
+  const btn=document.getElementById('submit-changes-btn');
+  if(btn) btn.style.display='none';
+}
 function updateConfigJSON(){
+  markDirty();
   const el=document.getElementById('config-json');
   if(el) el.value=JSON.stringify(buildPayload(),null,2);
 }
@@ -1030,20 +1041,23 @@ function renderScenarios(){
   const tc={spike:'#ff7a3d',delay:'#ffd166',price:'#b07bff',supplier_fail:'#ff5c7a'};
   const tl={spike:'SPIKE',delay:'DELAY',price:'PRICE',supplier_fail:'FAIL'};
   const header=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div class="info-pill" style="flex:1;margin-right:10px;font-size:10px">Edit scenarios then hit <strong>Push Config</strong></div>
-    <button onclick="addScenario()" style="background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif">+ Add</button>
+    <div style="font-size:11px;color:var(--muted)">Toggle scenarios on/off · click a row to edit · <strong style="color:var(--acc)">Submit Changes</strong> to apply</div>
+    <button onclick="addScenario()" style="background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Figtree',sans-serif">+ Add</button>
   </div>
-  <div class="scen-header"><div>Day</div><div>Product</div><div>Description</div><div>Type</div><div>Value</div><div></div></div>`;
+  <div class="scen-header"><div>Day</div><div>Product</div><div>Description</div><div>Type</div><div>Value</div><div>Active</div><div></div></div>`;
   const rows=[...SCENARIOS].sort((a,b)=>a.day-b.day).map(s=>{
     const c=tc[s.type]||'#9c95bd'; const l=tl[s.type]||s.type;
     const v=s.type==='spike'?`×${s.multiplier}`:s.type==='delay'?`+${s.extra}d`:s.type==='price'?`$${s.newPrice}`:'—';
     const prod=PRODS.find(p=>p.id===s.product);
-    return `<div class="scen-row${selScen===s.id?' sel':''}" onclick="editScenario(${s.id})">
+    const isActive=s.active!==false;
+    return `<div class="scen-row${selScen===s.id?' sel':''}${!isActive?' inactive':''}" onclick="editScenario(${s.id})">
       <div style="color:var(--gold);font-weight:700;font-family:'Space Mono',monospace">D${s.day}</div>
       <div style="color:${prod?.color||'var(--muted)'}">${prod?.emoji||''} ${prod?.name||s.product}</div>
       <div style="font-size:10px;color:var(--muted)">${s.desc}</div>
       <div><span class="type-badge" style="background:${c}18;color:${c}">${l}</span></div>
       <div style="font-family:'Space Mono',monospace;color:${c}">${v}</div>
+      <div><button onclick="event.stopPropagation();toggleScenario(${s.id})"
+        style="background:${isActive?'#3ddc9722':'var(--panel2)'};border:${isActive?'1px solid #3ddc97':'1px solid var(--border2)'};color:${isActive?'#3ddc97':'var(--dim)'};font-size:9px;font-weight:700;padding:3px 6px;border-radius:5px;cursor:pointer;letter-spacing:.5px;width:38px">${isActive?'ON':'OFF'}</button></div>
       <div><button onclick="event.stopPropagation();removeScenario(${s.id})" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px">✕</button></div>
     </div>`;}).join('');
   body.innerHTML=header+rows;
@@ -1064,8 +1078,8 @@ window.editScenario=function(id){
   </div>
   <div class="field"><label>Description</label><input type="text" id="se-desc" value="${s.desc}" maxlength="80"></div>
   <div style="display:flex;gap:8px;margin-top:12px">
-    <button onclick="closeScenModal()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Cancel</button>
-    <button onclick="saveScenario()" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif">Save Changes</button>
+    <button onclick="closeScenModal()" style="flex:1;padding:9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border2);color:var(--text);cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif">Cancel</button>
+    <button onclick="saveScenario()" style="flex:2;padding:9px;border-radius:7px;background:linear-gradient(180deg,var(--acc),var(--acc2));border:none;color:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif">Save Changes</button>
   </div>`;
   document.getElementById('scen-modal').classList.remove('hidden');
 };
@@ -1082,16 +1096,22 @@ window.saveScenario=function(){
   else if(s.type==='price') s.newPrice=v;
   else s.extra=v;
   closeScenModal(); updateConfigJSON(); renderScenarios();
-  showNotif('✓ Scenario saved — push to apply');
+  markDirty(); showNotif('✓ Scenario saved — hit Submit Changes to apply');
 };
 window.removeScenario=function(id){
   SCENARIOS=SCENARIOS.filter(s=>s.id!==id);
   if(selScen===id) selScen=null;
-  updateConfigJSON(); renderScenarios();
+  markDirty(); updateConfigJSON(); renderScenarios();
+};
+window.toggleScenario=function(id){
+  const s=SCENARIOS.find(x=>x.id===id); if(!s) return;
+  s.active=s.active===false?true:false;
+  markDirty(); updateConfigJSON(); renderScenarios();
+  showNotif(s.active?'✓ Scenario activated':'○ Scenario deactivated');
 };
 window.addScenario=function(){
-  const s={id:scen_id++,day:15,product:'coffee',type:'spike',multiplier:1.5,extra:0,desc:'New scenario'};
-  SCENARIOS.push(s); renderScenarios(); window.editScenario(s.id);
+  const s={id:scen_id++,day:15,product:'coffee',type:'spike',multiplier:1.5,extra:0,desc:'New scenario',active:true};
+  SCENARIOS.push(s); markDirty(); renderScenarios(); window.editScenario(s.id);
 };
 
 // ── CHANGE PASSWORD ───────────────────────────────────────────────────────────

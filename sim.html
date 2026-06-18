@@ -5,42 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cafe Supply Chain Simulator</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 /* ========= THEME TOKENS ========= */
 :root, [data-theme="dark"]{
-  --bg:#15111c; --bg2:#1d1830;
-  --surf:#1a1626; --panel:#241f36; --panel2:#2c2742;
-  --border:#332c4a; --border2:#403863;
-  --text:#f4f1ff; --muted:#9c95bd; --dim:#5b5482;
-  --acc:#ff7a3d; --acc2:#c14a18; --acc-glow:rgba(255,122,61,.35);
-  --gold:#ffd166; --green:#3ddc97; --red:#ff5c7a;
-  --blue:#3ba7d4; --sky:#7fd3ff; --purple:#b07bff;
-  --choc:#c68642; --water:#1a8ab2; --snack:#e8930a; --soda:#e83a3a;
+  --bg:#1a120b; --bg2:#241810;
+  --surf:#20160e; --panel:#2a1d12; --panel2:#36251a;
+  --border:#4a3220; --border2:#5e4128;
+  --text:#f5e9d0; --muted:#b8a585; --dim:#7a634a;
+  --acc:#d4873c; --acc2:#a8651f; --acc-glow:rgba(212,135,60,.35);
+  --gold:#e8b860; --green:#9bbf7a; --red:#d96a5a;
+  --blue:#7a9bb0; --sky:#d8c4a0; --purple:#b88a5c;
+  --choc:#6b4423; --water:#7a9bb0; --snack:#d4873c; --soda:#c9543a;
   --shadow-lg:0 18px 40px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.4);
   --shadow-md:0 6px 18px -6px rgba(0,0,0,.5);
   --shadow-inset:inset 0 1px 0 rgba(255,255,255,.04);
   --pixel-shadow: 0 3px 0 var(--acc2);
-  --grad-bg: radial-gradient(1200px 600px at 20% -10%, rgba(255,122,61,.12), transparent 60%),
-             radial-gradient(900px 500px at 110% 110%, rgba(176,123,255,.10), transparent 60%),
-             linear-gradient(160deg,#15111c 0%, #1a132e 50%, #0f1428 100%);
+  --grad-bg: radial-gradient(1200px 600px at 20% -10%, rgba(212,135,60,.14), transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, rgba(184,138,92,.10), transparent 60%),
+             linear-gradient(160deg,#1a120b 0%, #241810 50%, #14100a 100%);
 }
 [data-theme="light"]{
-  --bg:#fbf6ec; --bg2:#f3ead6;
-  --surf:#fffaf0; --panel:#fff4dc; --panel2:#ffe9bf;
-  --border:#e8d9b2; --border2:#d6c08a;
-  --text:#2b1f12; --muted:#7a6a4d; --dim:#b8a276;
-  --acc:#e85d23; --acc2:#a83a15; --acc-glow:rgba(232,93,35,.25);
-  --gold:#d49922; --green:#22a06b; --red:#d63b54;
-  --blue:#1f6f99; --sky:#3ba7d4; --purple:#7a4fc9;
-  --choc:#8a4f1a; --water:#1f6f99; --snack:#b56a00; --soda:#c2342f;
-  --shadow-lg:0 18px 40px -14px rgba(120,80,30,.35), 0 4px 14px rgba(120,80,30,.18);
-  --shadow-md:0 4px 14px -4px rgba(120,80,30,.25);
+  --bg:#f5e9d0; --bg2:#ebdcb8;
+  --surf:#fff5e0; --panel:#f5e4c2; --panel2:#ecd6a8;
+  --border:#d4bc8a; --border2:#b89a64;
+  --text:#2a1d12; --muted:#6b5340; --dim:#a08868;
+  --acc:#a8651f; --acc2:#7a4615; --acc-glow:rgba(168,101,31,.25);
+  --gold:#c9954a; --green:#5a8a3a; --red:#b8473a;
+  --blue:#4a7a8a; --sky:#7a9bb0; --purple:#8b5a2b;
+  --choc:#6b4423; --water:#4a7a8a; --snack:#a8651f; --soda:#b8473a;
+  --shadow-lg:0 18px 40px -14px rgba(60,30,10,.35), 0 4px 14px rgba(60,30,10,.18);
+  --shadow-md:0 4px 14px -4px rgba(60,30,10,.25);
   --shadow-inset:inset 0 1px 0 rgba(255,255,255,.6);
-  --grad-bg: radial-gradient(1000px 500px at 20% -10%, #ffe9c7, transparent 60%),
-             radial-gradient(900px 500px at 110% 110%, #f7d49a, transparent 60%),
-             linear-gradient(160deg,#fbf6ec 0%, #f7e8c8 100%);
+  --grad-bg: radial-gradient(1000px 500px at 20% -10%, #f5dcb0, transparent 60%),
+             radial-gradient(900px 500px at 110% 110%, #ebcc94, transparent 60%),
+             linear-gradient(160deg,#f5e9d0 0%, #ebdcb8 100%);
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -48,14 +48,14 @@ html,body{height:100%}
 body{
   background:var(--bg);
   color:var(--text);
-  font-family:'DM Sans',system-ui,sans-serif;
+  font-family:'Figtree',system-ui,sans-serif;
   display:flex;flex-direction:column;
   overflow:hidden;
   -webkit-font-smoothing:antialiased;
   transition:background .35s ease, color .25s ease;
 }
 .mono{font-family:'Space Mono',monospace}
-.pixel{font-family:'DM Sans',system-ui,sans-serif; letter-spacing:.3px; font-weight:700}
+.pixel{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.3px; font-weight:700}
 
 /* ========= TOP BAR ========= */
 #topbar{
@@ -67,7 +67,7 @@ body{
   position:relative;z-index:5;
 }
 .logo{
-  font-family:'DM Sans',system-ui,sans-serif;font-size:11px;
+  font-family:'Figtree',system-ui,sans-serif;font-size:11px;
   color:var(--gold);letter-spacing:1px;margin-right:6px;
   text-shadow:2px 2px 0 var(--acc2);
   display:flex;align-items:center;gap:6px;
@@ -97,7 +97,7 @@ body{
 .top-btn{
   background:var(--panel2);border:1px solid var(--border2);
   color:var(--text);padding:6px 12px;border-radius:6px;cursor:pointer;
-  font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:600;font-family:'Figtree',sans-serif;
   transition:all .15s;display:inline-flex;align-items:center;gap:5px;
 }
 .top-btn:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1px)}
@@ -174,7 +174,7 @@ body{
 .psw-btn{
   padding:8px 4px;background:var(--panel);border:2px solid var(--border2);
   border-radius:8px;cursor:pointer;font-size:16px;text-align:center;
-  transition:all .15s;font-family:'DM Sans',sans-serif;color:var(--text);
+  transition:all .15s;font-family:'Figtree',sans-serif;color:var(--text);
 }
 .psw-btn:hover{border-color:var(--dim);transform:translateY(-1px)}
 .psw-btn.on{border-color:var(--acc);background:var(--acc-glow);box-shadow:0 0 0 2px var(--acc-glow)}
@@ -222,7 +222,7 @@ body{
 .btn-order{
   width:100%;background:linear-gradient(180deg,var(--acc),var(--acc2));
   color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;
-  font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:700;
+  font-family:'Figtree',system-ui,sans-serif;font-size:10px;font-weight:700;
   box-shadow:0 4px 0 var(--acc2), var(--shadow-md);
   letter-spacing:.5px;transition:all .12s;margin-bottom:6px;
 }
@@ -232,7 +232,7 @@ body{
 .btn-next{
   width:100%;background:linear-gradient(180deg,var(--green),#1a8d5b);
   color:#fff;border:none;padding:13px;border-radius:8px;cursor:pointer;
-  font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;
+  font-weight:700;font-size:13px;font-family:'Figtree',sans-serif;
   transition:all .15s;box-shadow:0 4px 0 #146a44, var(--shadow-md);
   letter-spacing:.5px;
 }
@@ -273,8 +273,8 @@ body{
   animation:rise .5s cubic-bezier(.3,.8,.3,1.1);
 }
 @keyframes rise{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
-.title-badge{font-family:'DM Sans',system-ui,sans-serif;font-size:9px;color:var(--gold);letter-spacing:1.5px;margin-bottom:14px;text-shadow:1px 1px 0 var(--acc2)}
-.title-main{font-family:'DM Sans',system-ui,sans-serif;font-size:24px;line-height:1.5;color:var(--text);text-shadow:3px 3px 0 var(--acc), 6px 6px 0 var(--acc2);margin-bottom:8px}
+.title-badge{font-family:'Figtree',system-ui,sans-serif;font-size:9px;color:var(--gold);letter-spacing:1.5px;margin-bottom:14px;text-shadow:1px 1px 0 var(--acc2)}
+.title-main{font-family:'Figtree',system-ui,sans-serif;font-size:24px;line-height:1.5;color:var(--text);text-shadow:3px 3px 0 var(--acc), 6px 6px 0 var(--acc2);margin-bottom:8px}
 .title-sub{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
 .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
 @media (max-width:520px){.prod-grid{grid-template-columns:repeat(2,1fr)}.title-main{font-size:18px}}
@@ -288,7 +288,7 @@ body{
 .btn-start{
   background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;
   padding:16px 40px;border-radius:10px;cursor:pointer;
-  font-family:'DM Sans',system-ui,sans-serif;font-size:11px;font-weight:700;
+  font-family:'Figtree',system-ui,sans-serif;font-size:11px;font-weight:700;
   box-shadow:0 6px 0 var(--acc2), var(--shadow-lg);letter-spacing:1.5px;
   transition:all .12s;margin-bottom:12px;
 }
@@ -302,7 +302,7 @@ body{
   border-radius:16px;padding:32px 36px;max-height:90vh;overflow-y:auto;
   box-shadow:var(--shadow-lg);
 }
-.grade{font-size:88px;font-weight:700;text-align:center;line-height:1;font-family:'DM Sans',system-ui,sans-serif;text-shadow:4px 4px 0 var(--acc2)}
+.grade{font-size:88px;font-weight:700;text-align:center;line-height:1;font-family:'Figtree',system-ui,sans-serif;text-shadow:4px 4px 0 var(--acc2)}
 .grade-lbl{text-align:center;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px}
 .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
 @media (max-width:520px){.res-grid{grid-template-columns:repeat(2,1fr)}}
@@ -312,7 +312,7 @@ body{
 .prod-res{background:var(--panel);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
 .debrief{background:rgba(61,220,151,.08);border:1px solid rgba(61,220,151,.25);border-radius:8px;padding:13px 15px;font-size:12px;color:var(--green);line-height:1.7;margin:14px 0}
 .res-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-replay{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px 28px;border-radius:8px;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;box-shadow:0 4px 0 var(--acc2)}
+.btn-replay{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px 28px;border-radius:8px;cursor:pointer;font-family:'Figtree',system-ui,sans-serif;font-size:10px;box-shadow:0 4px 0 var(--acc2)}
 .btn-replay:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--acc2)}
 .btn-ghost{background:var(--panel);border:1px solid var(--border2);color:var(--muted);padding:12px 22px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-ghost:hover{border-color:var(--text);color:var(--text)}
@@ -325,7 +325,7 @@ body{
 .info-modal-card::-webkit-scrollbar{width:6px}
 .info-modal-card::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .info-header{display:flex;justify-content:space-between;align-items:center;padding:18px 24px;border-bottom:2px solid var(--border2);position:sticky;top:0;background:var(--surf);z-index:1}
-.info-header h2{font-size:18px;font-weight:700;color:var(--gold);font-family:'DM Sans',system-ui,sans-serif}
+.info-header h2{font-size:18px;font-weight:700;color:var(--gold);font-family:'Figtree',system-ui,sans-serif}
 .info-close{background:var(--panel);border:1px solid var(--border2);color:var(--muted);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
 .info-close:hover{border-color:var(--red);color:var(--red)}
 .info-body{padding:22px 26px 28px}
@@ -373,7 +373,7 @@ body{font-feature-settings:"ss01","cv11";}
 .stat:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 .top-btn{border-radius:8px;padding:7px 14px;transition:all .25s var(--ease-smooth)}
 .top-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px -10px var(--acc-glow)}
-.logo{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;letter-spacing:.4px;text-shadow:none;color:var(--gold)}
+.logo{font-family:'Figtree',sans-serif;font-size:14px;font-weight:800;letter-spacing:.4px;text-shadow:none;color:var(--gold)}
 .toast{border-radius:12px;border-width:1px;backdrop-filter:blur(10px);
   background:color-mix(in oklab, var(--surf) 85%, transparent);
   animation:toast-in .45s var(--ease-smooth)}
@@ -381,7 +381,7 @@ body{font-feature-settings:"ss01","cv11";}
 @keyframes float-up{0%{opacity:0;transform:translateY(8px)}15%{opacity:1}100%{opacity:0;transform:translateY(-24px)}}
 .float-fx{animation:float-up .9s var(--ease-smooth) both}
 .prog-fill, .prog2-fill{transition:width .8s var(--ease-smooth)}
-button, .btn, .top-btn{font-family:'DM Sans',system-ui,sans-serif}
+button, .btn, .top-btn{font-family:'Figtree',system-ui,sans-serif}
 #canvas-wrap{border-right:1px solid var(--border2);
   background:linear-gradient(180deg,#0a0818,#100b22)}
 #canvas-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -413,14 +413,14 @@ button, .btn, .top-btn{font-family:'DM Sans',system-ui,sans-serif}
              radial-gradient(900px 500px at 110% 110%, #f0d6a7, transparent 60%),
              linear-gradient(160deg,#f7f1e6 0%, #f0e2c6 100%);
 }
-body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
+body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
 .mono, .stat-v, .ps strong, .info-row .val, .supp-stat strong,
 .cost-row .val, .log-entry .log-day, .info-formula, .rv{
-  font-family:'JetBrains Mono','Space Mono',monospace !important; font-weight:600;
+  font-family:'Space Mono','Space Mono',monospace !important; font-weight:600;
 }
 .logo, .title-main, .title-badge, .info-header h2, .grade,
 .section-title, .tab{
-  font-family:'Fraunces',Georgia,serif !important;
+  font-family:'Outfit',Georgia,serif !important;
 }
 .title-main{font-weight:700;letter-spacing:-.5px;text-shadow:none;font-size:34px}
 .title-badge{letter-spacing:2px;color:var(--acc);text-shadow:none}
@@ -461,7 +461,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
   background:color-mix(in oklab, var(--panel) 92%, transparent);
   border:1px solid var(--border);
 }
-.stat-l{font-family:'Inter',sans-serif;font-weight:600;letter-spacing:1.4px}
+.stat-l{font-family:'Figtree',sans-serif;font-weight:600;letter-spacing:1.4px}
 .prog-fill{background:linear-gradient(90deg,var(--acc),var(--gold))}
 #topbar{
   background:linear-gradient(180deg, color-mix(in oklab, var(--surf) 96%, transparent), color-mix(in oklab, var(--panel) 96%, transparent));
@@ -490,14 +490,14 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
     <div style="text-align:center;margin-bottom:24px">
       <div style="font-size:44px;margin-bottom:8px">☕</div>
       <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:2px;font-weight:700;margin-bottom:4px">SUPPLY CHAIN SIMULATION</div>
-      <div style="font-family:'Fraunces',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1.2">Cafe<br>Supply Chain</div>
+      <div style="font-family:'Outfit',serif;font-size:22px;color:var(--gold);font-weight:700;line-height:1.2">Cafe<br>Supply Chain</div>
       <div style="font-size:11px;color:var(--muted);margin-top:6px">Prof. Javadi · Inventory Management Sim</div>
     </div>
 
     <!-- Tab switcher -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--panel);border-radius:9px;padding:4px;margin-bottom:22px">
-      <button id="auth-tab-login" onclick="switchAuthTab('login')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 2px 0 var(--acc2);transition:all .15s">Sign In</button>
-      <button id="auth-tab-register" onclick="switchAuthTab('register')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;background:transparent;color:var(--muted);transition:all .15s">Register</button>
+      <button id="auth-tab-login" onclick="switchAuthTab('login')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 2px 0 var(--acc2);transition:all .15s">Sign In</button>
+      <button id="auth-tab-register" onclick="switchAuthTab('register')" style="padding:8px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif;background:transparent;color:var(--muted);transition:all .15s">Register</button>
     </div>
 
     <!-- LOGIN FORM -->
@@ -505,7 +505,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Email</label>
         <input id="login-email" type="email" placeholder="you@illinois.edu"
-          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
           onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
           onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
       </div>
@@ -513,7 +513,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Password</label>
         <div style="position:relative">
           <input id="login-pass" type="password" placeholder="••••••••"
-            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
             onkeydown="if(event.key==='Enter')doLogin()">
           <button onclick="togglePw('login-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
@@ -522,10 +522,10 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
       <button onclick="doLogin()" id="btn-login" style="
         width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;
         background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
-        font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+        font-size:13px;font-weight:700;font-family:'Figtree',sans-serif;
         box-shadow:0 4px 0 var(--acc2);transition:all .12s;margin-bottom:10px;
       ">▶ Sign In & Play</button>
-      <button onclick="doForgotPassword()" style="width:100%;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif;padding:4px">Forgot password?</button>
+      <button onclick="doForgotPassword()" style="width:100%;background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;font-family:'Figtree',sans-serif;padding:4px">Forgot password?</button>
     </div>
 
     <!-- REGISTER FORM -->
@@ -533,14 +533,14 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Full Name</label>
         <input id="reg-name" type="text" placeholder="Alex Kim" maxlength="30"
-          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
           onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
           onkeydown="if(event.key==='Enter')document.getElementById('reg-email').focus()">
       </div>
       <div style="margin-bottom:12px">
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Email</label>
         <input id="reg-email" type="email" placeholder="netid@illinois.edu"
-          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+          style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
           onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
           onkeydown="if(event.key==='Enter')document.getElementById('reg-pass').focus()">
       </div>
@@ -548,7 +548,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Password <span style="color:var(--dim);font-weight:400">(min 6 chars)</span></label>
         <div style="position:relative">
           <input id="reg-pass" type="password" placeholder="••••••••"
-            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
             onkeydown="if(event.key==='Enter')document.getElementById('reg-pass2').focus()">
           <button onclick="togglePw('reg-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
@@ -558,7 +558,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
         <label style="display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase">Confirm Password</label>
         <div style="position:relative">
           <input id="reg-pass2" type="password" placeholder="••••••••"
-            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s"
+            style="width:100%;background:var(--panel);border:2px solid var(--border2);color:var(--text);font-size:13px;padding:10px 38px 10px 12px;border-radius:8px;font-family:'Figtree',sans-serif;outline:none;transition:border-color .15s"
             onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--border2)'"
             onkeydown="if(event.key==='Enter')doRegister()">
           <button onclick="togglePw('reg-pass2',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">👁</button>
@@ -567,7 +567,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
       <button onclick="doRegister()" id="btn-register" style="
         width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;
         background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;
-        font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;
+        font-size:13px;font-weight:700;font-family:'Figtree',sans-serif;
         box-shadow:0 4px 0 var(--acc2);transition:all .12s;
       ">✓ Create Account & Play</button>
     </div>
@@ -606,7 +606,7 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
           <div style="font-weight:700;font-size:14px" id="auth-display-name">—</div>
           <div style="font-size:11px;color:var(--muted)" id="auth-display-email">—</div>
         </div>
-        <button onclick="doSignOut()" style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">Sign Out</button>
+        <button onclick="doSignOut()" style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--muted);font-size:10px;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .15s" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">Sign Out</button>
       </div>
     </div>
     <div class="chips">
@@ -629,8 +629,8 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
       <button class="btn-start" id="btn-resume-game" style="display:none" onclick="resumeGame()">▶ RESUME GAME</button>
       <button class="btn-start" id="btn-open-cafe" onclick="startGame()">▶ OPEN THE CAFE</button>
       <div id="menu-extra-btns" style="display:none;flex-direction:column;gap:7px">
-        <button onclick="confirmRestartGame()" style="width:100%;background:rgba(255,122,61,.12);border:1px solid rgba(255,122,61,.4);color:var(--acc);padding:11px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(255,122,61,.22)'" onmouseout="this.style.background='rgba(255,122,61,.12)'">↺ Restart Game</button>
-        <button onclick="saveAndViewResults()" id="btn-save-results" style="width:100%;background:rgba(127,211,255,.09);border:1px solid rgba(127,211,255,.3);color:var(--sky);padding:11px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(127,211,255,.18)'" onmouseout="this.style.background='rgba(127,211,255,.09)'">📊 Save & View Results</button>
+        <button onclick="confirmRestartGame()" style="width:100%;background:rgba(255,122,61,.12);border:1px solid rgba(255,122,61,.4);color:var(--acc);padding:11px;border-radius:8px;cursor:pointer;font-family:'Figtree',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(255,122,61,.22)'" onmouseout="this.style.background='rgba(255,122,61,.12)'">↺ Restart Game</button>
+        <button onclick="saveAndViewResults()" id="btn-save-results" style="width:100%;background:rgba(127,211,255,.09);border:1px solid rgba(127,211,255,.3);color:var(--sky);padding:11px;border-radius:8px;cursor:pointer;font-family:'Figtree',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(127,211,255,.18)'" onmouseout="this.style.background='rgba(127,211,255,.09)'">📊 Save & View Results</button>
       </div>
     </div>
     <div class="footer-note">30 days · Manage inventory · Beat 90% service level</div>
@@ -645,10 +645,10 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
 <!-- SCENARIO POPUP -->
 <div id="scenario-modal" class="hidden" style="position:fixed;inset:0;z-index:180;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.78);backdrop-filter:blur(6px);padding:20px">
   <div style="background:var(--surf);border:2px solid var(--gold);border-radius:14px;max-width:500px;width:100%;padding:24px 28px;box-shadow:var(--shadow-lg)">
-    <div style="font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--gold);margin-bottom:14px;letter-spacing:1px">⚡ SCENARIO ALERT</div>
+    <div style="font-family:'Figtree',system-ui,sans-serif;font-size:11px;color:var(--gold);margin-bottom:14px;letter-spacing:1px">⚡ SCENARIO ALERT</div>
     <div id="scenario-body" style="font-size:14px;line-height:1.7;color:var(--text);margin-bottom:16px"></div>
     <div id="scenario-impact" style="font-size:12px;color:var(--muted);margin-bottom:18px;padding:10px 12px;background:var(--panel);border-radius:7px;border-left:3px solid var(--acc)"></div>
-    <button id="scenario-next" onclick="nextScenario()" style="width:100%;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:10px;font-weight:700;box-shadow:0 4px 0 var(--acc2);letter-spacing:.5px">▶ GOT IT</button>
+    <button id="scenario-next" onclick="nextScenario()" style="width:100%;background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-family:'Figtree',system-ui,sans-serif;font-size:10px;font-weight:700;box-shadow:0 4px 0 var(--acc2);letter-spacing:.5px">▶ GOT IT</button>
   </div>
 </div>
 
@@ -685,12 +685,10 @@ body{font-family:'Inter',system-ui,sans-serif; letter-spacing:.01em}
   <!-- SIDE PANEL -->
   <div id="side">
     <div class="tabs">
-      <div class="tab" id="t0" onclick="setTab('overview')">Overview</div>
-      <div class="tab" id="t1" onclick="setTab('order')">Order</div>
-      <div class="tab" id="t2" onclick="setTab('costs')">Costs</div>
-      <div class="tab" id="t3" onclick="setTab('charts')">Charts</div>
-      <div class="tab" id="t4" onclick="setTab('log')">Log</div>
-      <div class="tab on" id="t5" onclick="setTab('all')" title="Show all panels at once" style="color:var(--acc);font-weight:800">⊞ All</div>
+      <div class="tab on" id="t4" onclick="setTab('dashboard')" title="Order & overview" style="color:var(--acc);font-weight:800">⊞ Dashboard</div>
+      <div class="tab" id="t1" onclick="setTab('costs')">Costs</div>
+      <div class="tab" id="t2" onclick="setTab('charts')">Charts</div>
+      <div class="tab" id="t3" onclick="setTab('log')">Log</div>
     </div>
     <div id="pc"></div>
   </div>
@@ -998,7 +996,7 @@ function showGMPopup(changes) {
       .gm-title{text-align:center;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff7a3d;margin-bottom:4px;font-family:'Space Mono',monospace}
       .gm-sub{text-align:center;font-size:11px;color:#9088bb;margin-bottom:18px}
       .gm-item{background:rgba(255,122,61,.08);border:1px solid rgba(255,122,61,.2);border-radius:8px;padding:9px 12px;font-size:12px;color:#f2eeff;line-height:1.5;border-left:3px solid #ff7a3d;margin-bottom:7px;}
-      .gm-btn{width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;box-shadow:0 4px 0 #8a2e0a;}
+      .gm-btn{width:100%;padding:12px;border-radius:9px;border:none;cursor:pointer;background:linear-gradient(180deg,#ff7a3d,#c14a18);color:#fff;font-size:12px;font-weight:700;font-family:'Figtree',sans-serif;box-shadow:0 4px 0 #8a2e0a;}
       .gm-cd{text-align:center;font-size:10px;color:#504878;margin-top:10px;font-family:'Space Mono',monospace}
     </style>
     <div id="gm-card">
@@ -1551,8 +1549,10 @@ window.updateTopbar = updateTopbar;
 // TAB SWITCHING
 // ════════════════════════════════════════════════
 function setTab(t){
+  // legacy aliases — Order tab was merged into Dashboard
+  if(t==='overview'||t==='order'||t==='all') t='dashboard';
   UI.tab=t;
-  ['overview','order','costs','charts','log','all'].forEach((name,i)=>{
+  ['order','costs','charts','log','dashboard'].forEach((name,i)=>{
     const el=document.getElementById('t'+i);
     if(el) el.className='tab'+(name===t?' on':'');
   });
@@ -1565,20 +1565,47 @@ function setTab(t){
 function renderPanel(){
   if(!GS)return;
   const pc=document.getElementById('pc'); if(!pc)return;
-  if(UI.tab==='overview') pc.innerHTML=htmlOverview();
-  else if(UI.tab==='order') pc.innerHTML=htmlOrder();
-  else if(UI.tab==='costs') pc.innerHTML=htmlCosts();
+  if(UI.tab==='costs') pc.innerHTML=htmlCosts();
   else if(UI.tab==='charts'){ pc.innerHTML=htmlCharts(); requestAnimationFrame(drawCharts); }
   else if(UI.tab==='log') pc.innerHTML=htmlLog();
-  else if(UI.tab==='all') pc.innerHTML=htmlAll();
+  else pc.innerHTML=htmlDashboard();
 }
 // Expose for Firebase config listener
 window.renderPanel = renderPanel;
 
-function htmlAll(){
-  // Unified single-section: order controls for each product + pipeline + next day
-  let html = `<div style="background:rgba(255,122,61,.08);border:1px solid rgba(255,122,61,.3);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:12px;color:var(--acc);font-weight:700">☕ Day ${GS.day} — Order & Advance</div>`;
+function htmlDashboard(){
+  // Summary surfacing key signals from Order, Costs, Charts, Log
+  const totHold=PRODS.reduce((s,p)=>s+GS.holdCost[p.id],0);
+  const totOrd=PRODS.reduce((s,p)=>s+GS.ordCost[p.id],0);
+  const totLrev=PRODS.reduce((s,p)=>s+GS.lrev[p.id],0);
+  const totSold=PRODS.reduce((s,p)=>s+GS.sold[p.id],0);
+  const totLost=PRODS.reduce((s,p)=>s+GS.lost[p.id],0);
+  const cogs=PRODS.reduce((s,p)=>s+(GS.sold[p.id]*(p.suppliers[GS.selSupp[p.id]||0].cost)),0);
+  const grossProfit=GS.totRev-totHold-totOrd-cogs;
+  const svc=(totSold+totLost)>0?(totSold/(totSold+totLost)*100):100;
+  const svcC=svc>=90?'#06d6a0':svc>=75?'#ffd166':'#ef476f';
+  const profitC=grossProfit>=0?'#06d6a0':'#ef476f';
+  const hideDem = window._GAME_CFG?.hideDemand;
 
+  // KPI strip
+  let html = `
+<div style="background:linear-gradient(135deg,rgba(212,135,60,.12),rgba(168,101,31,.06));border:1px solid rgba(212,135,60,.35);border-radius:12px;padding:12px 14px;margin-bottom:12px">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+    <div style="font-size:14px;font-weight:800;color:var(--acc);letter-spacing:.4px">☕ DASHBOARD — Day ${GS.day}</div>
+    <div style="font-size:10px;color:var(--muted);font-weight:600">Snapshot across all metrics</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#06d6a0;font-size:16px">${Math.round(GS.totRev).toLocaleString()}</strong>Revenue</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:${profitC};font-size:16px">${Math.round(grossProfit).toLocaleString()}</strong>Gross Profit</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#9b5de5;font-size:16px">${Math.round(totHold+totOrd).toLocaleString()}</strong>Hold+Ord</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#ef476f;font-size:16px">${totLost}</strong>Lost units</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:${svcC};font-size:16px">${svc.toFixed(0)}%</strong>Service</div>
+  </div>
+</div>`;
+
+  // Per-product cards — side by side, with quick order controls
+  html += `<div class="section-title" style="margin-bottom:8px">Inventory & Quick Order</div>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px">`;
   PRODS.forEach(p=>{
     const suppIdx=GS.selSupp[p.id]||0;
     const sup=p.suppliers[suppIdx];
@@ -1586,58 +1613,103 @@ function htmlAll(){
     const pipe=GS.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
     const r=Math.max(0,Math.min(1,inv/p.maxShelf));
     const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
-    const eQ=calcEOQ(p,suppIdx);
     const avgDem = p.demandAvg || 15;
+    const demStd = p.demandStd || 3;
+    const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
     const rop=Math.ceil(avgDem*sup.ltDays);
     const pos=inv+pipeU;
-    const q=UI.decs[p.id]||0;
     const pend=UI.pendOrd[p.id]||0;
-    const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
-    const orderCost=q>0?fc+q*sup.cost:0;
     const needsOrder=pos<rop;
-    const hideDem = window._GAME_CFG?.hideDemand;
+    const eQ=calcEOQ(p,suppIdx);
+    const rec=pos<rop?eQ:0;
+    const q=UI.decs[p.id]||0;
+    const orderCost=q>0?fc+q*sup.cost:0;
+    const psl=GS.sold[p.id]+GS.lost[p.id]>0?(GS.sold[p.id]/(GS.sold[p.id]+GS.lost[p.id])*100):100;
+    const pslC=psl>=90?'#06d6a0':psl>=75?'#ffd166':'#ef476f';
 
     html+=`
-<div style="background:var(--panel);border:2px solid ${needsOrder?'rgba(239,71,111,.5)':p.color+'44'};border-radius:10px;padding:11px 13px;margin-bottom:10px">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <div style="font-weight:700;font-size:14px;color:${p.light}">${p.emoji} ${p.name}</div>
-    <div style="display:flex;gap:5px;align-items:center">
-      ${needsOrder?'<span class="tag" style="background:rgba(239,71,111,.15);color:#ef476f">⚠ ORDER NOW</span>':''}
-      ${pend>0?`<span class="tag" style="background:rgba(6,214,160,.12);color:#06d6a0">✓ ${pend}units queued</span>`:''}
-      ${!hideDem?`<span class="tag" style="background:rgba(127,211,255,.1);color:#7fd3ff">avg ${Math.round(avgDem)}units/day</span>`:''}
+<div style="background:var(--panel);border:2px solid ${needsOrder?'rgba(239,71,111,.5)':p.color+'33'};border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap">
+    <div style="font-weight:700;font-size:13px;color:${p.light}">${p.emoji} ${p.name}</div>
+    <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+      ${needsOrder?'<span class="tag" style="background:rgba(239,71,111,.15);color:#ef476f;font-size:9px">⚠ ORDER</span>':''}
+      ${pend>0?`<span class="tag" style="background:rgba(6,214,160,.12);color:#06d6a0;font-size:9px">✓ ${pend}q</span>`:''}
+      <span class="prod-badge" style="background:${bc}22;color:${bc};font-size:10px;padding:2px 7px;border-radius:99px;font-weight:700">${Math.round(r*100)}%</span>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:${window._GAME_CFG?.hideRecommendations?'repeat(3,1fr)':'repeat(4,1fr)'};gap:4px;margin-bottom:8px">
-    <div class="ps"><strong style="color:${bc}">${inv}</strong>On hand</div>
-    <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
-    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Inv Position</div>
-    ${!window._GAME_CFG?.hideRecommendations?`<div class="ps"><strong style="color:#ffd166">${eQ}</strong>EOQ</div>`:''}
-  </div>
-  <div style="height:4px;background:var(--border2);border-radius:99px;overflow:hidden;margin-bottom:8px">
+  <div style="height:5px;background:var(--border2);border-radius:99px;overflow:hidden">
     <div style="height:100%;background:${bc};width:${r*100}%;border-radius:99px;transition:width .5s"></div>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
-    <button class="qbtn" onclick="adjQ('${p.id}',-10)" style="width:32px;height:32px;font-size:16px">−</button>
-    <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}"
-      onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()"
-      style="font-size:17px;padding:4px 8px">
-    <button class="qbtn" onclick="adjQ('${p.id}',10)" style="width:32px;height:32px;font-size:16px">+</button>
-    ${!window._GAME_CFG?.hideRecommendations?`<button onclick="UI.decs['${p.id}']=${eQ};renderPanel()" style="flex:1;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700">EOQ ${eQ}units</button>`:''}
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;font-size:10px">
+    <div class="ps"><strong style="color:${bc}">${inv}</strong>On hand</div>
+    <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
+    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Position</div>
+    <div class="ps"><strong style="color:#ffd166">${Math.round(GS.rev[p.id])}</strong>Revenue</div>
+    <div class="ps"><strong style="color:${pslC}">${psl.toFixed(0)}%</strong>Service</div>
+    <div class="ps"><strong>${sup.ltDays}d</strong>Lead</div>
   </div>
-  ${q>0?`<div style="font-size:10px;color:var(--muted);margin-bottom:5px;padding:5px 8px;background:var(--bg2);border-radius:5px">
-    Fixed ${fc.toFixed(2)} + ${q}units × ${sup.cost.toFixed(2)} = <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong> · Arrives <strong>Morning Day ${GS.day+sup.ltDays}</strong>
-  </div>`:''}
-  <button class="btn-order" onclick="placeOrder('${p.id}')" style="padding:9px;font-size:10px;margin-bottom:0">
-    ${pend>0?`📦 ADD MORE (+${q||0}units) — ${pend}units queued`:`📦 QUEUE ORDER`}
-  </button>
-  ${pipe.length>0?`<div style="margin-top:6px;font-size:10px;color:#73c2fb">🚚 ${pipe.map(o=>`${o.q}units → Day ${o.arr}`).join(' | ')}</div>`:''}
+
+  <div style="border-top:1px dashed var(--border2);padding-top:7px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+      <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.3px">QUICK ORDER</span>
+      <span style="font-size:10px;color:var(--muted)">${sup.name} · ${sup.cost.toFixed(2)}/u</span>
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:4px;margin-bottom:6px">
+      <button class="qbtn" onclick="adjQ('${p.id}',-10)" style="padding:6px 10px">−</button>
+      <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}" onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()" style="text-align:center;width:100%">
+      <button class="qbtn" onclick="adjQ('${p.id}',10)" style="padding:6px 10px">+</button>
+    </div>
+    ${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:5px;border-radius:4px;cursor:pointer;font-size:10px;margin-bottom:5px">Use EOQ (${rec} units)</button>`:''}
+    <div style="font-size:10px;color:var(--muted);margin-bottom:5px">
+      ${q>0
+        ? `Cost: <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong> · Arrives Day <strong>${GS.day+sup.ltDays}</strong>`
+        : 'Set quantity to place an order'}
+    </div>
+    <button class="btn-order" onclick="placeOrder('${p.id}')" style="width:100%;padding:7px;font-size:11px">
+      ${pend>0?`📦 Add to ${pend} queued`:'📦 Place Order'}
+    </button>
+  </div>
+  ${pipe.length>0?`<div style="font-size:10px;color:#73c2fb">🚚 ${pipe.map(o=>`${o.q}u → Day ${o.arr}`).join(' · ')}</div>`:''}
 </div>`;
   });
+  html += `</div>`;
 
-  html+=`
-<div style="border-top:2px solid var(--border2);padding-top:10px;margin-top:4px">
+  // Costs mini summary
+  html += `
+<div class="section-title" style="margin-top:10px;margin-bottom:6px">Cost breakdown</div>
+<div class="info-box" style="margin-bottom:10px">
+  <div class="info-row"><span class="lbl">Revenue</span><span class="val" style="color:#06d6a0">${Math.round(GS.totRev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Ordering cost</span><span class="val" style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Lost sales value</span><span class="val" style="color:#ef476f">${Math.round(totLrev).toLocaleString()}</span></div>
+  <div class="info-row" style="border-top:1px solid var(--border2);padding-top:5px;margin-top:3px">
+    <span class="lbl" style="font-weight:700">Est. Gross Profit</span>
+    <span class="val" style="color:${profitC};font-size:15px">${Math.round(grossProfit).toLocaleString()}</span>
+  </div>
+</div>`;
+
+  // Recent activity (last 3 log entries)
+  if(GS.log&&GS.log.length){
+    html += `<div class="section-title" style="margin-bottom:6px">Recent activity</div>`;
+    html += [...GS.log].reverse().slice(0,3).map(e=>{
+      const totS=PRODS.reduce((s,p)=>s+e.prods[p.id].s,0);
+      const totL=PRODS.reduce((s,p)=>s+e.prods[p.id].l,0);
+      const totR=PRODS.reduce((s,p)=>s+e.prods[p.id].r,0);
+      return `
+<div class="log-entry" style="margin-bottom:5px;border-left-color:${totL>0?'#ef476f':'#06d6a0'}">
+  <div style="display:flex;justify-content:space-between;font-size:11px"><strong>Day ${e.day}</strong>
+    <span>Rev <strong style="color:#06d6a0">${totR.toFixed(0)}</strong> · Sold <strong>${totS}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}</strong>`:''}</span>
+  </div>
+  ${e.events.length?`<div style="color:#ffd166;font-size:10px;margin-top:2px">${e.events.map(ev=>ev.txt).join(' · ')}</div>`:''}
+</div>`;
+    }).join('');
+  }
+
+  // Advance day CTA
+  html += `
+<div style="border-top:2px solid var(--border2);padding-top:10px;margin-top:8px">
   <button class="btn-next" onclick="advDay()">⏭ Next Day →</button>
-  <div class="kb-hint" style="margin-top:6px">Enter = next day · ↑↓ arrows = ±5 qty · Orders accumulate until you advance</div>
+  <div class="kb-hint" style="margin-top:6px;text-align:center">Enter = next day · ↑↓ = ±5 qty for selected product</div>
 </div>`;
   return html;
 }
@@ -1664,7 +1736,7 @@ function htmlOverview(){
     const nextArr=pipeArr.length>0?pipeArr.reduce((m,o)=>o.arr<m.arr?o:m,pipeArr[0]):null;
     const hideDem = window._GAME_CFG?.hideDemand;
     return `
-<div class="prod-card${UI.selProd===p.id?' sel':''}${r<.15?' warn':''}" onclick="UI.selProd='${p.id}';setTab('order')">
+<div class="prod-card${UI.selProd===p.id?' sel':''}${r<.15?' warn':''}" onclick="UI.selProd='${p.id}';renderPanel()">
   <div class="prod-head">
     <div class="prod-name" style="color:${p.light}">${p.emoji} ${p.name}</div>
     <div style="display:flex;gap:4px;align-items:center">
@@ -1691,7 +1763,7 @@ function htmlOverview(){
     ${!hideDem?`<span>Avg demand: <strong>${Math.round(avgDem)}units/d ± ${Math.round(p.demandStd||3)}</strong></span>`:`<span style="color:var(--dim)">Demand: hidden</span>`}
   </div>
 </div>`;
-  }).join('')+`<div style="font-size:10px;color:var(--dim);text-align:center;padding:4px">Tap a product to manage it</div>`;
+  }).join('')+`<div style="font-size:10px;color:var(--dim);text-align:center;padding:4px">Tap a product to manage it below</div><div style="height:1px;background:var(--border2);margin:10px 0 12px"></div>`;
 }
 
 // ── ORDER TAB
@@ -1876,7 +1948,7 @@ function drawCharts(){
     // fill
     ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
     ctx.fillStyle='rgba(6,214,160,.12)';ctx.fill();
-    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
     ctx.fillText('$'+Math.round(max),2,12);
     ctx.fillText('$0',2,h-20);
     ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
@@ -1899,7 +1971,7 @@ function drawCharts(){
       });
       ctx.stroke();
     });
-    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
     ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
     ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
   }
@@ -1919,7 +1991,7 @@ function drawCharts(){
       ctx.fillStyle=v>0?'#ef476f':'rgba(239,71,111,.15)';
       ctx.fillRect(x,h-18-bh,bw,bh);
     });
-    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
     ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
   }
 
@@ -1940,7 +2012,7 @@ function drawCharts(){
     ctx.stroke();
     ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
     ctx.fillStyle='rgba(127,211,255,.15)';ctx.fill();
-    ctx.fillStyle='#9c95bd';ctx.font='9px DM Sans,system-ui';ctx.textAlign='left';
+    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
     ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
   }
 }
@@ -2318,7 +2390,7 @@ function drawInterior(ctx,W,H,t){
     const tx2=cx+slotW2/2-tagW/2, ty2=counterY+8;
     ctx.fillStyle='#1a120a';ctx.fillRect(tx2,ty2,tagW,tagH);
     ctx.strokeStyle='#e8b770';ctx.lineWidth=1;ctx.strokeRect(tx2+.5,ty2+.5,tagW-1,tagH-1);
-    ctx.fillStyle='#f0e4d0';ctx.font='600 10px Fraunces,serif';ctx.textAlign='center';
+    ctx.fillStyle='#f0e4d0';ctx.font='600 10px Outfit,serif';ctx.textAlign='center';
     ctx.fillText(p.emoji+' '+p.name,tx2+tagW/2,ty2+10);
     ctx.fillStyle='#e8b770';ctx.font='700 10px JetBrains Mono,monospace';
     ctx.fillText('$'+(GS?GS.sellPrice[p.id]:p.sell).toFixed(2),tx2+tagW/2,ty2+20);
@@ -2350,7 +2422,7 @@ function drawInterior(ctx,W,H,t){
   if(GS&&GS.particles){
     GS.particles.forEach(p=>{
       ctx.save();ctx.globalAlpha=p.l;
-      ctx.font=`bold ${11+(1-p.l)*4}px DM Sans,system-ui`;ctx.textAlign='center';
+      ctx.font=`bold ${11+(1-p.l)*4}px Figtree,system-ui`;ctx.textAlign='center';
       ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(p.t,p.x+1,p.y+1);
       ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y);ctx.restore();
       p.y+=p.vy;p.l-=.018;
@@ -2409,7 +2481,7 @@ function drawTopDownChar(ctx,x,y,skin,shirt,hair,isCashier,happy){
   if(isCashier){
     // Name tag
     ctx.fillStyle='#fff';ctx.fillRect(x+S/2-5,y+S/2+2,10,5);
-    ctx.fillStyle='#0a0818';ctx.font='3px DM Sans,system-ui';ctx.textAlign='center';
+    ctx.fillStyle='#0a0818';ctx.font='3px Figtree,system-ui';ctx.textAlign='center';
     ctx.fillText('SAM',x+S/2,y+S/2+6);
   }
 }
@@ -2454,7 +2526,7 @@ function drawExterior(ctx,W,H,t){
   // Sign
   ctx.fillStyle='#160e2a';ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.fill();
   ctx.strokeStyle='#ffd166';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.stroke();
-  ctx.globalAlpha=.85+.15*Math.sin(t*.19);ctx.fillStyle='#ffd166';ctx.font='bold 11px DM Sans,system-ui';ctx.textAlign='center';
+  ctx.globalAlpha=.85+.15*Math.sin(t*.19);ctx.fillStyle='#ffd166';ctx.font='bold 11px Figtree,system-ui';ctx.textAlign='center';
   ctx.fillText('★  THE CAFE  ★',bx+bw/2,by+27);ctx.globalAlpha=1;
   // Windows
   const totInv=GS?PRODS.reduce((a,p)=>a+GS.inv[p.id],0):200;
@@ -2472,14 +2544,14 @@ function drawExterior(ctx,W,H,t){
         else{ctx.fillStyle='rgba(239,71,111,.08)';ctx.fillRect(px,py,pw-2,10);}
       }
     }
-    ctx.fillStyle=sc;ctx.font='8px DM Sans,system-ui';ctx.textAlign='center';ctx.fillText(Math.round(rat*100)+'%',wx+ww/2,wy+wh+12);
+    ctx.fillStyle=sc;ctx.font='8px Figtree,system-ui';ctx.textAlign='center';ctx.fillText(Math.round(rat*100)+'%',wx+ww/2,wy+wh+12);
   });
   // Door
   const dw=bw*.17,dh=bh*.36,dx=bx+bw/2-bw*.085,dy=by+bh-dh;
   ctx.fillStyle='#2c2260';ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.fill();
   ctx.strokeStyle='#4a3a90';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.stroke();
   ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(dx+dw*.65,dy+dh*.5,2.5,0,Math.PI*2);ctx.fill();
-  ctx.font='bold 7px DM Sans,system-ui';ctx.textAlign='center';ctx.fillStyle='#06d6a0';ctx.fillText('OPEN',dx+dw/2,dy+12);
+  ctx.font='bold 7px Figtree,system-ui';ctx.textAlign='center';ctx.fillStyle='#06d6a0';ctx.fillText('OPEN',dx+dw/2,dy+12);
   // Truck
   const pipeU=GS?PRODS.reduce((s,p)=>s+GS.pipe[p.id].reduce((a,o)=>a+o.q,0),0):1;
   const tx=((t*1.3)%(W+280))-140;
@@ -2488,8 +2560,8 @@ function drawExterior(ctx,W,H,t){
   ctx.fillStyle='#0c5a72';ctx.fillRect(-66,-25,66,25);
   ctx.fillStyle='#1a8ab2';ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(28,-25);ctx.lineTo(32,-16);ctx.lineTo(32,0);ctx.lineTo(0,0);ctx.closePath();ctx.fill();
   ctx.fillStyle='rgba(115,194,251,.28)';ctx.beginPath();ctx.moveTo(2,-23);ctx.lineTo(26,-23);ctx.lineTo(30,-16);ctx.lineTo(2,-16);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#73c2fb';ctx.font='bold 7px DM Sans,system-ui';ctx.textAlign='center';ctx.fillText('SUPPLY CO',-33,-12);
-  if(pipeU>0){ctx.fillStyle='#06d6a0';ctx.font='bold 8px DM Sans,system-ui';ctx.fillText('+'+pipeU+'units',-33,-22);}
+  ctx.fillStyle='#73c2fb';ctx.font='bold 7px Figtree,system-ui';ctx.textAlign='center';ctx.fillText('SUPPLY CO',-33,-12);
+  if(pipeU>0){ctx.fillStyle='#06d6a0';ctx.font='bold 8px Figtree,system-ui';ctx.fillText('+'+pipeU+'units',-33,-22);}
   const gl=ctx.createRadialGradient(33,-8,1,33,-8,16);gl.addColorStop(0,'rgba(255,248,180,.45)');gl.addColorStop(1,'rgba(255,248,180,0)');
   ctx.fillStyle=gl;ctx.fillRect(20,-18,26,26);ctx.fillStyle='#fff8c4';ctx.fillRect(30,-11,4,4);
   [[-40,22],[-15,22],[21,22]].forEach(([wx2,wy2])=>{
@@ -2515,7 +2587,7 @@ function drawExterior(ctx,W,H,t){
   // Particles
   if(GS&&GS.particles){
     GS.particles.forEach(p=>{
-      ctx.save();ctx.globalAlpha=p.l;ctx.font=`bold ${11+(1-p.l)*4}px DM Sans,system-ui`;ctx.textAlign='center';
+      ctx.save();ctx.globalAlpha=p.l;ctx.font=`bold ${11+(1-p.l)*4}px Figtree,system-ui`;ctx.textAlign='center';
       ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(p.t,p.x+1,p.y+1);ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y);ctx.restore();
       p.y+=p.vy;p.l-=.018;
     });
@@ -2726,7 +2798,7 @@ function _launchGame(gs, isNew){
   UI.cv.width=par.offsetWidth; UI.cv.height=par.offsetHeight;
   if(UI.raf) cancelAnimationFrame(UI.raf);
   loop();
-  setTab('all');
+  setTab('dashboard');
   updateTopbar();
 }
 
@@ -2769,11 +2841,11 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'||e.key===' '){e.preventDefault();advDay();}
   if(e.key==='ArrowUp'){e.preventDefault();adjQ(UI.selProd,5);}
   if(e.key==='ArrowDown'){e.preventDefault();adjQ(UI.selProd,-5);}
-  if(e.key==='1') setTab('overview');
-  if(e.key==='2') setTab('order');
-  if(e.key==='3') setTab('costs');
+  if(e.key==='1') setTab('dashboard');
+  if(e.key==='2') setTab('costs');
+  if(e.key==='3') setTab('charts');
   if(e.key==='4') setTab('log');
-  if(e.key==='5') setTab('all');
+  if(e.key==='5') setTab('dashboard');
 });
 
 // ── THEME TOGGLE ──

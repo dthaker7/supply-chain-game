@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cafe Supply Chain Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:     #0c0a18;
-  --surf:   #13101f;
-  --panel:  #1a1628;
-  --panel2: #221e36;
-  --border: #2e2848;
-  --border2:#3d3660;
-  --text:   #f0eaff;
-  --muted:  #8a82b0;
-  --dim:    #4a4270;
-  --acc:    #ff7a3d;
-  --acc2:   #c14a18;
-  --gold:   #ffd166;
-  --green:  #3ddc97;
-  --red:    #ff5c7a;
-  --purple: #b07bff;
-  --sky:    #7fd3ff;
+  --bg:     #1a120b;
+  --surf:   #20160e;
+  --panel:  #2a1d12;
+  --panel2: #36251a;
+  --border: #4a3220;
+  --border2:#5e4128;
+  --text:   #f5e9d0;
+  --muted:  #b8a585;
+  --dim:    #7a634a;
+  --acc:    #d4873c;
+  --acc2:   #a8651f;
+  --gold:   #e8b860;
+  --green:  #9bbf7a;
+  --red:    #d96a5a;
+  --purple: #b88a5c;
+  --sky:    #d8c4a0;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +32,7 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
@@ -65,9 +65,9 @@ html, body {
   animation: orb-float 12s ease-in-out infinite alternate;
 }
 @keyframes orb-float { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,-20px) scale(1.08); } }
-.orb1 { width: 700px; height: 700px; top: -200px; left: -100px; background: #6b21a8; animation-duration: 14s; }
-.orb2 { width: 500px; height: 500px; top: 20%; right: -100px; background: #ff7a3d; animation-duration: 11s; animation-delay: -4s; }
-.orb3 { width: 400px; height: 400px; bottom: -100px; left: 30%; background: #1d4ed8; animation-duration: 16s; animation-delay: -7s; }
+.orb1 { width: 700px; height: 700px; top: -200px; left: -100px; background: #6b4423; animation-duration: 14s; }
+.orb2 { width: 500px; height: 500px; top: 20%; right: -100px; background: #d4873c; animation-duration: 11s; animation-delay: -4s; }
+.orb3 { width: 400px; height: 400px; bottom: -100px; left: 30%; background: #a8651f; animation-duration: 16s; animation-delay: -7s; }
 
 /* grid lines */
 .bg-grid {
@@ -114,7 +114,7 @@ html, body {
   color: var(--acc); text-transform: uppercase; margin-bottom: 10px;
 }
 .game-title {
-  font-family: 'Fraunces', serif;
+  font-family: 'Outfit', serif;
   font-size: clamp(28px, 5vw, 42px);
   font-weight: 700; color: var(--gold); line-height: 1.1;
   margin-bottom: 8px;
@@ -191,7 +191,7 @@ html, body {
   display: flex; align-items: center; gap: 6px;
   background: none; border: none; color: var(--muted);
   font-size: 12px; cursor: pointer; padding: 0; margin-bottom: 20px;
-  font-family: 'DM Sans', sans-serif; transition: color .15s;
+  font-family: 'Figtree', sans-serif; transition: color .15s;
 }
 .back-btn:hover { color: var(--text); }
 
@@ -204,7 +204,7 @@ html, body {
 }
 .student-pill  { background: rgba(61,220,151,.12);  color: var(--green); border: 1px solid rgba(61,220,151,.3); }
 .operator-pill { background: rgba(255,122,61,.12);  color: var(--acc);   border: 1px solid rgba(255,122,61,.3); }
-.auth-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.auth-title { font-family: 'Outfit', serif; font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
 .auth-subtitle { font-size: 12px; color: var(--muted); }
 
 /* tab switcher (students only) */
@@ -215,7 +215,7 @@ html, body {
 }
 .tab-btn {
   padding: 8px; border-radius: 7px; border: none; cursor: pointer;
-  font-size: 12px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700; font-family: 'Figtree', sans-serif;
   transition: all .18s; background: transparent; color: var(--muted);
 }
 .tab-btn.active {
@@ -234,7 +234,7 @@ html, body {
 .field input {
   width: 100%; background: var(--panel2); border: 1.5px solid var(--border2);
   color: var(--text); font-size: 13px; padding: 10px 40px 10px 12px;
-  border-radius: 8px; font-family: 'DM Sans', sans-serif;
+  border-radius: 8px; font-family: 'Figtree', sans-serif;
   outline: none; transition: border-color .15s, box-shadow .15s;
 }
 .field input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px rgba(255,122,61,.12); }
@@ -256,7 +256,7 @@ html, body {
 /* submit button */
 .submit-btn {
   width: 100%; padding: 13px; border-radius: 9px; border: none; cursor: pointer;
-  font-size: 13px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700; font-family: 'Figtree', sans-serif;
   transition: all .15s; margin-top: 4px; margin-bottom: 8px;
   position: relative; overflow: hidden;
 }
@@ -276,7 +276,7 @@ html, body {
 .forgot-btn {
   width: 100%; background: none; border: none; color: var(--muted);
   font-size: 11px; cursor: pointer; text-decoration: underline;
-  font-family: 'DM Sans', sans-serif; padding: 4px; transition: color .15s;
+  font-family: 'Figtree', sans-serif; padding: 4px; transition: color .15s;
 }
 .forgot-btn:hover { color: var(--text); }
 
