@@ -15,7 +15,7 @@
   --border:#4a3220; --border2:#5e4128;
   --text:#f5e9d0; --muted:#b8a585; --dim:#7a634a;
   --acc:#d4873c; --acc2:#a8651f; --acc-glow:rgba(212,135,60,.35);
-  --gold:#e8b860; --green:#9bbf7a; --red:#d96a5a;
+  --gold:#e8b770; --green:#9bbf7a; --red:#d96a5a;
   --blue:#7a9bb0; --sky:#d8c4a0; --purple:#b88a5c;
   --choc:#6b4423; --water:#7a9bb0; --snack:#d4873c; --soda:#c9543a;
   --shadow-lg:0 18px 40px -12px rgba(0,0,0,.55), 0 4px 12px rgba(0,0,0,.4);
@@ -32,7 +32,7 @@
   --border:#d4bc8a; --border2:#b89a64;
   --text:#2a1d12; --muted:#6b5340; --dim:#a08868;
   --acc:#a8651f; --acc2:#7a4615; --acc-glow:rgba(168,101,31,.25);
-  --gold:#c9954a; --green:#5a8a3a; --red:#b8473a;
+  --gold:#92400e; --green:#5a8a3a; --red:#b8473a;
   --blue:#4a7a8a; --sky:#7a9bb0; --purple:#8b5a2b;
   --choc:#6b4423; --water:#4a7a8a; --snack:#a8651f; --soda:#b8473a;
   --shadow-lg:0 18px 40px -14px rgba(60,30,10,.35), 0 4px 14px rgba(60,30,10,.18);
@@ -247,10 +247,24 @@ body{
   font-size:11px;animation:slide-in .3s ease-out;
 }
 @keyframes slide-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
-.log-entry{background:var(--panel);border-radius:7px;padding:9px 11px;font-size:10px;line-height:1.7;color:var(--muted);border-left:3px solid var(--acc)}
+.log-entry{background:var(--panel);border-radius:10px;padding:11px 13px;font-size:11px;
+  line-height:1.5;color:var(--muted);border:1px solid var(--border2);
+  border-left:3px solid var(--acc);margin-bottom:8px;transition:border-color .15s,transform .15s}
+.log-entry:hover{transform:translateX(1px)}
 .log-entry .log-day{color:var(--text);font-weight:700;font-size:11px;margin-bottom:3px;font-family:'Space Mono',monospace}
-.log-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
-.log-prod{font-size:9px;color:var(--muted)}
+.log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.log-day-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;
+  font-family:'Figtree',system-ui,sans-serif;letter-spacing:.2px;white-space:nowrap}
+.log-prod{font-size:10px;color:var(--muted);background:var(--surf);border-radius:7px;
+  padding:6px 9px;display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--border2)}
+.log-stats{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;padding-top:8px;
+  margin-top:8px;border-top:1px solid var(--border2)}
+.log-stat{display:flex;flex-direction:column;gap:2px}
+.log-stat-l{color:var(--dim);font-size:8px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.log-stat-v{font-weight:700;font-family:'Space Mono',monospace;font-size:12px}
+.log-event{border-radius:7px;padding:6px 9px;margin-top:7px;font-size:10px;line-height:1.4}
+.log-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:4px 0}
 
 /* ========= COSTS ========= */
 .cost-card{background:var(--panel);border:1px solid var(--border2);border-radius:9px;padding:11px 13px}
@@ -407,7 +421,7 @@ button, .btn, .top-btn{font-family:'Figtree',system-ui,sans-serif}
   --border:#e8d9b8; --border2:#d6c094;
   --text:#2b1d12; --muted:#7a6650; --dim:#b39977;
   --acc:#c2632a; --acc2:#8f3f12; --acc-glow:rgba(194,99,42,.22);
-  --gold:#b87a1f; --green:#4a8a55; --red:#c14a4a;
+  --gold:#92400e; --green:#4a8a55; --red:#c14a4a;
   --blue:#3a7a92; --sky:#6fb3c4; --purple:#8a6a4a;
   --grad-bg: radial-gradient(1000px 500px at 20% -10%, #fbe6c4, transparent 60%),
              radial-gradient(900px 500px at 110% 110%, #f0d6a7, transparent 60%),
@@ -664,7 +678,8 @@ body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
     <span class="stat-v mono" id="hsvc">—</span>
     <span id="hsvc-target" style="font-size:9px;color:var(--muted);margin-top:1px">target 90%</span>
   </div>
-  <div class="stat" title="Units currently ordered and en route"><span class="stat-l">In Transit</span><span class="stat-v sky mono" id="hpipe">0 units</span></div>
+  <div class="stat" title="Coffee units ordered and en route"><span class="stat-l">In Transit ☕</span><span class="stat-v sky mono" id="hpipe-coffee">0</span></div>
+  <div class="stat" title="Cookie units ordered and en route"><span class="stat-l">In Transit 🍪</span><span class="stat-v sky mono" id="hpipe-cookie">0</span></div>
   </div>
   <div id="day-prog" style="display:flex;flex-direction:column;justify-content:center;padding:0 4px">
     <div style="font-size:9px;color:var(--muted);display:flex;justify-content:space-between"><span id="prog-label">Day 1/30</span><span id="prog-left" style="color:var(--muted)">29 left</span></div>
@@ -672,7 +687,7 @@ body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
   </div>
   <button class="top-btn theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
   <button class="top-btn" onclick="showTitle()">← Menu</button>
-  <button class="top-btn" onclick="showInfo()" style="background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.4);color:#ffd166;font-weight:700" title="Game Rules &amp; Guide">ⓘ Guide</button>
+  <button class="top-btn" onclick="showInfo()" style="background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.4);color:var(--gold);font-weight:700" title="Game Rules &amp; Guide">ⓘ Guide</button>
 </div>
 
 <div id="main">
@@ -699,7 +714,7 @@ body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
 // FIREBASE — Auth + real-time sync + live config listener
 // ════════════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp }
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   getAuth,
@@ -756,8 +771,18 @@ function showPostAuth(user) {
   if (el_email) el_email.textContent = user.email;
   if (el_av)    el_av.textContent    = initials;
   startConfigListener();
-  // After auth resolves, check for saved game
-  setTimeout(updateTitleScreenButtons, 100);
+  // After auth resolves, auto-resume any active saved game.
+  // This is what prevents the game from "resetting" on page refresh.
+  setTimeout(()=>{
+    const saved = loadStateFromStorage();
+    if(saved && saved.gs && !saved.gs.done){
+      // Active in-progress game found — jump straight back in
+      _launchGame(saved.gs, false);
+    } else {
+      // No game in progress — show title screen normally
+      updateTitleScreenButtons();
+    }
+  }, 150); // slight delay lets Firebase auth fully settle first
 }
 
 // ── AUTH ACTIONS ─────────────────────────────────────────────────────────────
@@ -946,11 +971,11 @@ function applyLiveConfig(cfg) {
     }
     if (pc.fixedCost !== undefined) p.fixedCost = pc.fixedCost;
     if (pc.sell !== undefined && pc.sell !== p.sell) {
-      changes.push(`💰 ${p.emoji} ${p.name} price: <strong>${p.sell.toFixed(2)} → ${pc.sell.toFixed(2)}</strong>`);
+      changes.push(`💰 ${p.emoji} ${p.name} price: <strong>$${p.sell.toFixed(2)} → $${pc.sell.toFixed(2)}</strong>`);
       p.sell = pc.sell;
     }
     if (pc.holdPerUnit !== undefined && pc.holdPerUnit !== p.holdPerUnit) {
-      changes.push(`📦 ${p.emoji} ${p.name} hold cost: <strong>${p.holdPerUnit.toFixed(3)} → ${pc.holdPerUnit.toFixed(3)}/u/day</strong>`);
+      changes.push(`📦 ${p.emoji} ${p.name} hold cost: <strong>$${p.holdPerUnit.toFixed(3)} → $${pc.holdPerUnit.toFixed(3)}/u/day</strong>`);
       p.holdPerUnit = pc.holdPerUnit;
     }
     if (pc.unitCost !== undefined) p.suppliers.forEach(s => s.cost = pc.unitCost);
@@ -1071,7 +1096,6 @@ async function fbInitRun(playerName) {
 
   // Load latest config from Firebase before starting
   try {
-    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
     const cfgSnap = await getDoc(doc(db, 'config', 'game'));
     if (cfgSnap.exists()) {
       const cfg = cfgSnap.data();
@@ -1139,7 +1163,7 @@ async function fbSaveDay(gs) {
   const totOrd  = PRODS.reduce((s,p)=>s+gs.ordCost[p.id],0);
   const gp = gs.totRev - totHold - totOrd - PRODS.reduce((s,p)=>s+gs.sold[p.id]*(p.suppliers[gs.selSupp[p.id]||0].cost),0);
   try {
-    await updateDoc(doc(db, 'runs', SESSION_ID), {
+    await setDoc(doc(db, 'runs', SESSION_ID), {
       currentDay: gs.day, status: gs.done ? 'complete' : 'in_progress',
       svc: +(gs.svc*100).toFixed(2), profit: Math.round(gp),
       totRev: Math.round(gs.totRev), totLost: gs.totLost, cash: Math.round(gs.cash),
@@ -1152,7 +1176,7 @@ async function fbSaveDay(gs) {
           return [p.id,{demand:pe.dem,sold:pe.s,lost:pe.l,revenue:+pe.r.toFixed(2),holdCost:+pe.hc.toFixed(2),orderQty:pe.oq||0,orderCost:+pe.oc.toFixed(2),received:pe.recv||0,invEnd:pe.invEnd,arrDay:pe.arr||null}];
         }))
       }))
-    });
+    }, { merge: true });
   } catch(e){ console.warn('FB save failed', e); }
 }
 
@@ -1232,8 +1256,8 @@ const PRODS = [
     events:[
       {d:10, t:'spike', m:1.6, txt:'🎉 Welcome event — cookies fly off the shelf!',
        impact:'Cookie demand is 60% higher today. Stock up the day before.'},
-      {d:18, t:'price', np:3.00, txt:'📈 Cookie wholesale price jump — retail price rises to $$3.00.',
-       impact:'You now sell cookies at $$3.00 each (up from $$2.50). Revenue per unit increases.'},
+      {d:18, t:'price', np:3.00, txt:'📈 Cookie wholesale price jump — retail price rises to $3.00.',
+       impact:'You now sell cookies at $3.00 each (up from $2.50). Revenue per unit increases.'},
       {d:25, t:'spike', m:1.8, txt:'🎓 Graduation prep — bulk cookie orders!',
        impact:'Cookie demand is 80% higher today. Don\'t let the shelf go empty.'}
     ]
@@ -1467,6 +1491,20 @@ let UI = {
 };
 
 // ════════════════════════════════════════════════
+// THEME-AWARE COLOR HELPER
+// Bright yellow (#ffd166) reads fine on dark backgrounds but is hard to
+// read on the light theme's cream background. This returns the right
+// "gold" shade for whichever theme is active, matching the --gold CSS var.
+// ════════════════════════════════════════════════
+function goldColor(){
+  return document.documentElement.getAttribute('data-theme')==='light' ? '#92400e' : '#e8b770';
+}
+// Maps any hardcoded yellow value to the theme-aware gold; passes other colors through unchanged.
+function themed(hex){
+  return hex==='#ffd166' ? goldColor() : hex;
+}
+
+// ════════════════════════════════════════════════
 // TOAST
 // ════════════════════════════════════════════════
 function toast(msg, dur=2800){
@@ -1499,11 +1537,15 @@ function updateTopbar(){
   if(tgtEl){ tgtEl.textContent='target '+target+'%'; tgtEl.style.color=GS.svc*100>=target?'#3ddc97':'var(--muted)'; }
 
   const pipeU=PRODS.reduce((s,p)=>s+GS.pipe[p.id].reduce((a,o)=>a+o.q,0),0);
+  const pipeCoffee=GS.pipe['coffee']?GS.pipe['coffee'].reduce((a,o)=>a+o.q,0):0;
+  const pipeCookie=GS.pipe['cookie']?GS.pipe['cookie'].reduce((a,o)=>a+o.q,0):0;
+  const pipeElCoffee=document.getElementById('hpipe-coffee');
+  const pipeElCookie=document.getElementById('hpipe-cookie');
+  if(pipeElCoffee) pipeElCoffee.textContent=pipeCoffee+' u';
+  if(pipeElCookie) pipeElCookie.textContent=pipeCookie+' u';
+  // legacy id for any other references
   const pipeEl=document.getElementById('hpipe');
-  pipeEl.textContent=pipeU+'units';
-  // Show per-product breakdown as title tooltip
-  const pipeBreakdown=PRODS.map(p=>{ const u=GS.pipe[p.id].reduce((a,o)=>a+o.q,0); return u>0?p.emoji+' '+u+'units':''; }).filter(Boolean).join(' · ');
-  pipeEl.title = pipeBreakdown || 'No orders in transit';
+  if(pipeEl){ pipeEl.textContent=pipeU+'units'; }
   const pct=Math.max(3,(day/maxDay)*100);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-label').textContent='Day '+day+'/'+maxDay;
@@ -1513,7 +1555,8 @@ function updateTopbar(){
   pl.style.color=left<=5?'#ef476f':'var(--muted)';
 
   // Disable/enable "Next Day" button based on round control gate
-  const isGated = (window._GAME_CFG?.roundControl) && GS && GS.day > (window._GAME_CFG?.allowedDay || 9999);
+  const allowedDay = window._GAME_CFG?.allowedDay ?? 9999;
+  const isGated = !!(window._GAME_CFG?.roundControl) && GS.day > allowedDay;
   document.querySelectorAll('.btn-next').forEach(btn => {
     btn.disabled = isGated;
     if (isGated) {
@@ -1530,16 +1573,16 @@ function updateTopbar(){
   // Round control indicator in topbar
   let rcEl = document.getElementById('hround-ctrl');
   if(window._GAME_CFG?.roundControl){
-    const allowed = window._GAME_CFG.allowedDay || 9999;
-    const isGated = GS.day > allowed;
+    const allowed = window._GAME_CFG.allowedDay ?? 9999;
+    const gated = GS.day > allowed;
     if(!rcEl){
       rcEl = document.createElement('div');
       rcEl.id='hround-ctrl';
-      rcEl.style.cssText='display:flex;align-items:center;gap:5px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;font-family:"Space Mono",monospace;color:#ffd166';
+      rcEl.style.cssText='display:flex;align-items:center;gap:5px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;font-family:"Space Mono",monospace;color:'+goldColor();
       document.getElementById('topbar-stats')?.appendChild(rcEl);
     }
-    rcEl.textContent = isGated ? '⏸ Waiting D'+GS.day : '▶ D'+allowed+' open';
-    rcEl.style.color = isGated ? '#ffd166' : '#3ddc97';
+    rcEl.textContent = gated ? '⏸ Waiting D'+GS.day : '▶ D'+allowed+' open';
+    rcEl.style.color = gated ? goldColor() : '#3ddc97';
   } else if(rcEl){ rcEl.remove(); }
 }
 // Expose for Firebase config listener
@@ -1583,7 +1626,7 @@ function htmlDashboard(){
   const cogs=PRODS.reduce((s,p)=>s+(GS.sold[p.id]*(p.suppliers[GS.selSupp[p.id]||0].cost)),0);
   const grossProfit=GS.totRev-totHold-totOrd-cogs;
   const svc=(totSold+totLost)>0?(totSold/(totSold+totLost)*100):100;
-  const svcC=svc>=90?'#06d6a0':svc>=75?'#ffd166':'#ef476f';
+  const svcC=svc>=90?'#06d6a0':svc>=75?goldColor():'#ef476f';
   const profitC=grossProfit>=0?'#06d6a0':'#ef476f';
   const hideDem = window._GAME_CFG?.hideDemand;
 
@@ -1595,9 +1638,9 @@ function htmlDashboard(){
     <div style="font-size:10px;color:var(--muted);font-weight:600">Snapshot across all metrics</div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
-    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#06d6a0;font-size:16px">${Math.round(GS.totRev).toLocaleString()}</strong>Revenue</div>
-    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:${profitC};font-size:16px">${Math.round(grossProfit).toLocaleString()}</strong>Gross Profit</div>
-    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#9b5de5;font-size:16px">${Math.round(totHold+totOrd).toLocaleString()}</strong>Hold+Ord</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#06d6a0;font-size:16px">$${Math.round(GS.totRev).toLocaleString()}</strong>Revenue</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:${profitC};font-size:16px">$${Math.round(grossProfit).toLocaleString()}</strong>Gross Profit</div>
+    <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#9b5de5;font-size:16px">$${Math.round(totHold+totOrd).toLocaleString()}</strong>Holding + Order Cost</div>
     <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:#ef476f;font-size:16px">${totLost}</strong>Lost units</div>
     <div class="ps" style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:8px 6px"><strong style="color:${svcC};font-size:16px">${svc.toFixed(0)}%</strong>Service</div>
   </div>
@@ -1612,7 +1655,7 @@ function htmlDashboard(){
     const inv=GS.inv[p.id];
     const pipe=GS.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
     const r=Math.max(0,Math.min(1,inv/p.maxShelf));
-    const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+    const bc=r>.55?'#06d6a0':r>.25?goldColor():'#ef476f';
     const avgDem = p.demandAvg || 15;
     const demStd = p.demandStd || 3;
     const fc = p.fixedCost !== undefined ? p.fixedCost : 50;
@@ -1625,7 +1668,7 @@ function htmlDashboard(){
     const q=UI.decs[p.id]||0;
     const orderCost=q>0?fc+q*sup.cost:0;
     const psl=GS.sold[p.id]+GS.lost[p.id]>0?(GS.sold[p.id]/(GS.sold[p.id]+GS.lost[p.id])*100):100;
-    const pslC=psl>=90?'#06d6a0':psl>=75?'#ffd166':'#ef476f';
+    const pslC=psl>=90?'#06d6a0':psl>=75?goldColor():'#ef476f';
 
     html+=`
 <div style="background:var(--panel);border:2px solid ${needsOrder?'rgba(239,71,111,.5)':p.color+'33'};border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
@@ -1644,25 +1687,25 @@ function htmlDashboard(){
     <div class="ps"><strong style="color:${bc}">${inv}</strong>On hand</div>
     <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
     <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Position</div>
-    <div class="ps"><strong style="color:#ffd166">${Math.round(GS.rev[p.id])}</strong>Revenue</div>
+    <div class="ps"><strong style="color:var(--gold)">$${Math.round(GS.rev[p.id])}</strong>Revenue</div>
     <div class="ps"><strong style="color:${pslC}">${psl.toFixed(0)}%</strong>Service</div>
-    <div class="ps"><strong>${sup.ltDays}d</strong>Lead</div>
+    <div class="ps"><strong>${sup.ltDays}d</strong>Lead time</div>
   </div>
 
   <div style="border-top:1px dashed var(--border2);padding-top:7px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
       <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.3px">QUICK ORDER</span>
-      <span style="font-size:10px;color:var(--muted)">${sup.name} · ${sup.cost.toFixed(2)}/u</span>
+      <span style="font-size:10px;color:var(--muted)">${sup.name} · $${sup.cost.toFixed(2)}/u</span>
     </div>
     <div style="display:grid;grid-template-columns:auto 1fr auto;gap:4px;margin-bottom:6px">
       <button class="qbtn" onclick="adjQ('${p.id}',-10)" style="padding:6px 10px">−</button>
       <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}" onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()" style="text-align:center;width:100%">
       <button class="qbtn" onclick="adjQ('${p.id}',10)" style="padding:6px 10px">+</button>
     </div>
-    ${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:5px;border-radius:4px;cursor:pointer;font-size:10px;margin-bottom:5px">Use EOQ (${rec} units)</button>`:''}
+    ${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold);padding:5px;border-radius:4px;cursor:pointer;font-size:10px;margin-bottom:5px">Use EOQ (${rec} units)</button>`:''}
     <div style="font-size:10px;color:var(--muted);margin-bottom:5px">
       ${q>0
-        ? `Cost: <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong> · Arrives Day <strong>${GS.day+sup.ltDays}</strong>`
+        ? `Cost: <strong style="color:#ff6b35">$${orderCost.toFixed(2)}</strong> · Arrives Day <strong>${GS.day+sup.ltDays}</strong>`
         : 'Set quantity to place an order'}
     </div>
     <button class="btn-order" onclick="placeOrder('${p.id}')" style="width:100%;padding:7px;font-size:11px">
@@ -1678,13 +1721,13 @@ function htmlDashboard(){
   html += `
 <div class="section-title" style="margin-top:10px;margin-bottom:6px">Cost breakdown</div>
 <div class="info-box" style="margin-bottom:10px">
-  <div class="info-row"><span class="lbl">Revenue</span><span class="val" style="color:#06d6a0">${Math.round(GS.totRev).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Ordering cost</span><span class="val" style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Lost sales value</span><span class="val" style="color:#ef476f">${Math.round(totLrev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Revenue</span><span class="val" style="color:#06d6a0">$${Math.round(GS.totRev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">$${Math.round(totHold).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Ordering cost</span><span class="val" style="color:var(--gold)">$${Math.round(totOrd).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Lost sales value</span><span class="val" style="color:#ef476f">$${Math.round(totLrev).toLocaleString()}</span></div>
   <div class="info-row" style="border-top:1px solid var(--border2);padding-top:5px;margin-top:3px">
     <span class="lbl" style="font-weight:700">Est. Gross Profit</span>
-    <span class="val" style="color:${profitC};font-size:15px">${Math.round(grossProfit).toLocaleString()}</span>
+    <span class="val" style="color:${profitC};font-size:15px">$${Math.round(grossProfit).toLocaleString()}</span>
   </div>
 </div>`;
 
@@ -1698,17 +1741,21 @@ function htmlDashboard(){
       return `
 <div class="log-entry" style="margin-bottom:5px;border-left-color:${totL>0?'#ef476f':'#06d6a0'}">
   <div style="display:flex;justify-content:space-between;font-size:11px"><strong>Day ${e.day}</strong>
-    <span>Rev <strong style="color:#06d6a0">${totR.toFixed(0)}</strong> · Sold <strong>${totS}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}</strong>`:''}</span>
+    <span>Rev <strong style="color:#06d6a0">$${totR.toFixed(0)}</strong> · Sold <strong>${totS}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}</strong>`:''}</span>
   </div>
-  ${e.events.length?`<div style="color:#ffd166;font-size:10px;margin-top:2px">${e.events.map(ev=>ev.txt).join(' · ')}</div>`:''}
+  ${e.events.length?`<div style="color:var(--gold);font-size:10px;margin-top:2px">${e.events.map(ev=>ev.txt).join(' · ')}</div>`:''}
 </div>`;
     }).join('');
   }
 
-  // Advance day CTA
+  // Advance day CTA — gating baked directly into the markup so it's correct
+  // the instant this HTML is rendered, regardless of what order other
+  // functions (updateTopbar/renderPanel) happen to run in.
+  const gameCfg = window._GAME_CFG || {};
+  const dayGated = gameCfg.roundControl && GS.day > (gameCfg.allowedDay || 9999);
   html += `
 <div style="border-top:2px solid var(--border2);padding-top:10px;margin-top:8px">
-  <button class="btn-next" onclick="advDay()">⏭ Next Day →</button>
+  <button class="btn-next" onclick="advDay()" ${dayGated?'disabled style="opacity:.45;cursor:not-allowed"':''}>${dayGated?'⏸ Waiting for Instructor…':'⏭ Next Day →'}</button>
   <div class="kb-hint" style="margin-top:6px;text-align:center">Enter = next day · ↑↓ = ±5 qty for selected product</div>
 </div>`;
   return html;
@@ -1719,7 +1766,7 @@ function htmlOverview(){
   return PRODS.map(p=>{
     const inv=GS.inv[p.id];
     const r=Math.max(0,Math.min(1,inv/p.maxShelf));
-    const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+    const bc=r>.55?'#06d6a0':r>.25?goldColor():'#ef476f';
     const pend=UI.pendOrd[p.id];
     const suppIdx=GS.selSupp[p.id]||0;
     const sup=p.suppliers[suppIdx];
@@ -1749,8 +1796,8 @@ function htmlOverview(){
   <div class="prod-stats" style="grid-template-columns:${window._GAME_CFG?.hideRecommendations?'repeat(3,1fr)':'repeat(4,1fr)'}">
     <div class="ps"><strong>${inv}</strong>On hand</div>
     <div class="ps"><strong style="color:#73c2fb">${pipeU}</strong>In transit</div>
-    ${!window._GAME_CFG?.hideRecommendations?`<div class="ps"><strong style="color:#ffd166">${eQ}</strong>EOQ</div>`:''}
-    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Inv Position</div>
+    ${!window._GAME_CFG?.hideRecommendations?`<div class="ps"><strong style="color:var(--gold)">${eQ}</strong>EOQ</div>`:''}
+    <div class="ps"><strong style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos}</strong>Inventory Position</div>
   </div>
   <div style="margin-top:8px;padding:7px 9px;background:rgba(127,211,255,.07);border:1px solid rgba(127,211,255,.18);border-radius:6px;font-size:11px;color:var(--muted);line-height:1.5">
     <div>📅 Expected inventory tomorrow morning: <strong style="color:${expTomorrow<10?'#ef476f':'#7fd3ff'}">${Math.round(expTomorrow)}units</strong></div>
@@ -1758,8 +1805,8 @@ function htmlOverview(){
     ${nextArr&&nextArr.arr>GS.day+1?`<div>📦 Next shipment: <strong>${nextArr.q}units on Day ${nextArr.arr}</strong></div>`:''}
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:10px;color:var(--muted)">
-    <span>Hold: <strong style="color:#9b5de5">${p.holdPerUnit}/u/d</strong></span>
-    <span>LT: <strong>${sup.ltDays}d</strong></span>
+    <span>Holding cost: <strong style="color:#9b5de5">$${p.holdPerUnit}/u/d</strong></span>
+    <span>Lead time: <strong>${sup.ltDays}d</strong></span>
     ${!hideDem?`<span>Avg demand: <strong>${Math.round(avgDem)}units/d ± ${Math.round(p.demandStd||3)}</strong></span>`:`<span style="color:var(--dim)">Demand: hidden</span>`}
   </div>
 </div>`;
@@ -1775,7 +1822,7 @@ function htmlOrder(){
   const inv=GS.inv[p.id];
   const pipe=GS.pipe[p.id], pipeU=pipe.reduce((s,o)=>s+o.q,0);
   const r=Math.max(0,Math.min(1,inv/p.maxShelf));
-  const bc=r>.55?'#06d6a0':r>.25?'#ffd166':'#ef476f';
+  const bc=r>.55?'#06d6a0':r>.25?goldColor():'#ef476f';
   const eQ=calcEOQ(p,suppIdx);
   const avgDem = p.demandAvg || 15;
   const demStd = p.demandStd || 3;
@@ -1795,17 +1842,17 @@ function htmlOrder(){
   const suppCards=p.suppliers.map((s2,i)=>{
     const isBlk=GS.suppBlocked[p.id][i]>0;
     const isSel=suppIdx===i;
-    const relC=s2.rel>=.95?'#06d6a0':s2.rel>=.88?'#ffd166':'#ef476f';
+    const relC=s2.rel>=.95?'#06d6a0':s2.rel>=.88?goldColor():'#ef476f';
     return `
 <div class="supp-card${isSel?' sel':''}${isBlk?' blocked':''}" onclick="${isBlk?'':'selectSupp(\"'+p.id+'\",'+i+')'}" style="${isSel?'border-color:#73c2fb':''}">
   <div class="supp-head">
     <span class="supp-name">${s2.name} <span style="font-size:10px;color:var(--muted)">· ${s2.city}</span></span>
-    <span class="supp-tag" style="background:${s2.tagC}18;color:${s2.tagC}">${isBlk?'BLOCKED':s2.tag}</span>
+    <span class="supp-tag" style="background:${themed(s2.tagC)}18;color:${themed(s2.tagC)}">${isBlk?'BLOCKED':s2.tag}</span>
   </div>
   <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${s2.note}</div>
   <div class="supp-grid">
-    <div class="supp-stat"><strong style="color:#73c2fb">${s2.cost.toFixed(2)}</strong>Per unit</div>
-    <div class="supp-stat"><strong style="color:#ffd166">${s2.ltDays}d</strong>Lead time</div>
+    <div class="supp-stat"><strong style="color:#73c2fb">$${s2.cost.toFixed(2)}</strong>Per unit</div>
+    <div class="supp-stat"><strong style="color:var(--gold)">${s2.ltDays}d</strong>Lead time</div>
     <div class="supp-stat">
       <strong style="color:${relC}">${Math.round(s2.rel*100)}%</strong>Reliable
       <div class="rel-bar"><div class="rel-fill" style="width:${s2.rel*100}%;background:${relC}"></div></div>
@@ -1825,8 +1872,8 @@ function htmlOrder(){
   <div class="info-row"><span class="lbl">In transit (pipeline)</span><span class="val" style="color:#73c2fb">${pipeU} units</span></div>
   <div class="info-row"><span class="lbl">Inventory position</span><span class="val" style="color:${pos<rop?'#ef476f':'#06d6a0'}">${pos} units ${!window._GAME_CFG?.hideRecommendations?(pos<rop?'⚠ BELOW ROP':'✓ OK'):''}</span></div>
   <div class="info-row"><span class="lbl">Expected demand today</span><span class="val">${window._GAME_CFG?.hideDemand ? '—' : `avg ${Math.round(p.demandAvg||15)}units ± ${Math.round(p.demandStd||3)}`}</span></div>
-  <div class="info-row"><span class="lbl">Selling price</span><span class="val">${GS.sellPrice[p.id].toFixed(2)}/unit</span></div>
-  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">${p.holdPerUnit}/u/d (${p.holdNote})</span></div>
+  <div class="info-row"><span class="lbl">Selling price</span><span class="val">$${GS.sellPrice[p.id].toFixed(2)}/unit</span></div>
+  <div class="info-row"><span class="lbl">Holding cost</span><span class="val" style="color:#9b5de5">$${p.holdPerUnit}/u/d (${p.holdNote})</span></div>
   <div style="height:5px;background:var(--border2);border-radius:3px;overflow:hidden;margin-top:6px">
     <div style="height:100%;background:${bc};width:${r*100}%;border-radius:3px;transition:width .5s"></div>
   </div>
@@ -1834,7 +1881,7 @@ function htmlOrder(){
 
 <div class="hint-box" ${window._GAME_CFG?.hideRecommendations ? 'style="display:none"' : ''}>
   💡 <strong>EOQ = ${eQ} units</strong> · ROP = <strong>${rop}units</strong> · Safety Stock ≈ <strong>${safetyStock}units</strong><br>
-  Daily holding on ${eQ}units order ≈ <strong>${(eQ*p.holdPerUnit/2).toFixed(2)}/day avg</strong><br>
+  Daily holding on ${eQ}units order ≈ <strong>$${(eQ*p.holdPerUnit/2).toFixed(2)}/day avg</strong><br>
   ${rec>0?`<strong style="color:#ff6b35">→ Recommend ordering ${rec} units now</strong>`:'<strong style="color:#06d6a0">→ Inventory position looks adequate</strong>'}
 </div>
 
@@ -1842,12 +1889,12 @@ function htmlOrder(){
 <div class="supp-card sel" style="border-color:#73c2fb">
   <div class="supp-head">
     <span class="supp-name">${sup.name} <span style="font-size:10px;color:var(--muted)">· ${sup.city}</span></span>
-    <span class="supp-tag" style="background:${sup.tagC}18;color:${sup.tagC}">${sup.tag}</span>
+    <span class="supp-tag" style="background:${themed(sup.tagC)}18;color:${themed(sup.tagC)}">${sup.tag}</span>
   </div>
   <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${sup.note}</div>
   <div class="supp-grid">
-    <div class="supp-stat"><strong style="color:#73c2fb">${sup.cost.toFixed(2)}</strong>Per unit</div>
-    <div class="supp-stat"><strong style="color:#ffd166">${sup.ltDays}d</strong>Lead time</div>
+    <div class="supp-stat"><strong style="color:#73c2fb">$${sup.cost.toFixed(2)}</strong>Per unit</div>
+    <div class="supp-stat"><strong style="color:var(--gold)">${sup.ltDays}d</strong>Lead time</div>
     <div class="supp-stat"><strong style="color:#06d6a0">${Math.round(sup.rel*100)}%</strong>Reliable</div>
   </div>
 </div>
@@ -1858,13 +1905,13 @@ function htmlOrder(){
   <input class="qinp" type="number" value="${q}" min="0" max="500" id="qinp-${p.id}" onchange="UI.decs['${p.id}']=Math.max(0,parseInt(this.value)||0);renderPanel()">
   <button class="qbtn" onclick="adjQ('${p.id}',10)">+</button>
 </div>
-${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:#ffd166;padding:6px;border-radius:4px;cursor:pointer;font-size:11px;margin-bottom:6px">Use EOQ recommendation (${rec} units)</button>`:''}
+${(!window._GAME_CFG?.hideRecommendations && rec>0)?`<button onclick="UI.decs['${p.id}']=${rec};renderPanel()" style="width:100%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--gold);padding:6px;border-radius:4px;cursor:pointer;font-size:11px;margin-bottom:6px">Use EOQ recommendation (${rec} units)</button>`:''}
 <div class="cost-preview">
   ${q>0
     ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <span>Fixed fee: <strong>${fc.toFixed(2)}</strong></span>
-        <span>Units: <strong>${(q*sup.cost).toFixed(2)}</strong></span>
-        <span>Total cost: <strong style="color:#ff6b35">${orderCost.toFixed(2)}</strong></span>
+        <span>Fixed fee: <strong>$${fc.toFixed(2)}</strong></span>
+        <span>Units: <strong>$${(q*sup.cost).toFixed(2)}</strong></span>
+        <span>Total cost: <strong style="color:#ff6b35">$${orderCost.toFixed(2)}</strong></span>
         <span>Arrives: <strong>Morning of Day ${GS.day+sup.ltDays}</strong></span>
        </div>`
     : 'No order — $0 cost'}
@@ -2027,13 +2074,13 @@ function htmlCosts(){
   return `
 <div class="section-title">Cost Summary — Day ${GS.day}</div>
 <div class="info-box" style="margin-bottom:8px">
-  <div class="info-row"><span class="lbl">Total Revenue</span><span class="val" style="color:#06d6a0">${Math.round(GS.totRev).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Total Holding Cost</span><span class="val" style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Total Ordering Cost</span><span class="val" style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</span></div>
-  <div class="info-row"><span class="lbl">Lost Sales Revenue</span><span class="val" style="color:#ef476f">${Math.round(totLrev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Total Revenue</span><span class="val" style="color:#06d6a0">$${Math.round(GS.totRev).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Total Holding Cost</span><span class="val" style="color:#9b5de5">$${Math.round(totHold).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Total Ordering Cost</span><span class="val" style="color:var(--gold)">$${Math.round(totOrd).toLocaleString()}</span></div>
+  <div class="info-row"><span class="lbl">Lost Sales Revenue</span><span class="val" style="color:#ef476f">$${Math.round(totLrev).toLocaleString()}</span></div>
   <div class="info-row" style="border-top:1px solid var(--border2);padding-top:5px;margin-top:3px">
     <span class="lbl" style="font-weight:700">Est. Gross Profit</span>
-    <span class="val" style="color:${grossProfit>0?'#06d6a0':'#ef476f'};font-size:15px">${Math.round(grossProfit).toLocaleString()}</span>
+    <span class="val" style="color:${grossProfit>0?'#06d6a0':'#ef476f'};font-size:15px">$${Math.round(grossProfit).toLocaleString()}</span>
   </div>
 </div>
 
@@ -2042,7 +2089,7 @@ ${PRODS.map(p=>{
   const suppIdx=GS.selSupp[p.id]||0;
   const sup=p.suppliers[suppIdx];
   const sl=GS.sold[p.id]+GS.lost[p.id]>0?(GS.sold[p.id]/(GS.sold[p.id]+GS.lost[p.id])*100).toFixed(1):100;
-  const slC=sl>=90?'#06d6a0':sl>=75?'#ffd166':'#ef476f';
+  const slC=sl>=90?'#06d6a0':sl>=75?goldColor():'#ef476f';
   const dailyHold=(GS.inv[p.id]*p.holdPerUnit).toFixed(2);
   return `
 <div class="cost-card" style="margin-bottom:8px;border-color:${p.color}33">
@@ -2052,38 +2099,52 @@ ${PRODS.map(p=>{
     <span style="margin-left:auto;font-size:10px;color:${slC}">${sl}% service level</span>
   </div>
   <div class="cost-rows">
-    <div class="cost-row"><span>Revenue earned</span><span class="val" style="color:#06d6a0">${Math.round(GS.rev[p.id])}</span></div>
-    <div class="cost-row"><span>Holding cost <span style="color:var(--dim)">(${p.holdPerUnit}/u/d)</span></span><span class="val" style="color:#9b5de5">${Math.round(GS.holdCost[p.id])}</span></div>
-    <div class="cost-row"><span>Ordering cost <span style="color:var(--dim)">(${(PRODS.find(x=>x.id===p.id)?.fixedCost||50).toFixed(0)} fixed + unit cost)</span></span><span class="val" style="color:#ffd166">${Math.round(GS.ordCost[p.id])}</span></div>
-    <div class="cost-row"><span>Lost sales value</span><span class="val" style="color:#ef476f">${Math.round(GS.lrev[p.id])}</span></div>
+    <div class="cost-row"><span>Revenue earned</span><span class="val" style="color:#06d6a0">$${Math.round(GS.rev[p.id])}</span></div>
+    <div class="cost-row"><span>Holding cost <span style="color:var(--dim)">($${p.holdPerUnit}/u/d)</span></span><span class="val" style="color:#9b5de5">$${Math.round(GS.holdCost[p.id])}</span></div>
+    <div class="cost-row"><span>Ordering cost <span style="color:var(--dim)">(${(PRODS.find(x=>x.id===p.id)?.fixedCost||50).toFixed(0)} fixed + unit cost)</span></span><span class="val" style="color:var(--gold)">$${Math.round(GS.ordCost[p.id])}</span></div>
+    <div class="cost-row"><span>Lost sales value</span><span class="val" style="color:#ef476f">$${Math.round(GS.lrev[p.id])}</span></div>
     <div class="cost-row"><span>Units sold / lost</span><span class="val">${GS.sold[p.id]} / <span style="color:#ef476f">${GS.lost[p.id]}</span></span></div>
-    <div class="cost-row"><span>Supplier cost/unit</span><span class="val">${sup.cost.toFixed(2)} (${sup.name})</span></div>
-    <div class="cost-row"><span>Today's holding (${GS.inv[p.id]}units)</span><span class="val" style="color:#9b5de5">${dailyHold}/day</span></div>
+    <div class="cost-row"><span>Supplier cost/unit</span><span class="val">$${sup.cost.toFixed(2)} (${sup.name})</span></div>
+    <div class="cost-row"><span>Today's holding (${GS.inv[p.id]}units)</span><span class="val" style="color:#9b5de5">$${dailyHold}/day</span></div>
   </div>
 </div>`;
-}).join('')}
-<div style="background:rgba(155,93,229,.07);border:1px solid rgba(155,93,229,.2);border-radius:6px;padding:10px 12px;font-size:11px;color:#c4a0ff;line-height:1.7;margin-top:4px">
-  <strong>💡 Holding Cost Trade-off:</strong> Water costs only ${PRODS[1].holdPerUnit}/u/day — safe to over-stock. Chocolate costs ${PRODS[0].holdPerUnit}/u/day — avoid excess. EOQ balances these costs against ordering fees automatically.
-</div>`;
+}).join('')}`;
 }
 
 // ── LOG TAB
 function htmlLog(){
   if(!GS||!GS.log.length) return '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">No days played yet</div>';
   return [...GS.log].reverse().slice(0,25).map(e=>{
-    const totS=PRODS.reduce((s,p)=>s+e.prods[p.id].s,0);
     const totL=PRODS.reduce((s,p)=>s+e.prods[p.id].l,0);
     const totR=PRODS.reduce((s,p)=>s+e.prods[p.id].r,0);
     const totH=PRODS.reduce((s,p)=>s+e.prods[p.id].hc,0);
     const hasEvt=e.events.length>0;
+    const gold=goldColor();
+    const borderC=totL>0?'#ef476f':hasEvt?gold:'var(--acc)';
+    const badge = totL>0
+      ? `<span class="log-day-badge" style="background:rgba(239,71,111,.12);color:#ef476f">⚠ ${totL} lost</span>`
+      : hasEvt
+        ? `<span class="log-day-badge" style="background:rgba(255,209,102,.12);color:${gold}">⚡ event</span>`
+        : `<span class="log-day-badge" style="background:rgba(6,214,160,.12);color:#06d6a0">✓ all sold</span>`;
     return `
-<div class="log-entry" style="border-left-color:${totL>0?'#ef476f':hasEvt?'#ffd166':'#2a2640'}">
-  <div class="log-day">Day ${e.day}</div>
-  <div class="log-grid">
-    ${PRODS.map(p=>{const pe=e.prods[p.id];return`<div class="log-prod" style="color:${pe.l>0?'#ef476f':'var(--muted)'}">${p.emoji} ${pe.s}/${pe.dem}${pe.recv>0?`<span style="color:#06d6a0">+${pe.recv}</span>`:''}</div>`;}).join('')}
+<div class="log-entry" style="border-left-color:${borderC}">
+  <div class="log-head">
+    <div class="log-day">📅 Day ${e.day}</div>
+    ${badge}
   </div>
-  Rev <strong style="color:#06d6a0">${totR.toFixed(0)}</strong> · Hold <strong style="color:#9b5de5">${totH.toFixed(1)}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}units</strong>`:''}
-  ${e.events.map(ev=>`<div style="color:#ffd166;margin-top:2px">${ev.txt}</div>`).join('')}
+  <div class="log-grid">
+    ${PRODS.map(p=>{const pe=e.prods[p.id];return`
+    <div class="log-prod">
+      <span>${p.emoji} ${p.name}</span>
+      <span style="color:${pe.l>0?'#ef476f':'var(--text)'};font-weight:700;font-family:'Space Mono',monospace">${pe.s}/${pe.dem}${pe.recv>0?` <span style="color:#06d6a0">+${pe.recv}</span>`:''}</span>
+    </div>`;}).join('')}
+  </div>
+  <div class="log-stats">
+    <div class="log-stat"><span class="log-stat-l">Revenue</span><span class="log-stat-v" style="color:#06d6a0">$${totR.toFixed(0)}</span></div>
+    <div class="log-stat"><span class="log-stat-l">Holding</span><span class="log-stat-v" style="color:#9b5de5">$${totH.toFixed(1)}</span></div>
+    ${totL>0?`<div class="log-stat"><span class="log-stat-l">Lost units</span><span class="log-stat-v" style="color:#ef476f">${totL}</span></div>`:''}
+  </div>
+  ${e.events.map(ev=>`<div class="log-event" style="background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);color:${gold}">⚡ ${ev.txt}</div>`).join('')}
 </div>`;
   }).join('');
 }
@@ -2134,8 +2195,8 @@ function advDay(){
 
   // Round control gate — check if operator has released this day
   const cfg = window._GAME_CFG || {};
-  if(cfg.roundControl && GS.day > (cfg.allowedDay||1)){
-    // Show waiting popup
+  const allowedDay = cfg.allowedDay ?? 9999;
+  if(cfg.roundControl && GS.day > allowedDay){
     showRoundGate(GS.day);
     return;
   }
@@ -2172,7 +2233,7 @@ function advDay(){
     } else {
       saveStateToStorage(); // auto-save after each day
     }
-    updateTopbar(); renderPanel();
+    renderPanel(); updateTopbar();
   },500);
 }
 
@@ -2532,7 +2593,7 @@ function drawExterior(ctx,W,H,t){
   const totInv=GS?PRODS.reduce((a,p)=>a+GS.inv[p.id],0):200;
   const maxInv=PRODS.reduce((a,p)=>a+p.initInv,0);
   const rat=Math.max(0,Math.min(1,totInv/maxInv));
-  const sc=rat>.5?'#06d6a0':rat>.25?'#ffd166':'#ef476f';
+  const sc=rat>.5?'#06d6a0':rat>.25?goldColor():'#ef476f';
   [[bx+14,by+44,bw*.32,bh*.28],[bx+bw-bw*.32-14,by+44,bw*.32,bh*.28]].forEach(([wx,wy,ww,wh])=>{
     ctx.fillStyle='#160e2a';ctx.fillRect(wx,wy,ww,wh);
     ctx.strokeStyle='#3c2e6a';ctx.lineWidth=2;ctx.strokeRect(wx,wy,ww,wh);
@@ -2648,43 +2709,43 @@ function showResults(){
   let gr,gc;
   if(svc>=.95&&gp>800){gr='A+';gc='#06d6a0';}
   else if(svc>=.90&&gp>500){gr='A';gc='#06d6a0';}
-  else if(svc>=.85&&gp>200){gr='B';gc='#ffd166';}
-  else if(svc>=.75){gr='C';gc='#ffd166';}
+  else if(svc>=.85&&gp>200){gr='B';gc=goldColor();}
+  else if(svc>=.75){gr='C';gc=goldColor();}
   else if(svc>=.6){gr='D';gc='#ff6b35';}
   else{gr='F';gc='#ef476f';}
 
   const prodRows=PRODS.map(p=>{
     const sl=gs.sold[p.id]+gs.lost[p.id]>0?(gs.sold[p.id]/(gs.sold[p.id]+gs.lost[p.id])*100).toFixed(1):100;
-    const slC=sl>=90?'#06d6a0':sl>=75?'#ffd166':'#ef476f';
+    const slC=sl>=90?'#06d6a0':sl>=75?goldColor():'#ef476f';
     const eQ=calcEOQ(p,gs.selSupp[p.id]||0);
     const avgOrd=gs.porders[p.id]>0?Math.round((gs.sold[p.id]+gs.lost[p.id])/gs.porders[p.id]):0;
     return`<div class="prod-res">
       <span style="color:${p.light};font-weight:700">${p.emoji} ${p.name}</span>
       <span style="color:var(--muted);font-size:10px">Sold ${gs.sold[p.id]} · Lost <span style="color:#ef476f">${gs.lost[p.id]}</span></span>
       <span style="color:${slC};font-weight:700">${sl}% SVC</span>
-      <span style="color:#9b5de5;font-size:10px">Hold ${Math.round(gs.holdCost[p.id])}</span>
+      <span style="color:#9b5de5;font-size:10px">Hold $${Math.round(gs.holdCost[p.id])}</span>
       <span style="color:var(--muted);font-size:10px">EOQ ${eQ}units · avg order ${avgOrd}units</span>
     </div>`;
   }).join('');
 
   let debrief='';
   if(gs.totLost>20) debrief=`You had <strong>${gs.totLost} stockouts</strong> across all products. Use the Reorder Point more actively and consider faster suppliers for high-demand items.`;
-  else if(totHold>totOrd*3) debrief=`Holding costs (${Math.round(totHold)}) were very high relative to ordering costs. You may be over-stocking. Let EOQ guide your order sizes.`;
-  else debrief=`Good balance! Service level was ${(svc*100).toFixed(1)}% and profit was ${Math.round(gp).toLocaleString()}. Multi-supplier management adds real flexibility — use cheaper suppliers for stable products, premium for critical ones.`;
+  else if(totHold>totOrd*3) debrief=`Holding costs ($${Math.round(totHold)}) were very high relative to ordering costs. You may be over-stocking. Let EOQ guide your order sizes.`;
+  else debrief=`Good balance! Service level was ${(svc*100).toFixed(1)}% and profit was $${Math.round(gp).toLocaleString()}. Multi-supplier management adds real flexibility — use cheaper suppliers for stable products, premium for critical ones.`;
 
   document.getElementById('res-content').innerHTML=`
 <div class="px" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);text-align:center;margin-bottom:6px">THE CAFE — 30 DAYS COMPLETE</div>
 <div class="grade" style="color:${gc}">${gr}</div>
 <div class="grade-lbl">Final Grade</div>
 <div class="res-grid">
-  <div class="res-cell"><div class="rv" style="color:#06d6a0">${Math.round(gs.totRev).toLocaleString()}</div><div class="rl">Revenue</div></div>
-  <div class="res-cell"><div class="rv" style="color:${gp>0?'#06d6a0':'#ef476f'}">${Math.round(gp).toLocaleString()}</div><div class="rl">Profit</div></div>
-  <div class="res-cell"><div class="rv" style="color:${svc>=.9?'#06d6a0':'#ffd166'}">${(svc*100).toFixed(1)}%</div><div class="rl">Service Level</div></div>
+  <div class="res-cell"><div class="rv" style="color:#06d6a0">$${Math.round(gs.totRev).toLocaleString()}</div><div class="rl">Revenue</div></div>
+  <div class="res-cell"><div class="rv" style="color:${gp>0?'#06d6a0':'#ef476f'}">$${Math.round(gp).toLocaleString()}</div><div class="rl">Profit</div></div>
+  <div class="res-cell"><div class="rv" style="color:${svc>=.9?'#06d6a0':goldColor()}">${(svc*100).toFixed(1)}%</div><div class="rl">Service Level</div></div>
   <div class="res-cell"><div class="rv" style="color:#ef476f">${gs.totLost}</div><div class="rl">Lost Sales</div></div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:12px">
-  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(155,93,229,.3)"><span style="color:var(--muted)">Holding costs</span><br><strong style="color:#9b5de5">${Math.round(totHold).toLocaleString()}</strong></div>
-  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(255,209,102,.2)"><span style="color:var(--muted)">Ordering costs</span><br><strong style="color:#ffd166">${Math.round(totOrd).toLocaleString()}</strong></div>
+  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(155,93,229,.3)"><span style="color:var(--muted)">Holding costs</span><br><strong style="color:#9b5de5">$${Math.round(totHold).toLocaleString()}</strong></div>
+  <div style="background:var(--panel);border-radius:6px;padding:9px;border:1px solid rgba(255,209,102,.2)"><span style="color:var(--muted)">Ordering costs</span><br><strong style="color:var(--gold)">$${Math.round(totOrd).toLocaleString()}</strong></div>
 </div>
 <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Per-Product Results</div>
 ${prodRows}
@@ -2700,6 +2761,10 @@ ${prodRows}
 // SAVE STATE — localStorage persistence
 // ════════════════════════════════════════════════
 const SAVE_KEY = 'gies-cafe-save-v2';
+
+// Save on ANY page close / refresh — this is what makes "resume on refresh" reliable
+window.addEventListener('beforeunload', ()=>{ if(GS && !GS.done) saveStateToStorage(); });
+window.addEventListener('pagehide',     ()=>{ if(GS && !GS.done) saveStateToStorage(); });
 
 function saveStateToStorage(){
   if(!GS) return;
@@ -2786,7 +2851,8 @@ function _launchGame(gs, isNew){
 
   const logo=document.getElementById('logo-text');
   if(logo) logo.textContent='CAFE SUPPLY CHAIN · '+pname.toUpperCase();
-  UI.tab='all'; UI.selProd='coffee';
+  UI.tab = isNew ? 'all' : 'dashboard';
+  UI.selProd='coffee';
   UI.decs={coffee:0,cookie:0};
   UI.pendOrd={coffee:0,cookie:0};
   UI.pendOrdCount={coffee:0,cookie:0};
@@ -2838,6 +2904,10 @@ function showTitle(){
 document.addEventListener('keydown',e=>{
   if(document.getElementById('screen-title')&&!document.getElementById('screen-title').classList.contains('hidden'))return;
   if(document.getElementById('screen-results')&&!document.getElementById('screen-results').classList.contains('hidden'))return;
+  // Don't hijack keys while the user is typing in a text/number field
+  const tag=(e.target&&e.target.tagName)||'';
+  const isTyping = tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT' || (e.target&&e.target.isContentEditable);
+  if(isTyping) return;
   if(e.key==='Enter'||e.key===' '){e.preventDefault();advDay();}
   if(e.key==='ArrowUp'){e.preventDefault();adjQ(UI.selProd,5);}
   if(e.key==='ArrowDown'){e.preventDefault();adjQ(UI.selProd,-5);}
@@ -2878,7 +2948,7 @@ function toggleTheme(){
 
       <div class="info-section">
         <h3>🎯 Objective</h3>
-        <p>You are the supply chain manager of <strong>The Cafe</strong>. Over <strong>30 days</strong>, manage inventory for 4 products — Chocolate, Water, Snacks, and Soda. Your goal is to keep shelves stocked, minimize costs, and maximize your service level. The game ends after Day 30 and you receive a grade (A+ to F).</p>
+        <p>You are the supply chain manager of <strong>The Cafe</strong>. Over <strong>30 days</strong>, manage inventory for 2 products — Coffee and Cookies. Your goal is to keep shelves stocked, minimize costs, and maximize your service level. The game ends after Day 30 and you receive a grade (A+ to F).</p>
         <div class="tip-box">🏆 Target: <strong>≥90% service level</strong> + positive gross profit = Grade A or better</div>
       </div>
 
@@ -2917,13 +2987,11 @@ function toggleTheme(){
         <h3>💰 Holding Costs — Why They Differ Per Product</h3>
         <p>Holding cost = cost of keeping 1 unit in stock for 1 day. It covers storage space, spoilage risk, and tied-up capital. Different products have different rates:</p>
         <table class="info-table">
-          <tr><th>Product</th><th>Hold Cost/unit/day</th><th>Why</th></tr>
-          <tr><td>🍫 Chocolate</td><td style="color:#9b5de5">$0.12</td><td>Moderate perishability, climate control needed</td></tr>
-          <tr><td>💧 Water</td><td style="color:#9b5de5">$0.03</td><td>Long shelf life, bulk storage fine</td></tr>
-          <tr><td>🍿 Snacks</td><td style="color:#9b5de5">$0.08</td><td>Chips go stale, packaging fragile</td></tr>
-          <tr><td>🥤 Soda</td><td style="color:#9b5de5">$0.06</td><td>Heavy cans take floor space</td></tr>
+          <tr><th>Product</th><th>Holding Cost/unit/day</th><th>Why</th></tr>
+          <tr><td>☕ Coffee</td><td style="color:#9b5de5">$0.10</td><td>Medium — beans lose freshness</td></tr>
+          <tr><td>🍪 Cookies</td><td style="color:#9b5de5">$0.06</td><td>Low — packaged, shelf stable</td></tr>
         </table>
-        <p style="margin-top:8px">Water is cheapest to hold → safe to over-stock. Chocolate is expensive → order closer to EOQ and avoid excess.</p>
+        <p style="margin-top:8px">Cookies are cheapest to hold → safe to over-stock. Coffee is more expensive → order closer to EOQ and avoid excess.</p>
       </div>
 
       <div class="info-section">
@@ -2934,7 +3002,7 @@ function toggleTheme(){
           <li><strong>Lead Time vs Price</strong> — express suppliers charge more but arrive faster</li>
           <li><strong>Supplier Blocking</strong> — some suppliers get blocked by events (factory pause, shipping crisis). Switching to the backup supplier is your escape.</li>
         </ul>
-        <div class="tip-box">💡 For critical products (water during a heat wave), use the premium reliable supplier. For stable products, the budget option saves money.</div>
+        <div class="tip-box">💡 For critical products (coffee during a morning rush), use the premium reliable supplier. For stable products, the budget option saves money.</div>
       </div>
 
       <div class="info-section">
@@ -2952,8 +3020,8 @@ function toggleTheme(){
       <div class="info-section">
         <h3>🕹️ How to Play — Day by Day</h3>
         <ul>
-          <li><strong>1. Check Overview tab</strong> — see both products at a glance. "ORDER NOW" badges mean you're below ROP.</li>
-          <li><strong>2. Go to Order tab</strong> — pick a product, choose your supplier, enter a quantity (or use EOQ recommendation), and click <em>Place Order</em>.</li>
+          <li><strong>1. Check the Dashboard tab</strong> — see both products at a glance. "⚠ ORDER" badges mean you're below ROP.</li>
+          <li><strong>2. Use Quick Order</strong> — on each product card, choose your supplier, enter a quantity (or use the EOQ recommendation), and click <em>Place Order</em>.</li>
           <li><strong>3. Repeat for each product you need to order.</strong> Orders are queued (shown with ✓ badge) until you advance.</li>
           <li><strong>4. Click "Next Day →"</strong> — the day animation plays, customers arrive, sales happen, deliveries come in, holding costs are deducted.</li>
           <li><strong>5. Check Costs tab</strong> — monitor holding costs, ordering costs, and profit over time.</li>
@@ -2966,7 +3034,7 @@ function toggleTheme(){
         <ul>
           <li><strong>Enter / Space</strong> — Next Day</li>
           <li><strong>↑ / ↓ arrows</strong> — Adjust quantity by ±5</li>
-          <li><strong>1</strong> — Overview tab &nbsp; <strong>2</strong> — Order tab &nbsp; <strong>3</strong> — Costs tab &nbsp; <strong>4</strong> — Log tab</li>
+          <li><strong>1</strong> — Dashboard tab &nbsp; <strong>2</strong> — Costs tab &nbsp; <strong>3</strong> — Charts tab &nbsp; <strong>4</strong> — Log tab</li>
         </ul>
       </div>
 
@@ -2976,8 +3044,8 @@ function toggleTheme(){
           <tr><th>Grade</th><th>Service Level</th><th>Gross Profit</th></tr>
           <tr><td style="color:#06d6a0">A+</td><td>≥ 95%</td><td>> $800</td></tr>
           <tr><td style="color:#06d6a0">A</td><td>≥ 90%</td><td>> $500</td></tr>
-          <tr><td style="color:#ffd166">B</td><td>≥ 85%</td><td>> $200</td></tr>
-          <tr><td style="color:#ffd166">C</td><td>≥ 75%</td><td>Any</td></tr>
+          <tr><td style="color:var(--gold)">B</td><td>≥ 85%</td><td>> $200</td></tr>
+          <tr><td style="color:var(--gold)">C</td><td>≥ 75%</td><td>Any</td></tr>
           <tr><td style="color:#ff6b35">D</td><td>≥ 60%</td><td>Any</td></tr>
           <tr><td style="color:#ef476f">F</td><td>< 60%</td><td>Any</td></tr>
         </table>
