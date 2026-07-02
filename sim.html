@@ -102,6 +102,39 @@ body{
 }
 .top-btn:hover{border-color:var(--acc);color:var(--acc);transform:translateY(-1px)}
 .theme-toggle{font-size:14px;padding:6px 10px}
+.top-btn-save{background:linear-gradient(180deg,rgba(155,191,122,.18),rgba(155,191,122,.08));border-color:rgba(155,191,122,.45);color:var(--green);font-weight:700}
+.top-btn-save:hover{background:linear-gradient(180deg,var(--green),#7fa55f);color:#fff;border-color:var(--green);box-shadow:0 6px 18px -8px rgba(155,191,122,.6);transform:translateY(-2px)}
+.top-btn-save:active{transform:translateY(0)}
+
+/* ========= SAVE / LOAD SLOTS ========= */
+.slot-list{display:flex;flex-direction:column;gap:7px}
+.slot-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:10px 12px;transition:all .18s ease;animation:slot-in .3s ease both}
+.slot-row:hover{border-color:var(--acc);transform:translateY(-1px);box-shadow:0 6px 16px -8px var(--acc-glow)}
+.slot-row.slot-empty{border-style:dashed;opacity:.85}
+.slot-row.slot-empty:hover{opacity:1}
+.slot-meta{flex:1;min-width:0;text-align:left}
+.slot-title{font-size:11px;font-weight:700;color:var(--acc);letter-spacing:.3px}
+.slot-sub{font-size:11px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot-time{font-size:10px;color:var(--dim);margin-top:1px}
+.slot-btn{border:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Figtree',sans-serif;font-size:11px;font-weight:700;transition:all .15s ease;flex-shrink:0}
+.slot-btn-primary{background:linear-gradient(180deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 3px 0 var(--acc2)}
+.slot-btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 12px -2px var(--acc-glow),0 3px 0 var(--acc2);filter:brightness(1.08)}
+.slot-btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 var(--acc2)}
+.slot-btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--dim);padding:6px 10px}
+.slot-btn-ghost:hover{color:var(--red);border-color:var(--red);background:rgba(217,106,90,.08)}
+@keyframes slot-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Save modal */
+.sv-modal{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(10,8,20,.78);backdrop-filter:blur(6px);padding:20px;animation:sv-fade .2s ease both}
+.sv-modal-card{background:var(--surf);border:2px solid var(--border2);border-radius:16px;max-width:440px;width:100%;padding:22px 24px;box-shadow:var(--shadow-lg);animation:sv-pop .25s cubic-bezier(.2,.9,.3,1.2) both}
+.sv-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sv-modal-title{font-size:16px;font-weight:800;color:var(--acc);letter-spacing:.3px}
+.sv-modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px;transition:all .15s}
+.sv-modal-close:hover{color:var(--red);background:rgba(217,106,90,.12)}
+.sv-modal-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
+.sv-modal-sub strong{color:var(--text)}
+@keyframes sv-fade{from{opacity:0}to{opacity:1}}
+@keyframes sv-pop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 /* ========= MAIN LAYOUT ========= */
 #main{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(440px,1fr);overflow:hidden;min-height:0;background:var(--grad-bg)}
@@ -170,6 +203,12 @@ body{
 /* ========= ORDER PANEL ========= */
 .section-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:7px;display:flex;align-items:center;gap:6px}
 .section-title::before{content:"";width:14px;height:2px;background:var(--acc);border-radius:1px}
+.chart-wrap canvas{cursor:crosshair}
+.chart-tip{position:absolute;display:none;pointer-events:none;background:rgba(20,14,8,.96);
+  border:1px solid var(--border2);border-radius:6px;padding:6px 9px;font-size:10.5px;
+  color:var(--text);line-height:1.45;box-shadow:0 6px 18px rgba(0,0,0,.5);
+  font-family:'Figtree',sans-serif;white-space:nowrap;z-index:5;backdrop-filter:blur(4px)}
+[data-theme="light"] .chart-tip{background:rgba(255,245,224,.98);color:var(--text)}
 .prod-switcher{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px}
 .psw-btn{
   padding:8px 4px;background:var(--panel);border:2px solid var(--border2);
@@ -647,6 +686,11 @@ body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
         <button onclick="saveAndViewResults()" id="btn-save-results" style="width:100%;background:rgba(127,211,255,.09);border:1px solid rgba(127,211,255,.3);color:var(--sky);padding:11px;border-radius:8px;cursor:pointer;font-family:'Figtree',sans-serif;font-size:12px;font-weight:700;transition:all .15s" onmouseover="this.style.background='rgba(127,211,255,.18)'" onmouseout="this.style.background='rgba(127,211,255,.09)'">📊 Save & View Results</button>
       </div>
     </div>
+    <!-- Load Game Slots -->
+    <div id="load-game-section" style="display:none;max-width:360px;margin:0 auto 16px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;text-align:left">📂 Saved Games</div>
+      <div id="load-slots-container" class="slot-list"></div>
+    </div>
     <div class="footer-note">30 days · Manage inventory · Beat 90% service level</div>
   </div>
 </div>
@@ -686,6 +730,7 @@ body{font-family:'Figtree',system-ui,sans-serif; letter-spacing:.01em}
     <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:3%"></div></div>
   </div>
   <button class="top-btn theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+  <button class="top-btn top-btn-save" onclick="showSaveModal()" title="Save game to a slot">💾 Save</button>
   <button class="top-btn" onclick="showTitle()">← Menu</button>
   <button class="top-btn" onclick="showInfo()" style="background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.4);color:var(--gold);font-weight:700" title="Game Rules &amp; Guide">ⓘ Guide</button>
 </div>
@@ -1712,7 +1757,7 @@ function htmlDashboard(){
       ${pend>0?`📦 Add to ${pend} queued`:'📦 Place Order'}
     </button>
   </div>
-  ${pipe.length>0?`<div style="font-size:10px;color:#73c2fb">🚚 ${pipe.map(o=>`${o.q}u → Day ${o.arr}`).join(' · ')}</div>`:''}
+  ${pipe.length>0?`<div style="font-size:10px;color:#73c2fb">🚚 ${pipe.map(o=>`${o.q} units estimated delivery → Day ${o.arr}`).join(' · ')}</div>`:''}
 </div>`;
   });
   html += `</div>`;
@@ -1936,132 +1981,209 @@ function htmlCharts(){
   if(!GS.history||GS.history.length===0){
     return '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">No data yet — play a few days to see charts</div>';
   }
+  const invCards = PRODS.map(p=>`
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📦 ${p.emoji} ${p.name} — Inventory vs Demand</div>
+  <div class="chart-wrap" style="position:relative">
+    <canvas id="chart-inv-${p.id}" data-chart="inv-${p.id}" style="width:100%;height:160px;display:block"></canvas>
+    <div class="chart-tip" id="tip-inv-${p.id}"></div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center">
+    <span><span style="display:inline-block;width:12px;height:3px;background:${p.light};vertical-align:middle;margin-right:5px;border-radius:2px"></span>Inventory</span>
+    <span><span style="display:inline-block;width:12px;height:0;border-top:2px dashed #ef476f;vertical-align:middle;margin-right:5px"></span>Actual Demand (sold + lost)</span>
+  </div>
+</div>`).join('');
   return `
 <div class="section-title">Performance Charts</div>
 <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
   <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📈 Daily Revenue</div>
-  <canvas id="chart-rev" style="width:100%;height:140px;display:block"></canvas>
-</div>
-<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
-  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📦 Inventory Over Time</div>
-  <canvas id="chart-inv" style="width:100%;height:160px;display:block"></canvas>
-  <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center">
-    ${PRODS.map(p=>`<span><span style="display:inline-block;width:10px;height:10px;background:${p.light};vertical-align:middle;margin-right:4px;border-radius:2px"></span>${p.emoji} ${p.name}</span>`).join('')}
+  <div class="chart-wrap" style="position:relative">
+    <canvas id="chart-rev" data-chart="rev" style="width:100%;height:140px;display:block"></canvas>
+    <div class="chart-tip" id="tip-rev"></div>
   </div>
 </div>
+${invCards}
 <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
   <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📉 Lost Sales per Day</div>
-  <canvas id="chart-lost" style="width:100%;height:120px;display:block"></canvas>
+  <div class="chart-wrap" style="position:relative">
+    <canvas id="chart-lost" data-chart="lost" style="width:100%;height:120px;display:block"></canvas>
+    <div class="chart-tip" id="tip-lost"></div>
+  </div>
 </div>
 <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px">
   <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">🚚 In-Transit Pipeline</div>
-  <canvas id="chart-pipe" style="width:100%;height:120px;display:block"></canvas>
+  <div class="chart-wrap" style="position:relative">
+    <canvas id="chart-pipe" data-chart="pipe" style="width:100%;height:120px;display:block"></canvas>
+    <div class="chart-tip" id="tip-pipe"></div>
+  </div>
 </div>`;
 }
+
+// Registry of chart renderers so we can redraw on hover with a highlight index.
+window.__charts = window.__charts || {};
 
 function drawCharts(){
   if(!GS||!GS.history)return;
   const hist=GS.history;
+  window.__charts = {};
+
   const setupCanvas=(id)=>{
     const c=document.getElementById(id); if(!c)return null;
     const dpr=window.devicePixelRatio||1;
     const w=c.clientWidth, h=c.clientHeight;
     c.width=w*dpr; c.height=h*dpr;
     const x=c.getContext('2d'); x.scale(dpr,dpr);
-    return {ctx:x,w,h};
+    return {canvas:c,ctx:x,w,h};
   };
-  const axis=(x,w,h,title)=>{
-    x.fillStyle='var(--dim)';
-    x.strokeStyle='rgba(180,180,200,.18)';x.lineWidth=1;
-    x.beginPath();x.moveTo(28,h-18);x.lineTo(w-6,h-18);x.stroke();
-    x.beginPath();x.moveTo(28,6);x.lineTo(28,h-18);x.stroke();
+  const PAD_L=32, PAD_R=8, PAD_T=8, PAD_B=20;
+  const xAt=(i,n,w)=>PAD_L+(w-PAD_L-PAD_R)*(n<=1?0:i/(n-1));
+  const yAt=(v,max,h)=>h-PAD_B-(h-PAD_T-PAD_B)*(v/(max||1));
+
+  const drawAxis=(ctx,w,h,maxLabel,unit)=>{
+    ctx.strokeStyle='rgba(180,180,200,.18)';ctx.lineWidth=1;
+    // gridlines
+    for(let g=1;g<=4;g++){
+      const y=PAD_T+((h-PAD_T-PAD_B)*g/4);
+      ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(w-PAD_R,y);ctx.stroke();
+    }
+    ctx.beginPath();ctx.moveTo(PAD_L,h-PAD_B);ctx.lineTo(w-PAD_R,h-PAD_B);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD_L,PAD_T);ctx.lineTo(PAD_L,h-PAD_B);ctx.stroke();
+    ctx.fillStyle='#9c8d72';ctx.font='9px Figtree,system-ui';ctx.textAlign='right';
+    ctx.fillText(maxLabel+(unit||''),PAD_L-4,PAD_T+8);
+    ctx.fillText('0',PAD_L-4,h-PAD_B-2);
+    ctx.textAlign='center';
+    ctx.fillText('Day 1',PAD_L+6,h-5);
+    ctx.fillText('Day '+hist.length,w-PAD_R-14,h-5);
   };
 
-  // Revenue line
-  let r=setupCanvas('chart-rev');
-  if(r){
-    const {ctx,w,h}=r;
-    ctx.clearRect(0,0,w,h);
-    axis(ctx,w,h);
-    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.rev[p.id]||0),0));
-    const max=Math.max(10,...data);
-    ctx.strokeStyle='#06d6a0';ctx.lineWidth=2;ctx.beginPath();
-    data.forEach((v,i)=>{
-      const x=28+(w-34)*(data.length<=1?0:i/(data.length-1));
-      const y=h-18-(h-24)*(v/max);
-      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-    // fill
-    ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
-    ctx.fillStyle='rgba(6,214,160,.12)';ctx.fill();
-    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
-    ctx.fillText('$'+Math.round(max),2,12);
-    ctx.fillText('$0',2,h-20);
-    ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
-  }
+  // Generic line/area chart
+  function makeLineChart(id, seriesList, opts){
+    const r=setupCanvas(id); if(!r)return;
+    const {canvas,ctx,w,h}=r;
+    const n=hist.length;
+    let max=opts.minMax||1;
+    seriesList.forEach(s=>s.data.forEach(v=>{if(v>max)max=v;}));
+    max=Math.ceil(max*1.05);
 
-  // Inventory multi-line
-  r=setupCanvas('chart-inv');
-  if(r){
-    const {ctx,w,h}=r;
-    ctx.clearRect(0,0,w,h);
-    axis(ctx,w,h);
-    let max=10;
-    PRODS.forEach(p=>{hist.forEach(s=>{if(s.inv[p.id]>max)max=s.inv[p.id];});});
-    PRODS.forEach(p=>{
-      ctx.strokeStyle=p.light;ctx.lineWidth=2;ctx.beginPath();
-      hist.forEach((s,i)=>{
-        const x=28+(w-34)*(hist.length<=1?0:i/(hist.length-1));
-        const y=h-18-(h-24)*((s.inv[p.id]||0)/max);
-        if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    const render=(hoverIdx)=>{
+      ctx.clearRect(0,0,w,h);
+      drawAxis(ctx,w,h, opts.fmtMax?opts.fmtMax(max):max, opts.unit||'');
+      seriesList.forEach(s=>{
+        ctx.strokeStyle=s.color; ctx.lineWidth=2;
+        if(s.dashed)ctx.setLineDash([4,3]); else ctx.setLineDash([]);
+        ctx.beginPath();
+        s.data.forEach((v,i)=>{
+          const x=xAt(i,n,w), y=yAt(v,max,h);
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+        if(s.fill){
+          ctx.lineTo(xAt(n-1,n,w),h-PAD_B);
+          ctx.lineTo(xAt(0,n,w),h-PAD_B);
+          ctx.closePath(); ctx.fillStyle=s.fill; ctx.fill();
+        }
+        ctx.setLineDash([]);
+        // point markers
+        s.data.forEach((v,i)=>{
+          const x=xAt(i,n,w), y=yAt(v,max,h);
+          ctx.fillStyle=s.color;
+          ctx.beginPath();ctx.arc(x,y, i===hoverIdx?4:2.2, 0, Math.PI*2);ctx.fill();
+        });
       });
-      ctx.stroke();
-    });
-    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
-    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
-    ctx.textAlign='center';ctx.fillText('Day 1',32,h-4);ctx.fillText('Day '+hist.length,w-22,h-4);
+      if(hoverIdx!=null && hoverIdx>=0 && hoverIdx<n){
+        const x=xAt(hoverIdx,n,w);
+        ctx.strokeStyle='rgba(232,183,112,.6)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(x,PAD_T);ctx.lineTo(x,h-PAD_B);ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    };
+    render(null);
+    window.__charts[id]={render,seriesList,n,w,xAt:(i)=>xAt(i,n,w),opts};
   }
 
-  // Lost sales bars
-  r=setupCanvas('chart-lost');
-  if(r){
-    const {ctx,w,h}=r;
-    ctx.clearRect(0,0,w,h);
-    axis(ctx,w,h);
-    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.lost[p.id]||0),0));
-    const max=Math.max(5,...data);
-    const bw=Math.max(2,(w-34)/data.length-2);
-    data.forEach((v,i)=>{
-      const x=28+(w-34)*(i/data.length);
-      const bh=(h-24)*(v/max);
-      ctx.fillStyle=v>0?'#ef476f':'rgba(239,71,111,.15)';
-      ctx.fillRect(x,h-18-bh,bw,bh);
-    });
-    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
-    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
+  // 1) Revenue
+  const revData=hist.map(s=>PRODS.reduce((a,p)=>a+(s.rev[p.id]||0),0));
+  makeLineChart('chart-rev',
+    [{name:'Revenue',color:'#06d6a0',data:revData,fill:'rgba(6,214,160,.12)'}],
+    {minMax:10,fmtMax:v=>'$'+Math.round(v),unit:'',
+     tipFmt:i=>`Day ${i+1}<br><b style="color:#06d6a0">$${Math.round(revData[i]).toLocaleString()}</b> revenue`});
+
+  // 2) Inventory vs Demand — one per product
+  PRODS.forEach(p=>{
+    const invData=hist.map(s=>s.inv[p.id]||0);
+    const demData=hist.map(s=>(s.sold[p.id]||0)+(s.lost[p.id]||0));
+    const soldData=hist.map(s=>s.sold[p.id]||0);
+    const lostData=hist.map(s=>s.lost[p.id]||0);
+    makeLineChart('chart-inv-'+p.id,
+      [{name:'Inventory',color:p.light,data:invData,fill:'rgba(212,135,60,.08)'},
+       {name:'Demand',color:'#ef476f',data:demData,dashed:true}],
+      {minMax:5,unit:'u',
+       tipFmt:i=>`Day ${i+1}<br>
+         <span style="color:${p.light}">Inventory:</span> <b>${invData[i]}</b><br>
+         <span style="color:#ef476f">Demand:</span> <b>${demData[i]}</b> <span style="color:var(--dim)">(${soldData[i]} sold, ${lostData[i]} lost)</span>`});
+  });
+
+  // 3) Lost sales — bars, but use line chart helper with bars? Keep bars + hover.
+  {
+    const r=setupCanvas('chart-lost');
+    if(r){
+      const {canvas,ctx,w,h}=r;
+      const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.lost[p.id]||0),0));
+      const perProd=PRODS.map(p=>({p,data:hist.map(s=>s.lost[p.id]||0)}));
+      let max=Math.max(5,...data); max=Math.ceil(max*1.1);
+      const n=data.length;
+      const render=(hoverIdx)=>{
+        ctx.clearRect(0,0,w,h);
+        drawAxis(ctx,w,h,max,'u');
+        const slot=(w-PAD_L-PAD_R)/n;
+        const bw=Math.max(3,slot*0.7);
+        data.forEach((v,i)=>{
+          const x=PAD_L+slot*i+(slot-bw)/2;
+          const bh=(h-PAD_T-PAD_B)*(v/(max||1));
+          ctx.fillStyle=i===hoverIdx?'#ff5c7c':(v>0?'#ef476f':'rgba(239,71,111,.15)');
+          ctx.fillRect(x,h-PAD_B-bh,bw,bh);
+        });
+      };
+      render(null);
+      window.__charts['chart-lost']={render,n,w,
+        xAt:(i)=>{const slot=(w-PAD_L-PAD_R)/n;return PAD_L+slot*(i+0.5);},
+        opts:{tipFmt:i=>`Day ${i+1}<br><b style="color:#ef476f">${data[i]}</b> units lost<br>` +
+          perProd.filter(x=>x.data[i]>0).map(x=>`<span style="color:var(--dim)">${x.p.emoji} ${x.p.name}: ${x.data[i]}</span>`).join('<br>')}};
+    }
   }
 
-  // Pipeline area
-  r=setupCanvas('chart-pipe');
-  if(r){
-    const {ctx,w,h}=r;
-    ctx.clearRect(0,0,w,h);
-    axis(ctx,w,h);
-    const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.pipe[p.id]||0),0));
-    const max=Math.max(10,...data);
-    ctx.strokeStyle='#7fd3ff';ctx.lineWidth=2;ctx.beginPath();
-    data.forEach((v,i)=>{
-      const x=28+(w-34)*(data.length<=1?0:i/(data.length-1));
-      const y=h-18-(h-24)*(v/max);
-      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-    ctx.lineTo(28+(w-34),h-18);ctx.lineTo(28,h-18);ctx.closePath();
-    ctx.fillStyle='rgba(127,211,255,.15)';ctx.fill();
-    ctx.fillStyle='#9c95bd';ctx.font='9px Figtree,system-ui';ctx.textAlign='left';
-    ctx.fillText(max+'units',2,12);ctx.fillText('0',2,h-20);
-  }
+  // 4) Pipeline
+  const pipeData=hist.map(s=>PRODS.reduce((a,p)=>a+(s.pipe[p.id]||0),0));
+  const pipePerProd=PRODS.map(p=>({p,data:hist.map(s=>s.pipe[p.id]||0)}));
+  makeLineChart('chart-pipe',
+    [{name:'In-Transit',color:'#7fd3ff',data:pipeData,fill:'rgba(127,211,255,.15)'}],
+    {minMax:5,unit:'u',
+     tipFmt:i=>`Day ${i+1}<br><b style="color:#7fd3ff">${pipeData[i]}</b> units in transit<br>` +
+       pipePerProd.filter(x=>x.data[i]>0).map(x=>`<span style="color:var(--dim)">${x.p.emoji} ${x.p.name}: ${x.data[i]}</span>`).join('<br>')});
+
+  // ── Wire up hover interactivity ──
+  Object.keys(window.__charts).forEach(id=>{
+    const c=document.getElementById(id); if(!c)return;
+    const meta=window.__charts[id];
+    const tip=document.getElementById('tip-'+id.replace(/^chart-/,''));
+    const onMove=(ev)=>{
+      const rect=c.getBoundingClientRect();
+      const x=(ev.clientX-rect.left)*(c.clientWidth/rect.width);
+      // find nearest index
+      let best=0,bd=1e9;
+      for(let i=0;i<meta.n;i++){const dx=Math.abs(meta.xAt(i)-x); if(dx<bd){bd=dx;best=i;}}
+      meta.render(best);
+      if(tip && meta.opts.tipFmt){
+        tip.innerHTML=meta.opts.tipFmt(best);
+        tip.style.display='block';
+        const tx=Math.min(Math.max(meta.xAt(best)+10,4), c.clientWidth-tip.offsetWidth-4);
+        tip.style.left=tx+'px';
+        tip.style.top='4px';
+      }
+    };
+    const onLeave=()=>{meta.render(null); if(tip)tip.style.display='none';};
+    c.onmousemove=onMove; c.onmouseleave=onLeave;
+  });
 }
 
 // ── COSTS TAB
@@ -2104,6 +2226,7 @@ ${PRODS.map(p=>{
     <div class="cost-row"><span>Ordering cost <span style="color:var(--dim)">(${(PRODS.find(x=>x.id===p.id)?.fixedCost||50).toFixed(0)} fixed + unit cost)</span></span><span class="val" style="color:var(--gold)">$${Math.round(GS.ordCost[p.id])}</span></div>
     <div class="cost-row"><span>Lost sales value</span><span class="val" style="color:#ef476f">$${Math.round(GS.lrev[p.id])}</span></div>
     <div class="cost-row"><span>Units sold / lost</span><span class="val">${GS.sold[p.id]} / <span style="color:#ef476f">${GS.lost[p.id]}</span></span></div>
+    <div class="cost-row"><span>Selling price/unit</span><span class="val" style="color:#06d6a0">$${(GS.sellPrice?.[p.id] ?? p.sell).toFixed(2)}</span></div>
     <div class="cost-row"><span>Supplier cost/unit</span><span class="val">$${sup.cost.toFixed(2)} (${sup.name})</span></div>
     <div class="cost-row"><span>Today's holding (${GS.inv[p.id]}units)</span><span class="val" style="color:#9b5de5">$${dailyHold}/day</span></div>
   </div>
@@ -2758,39 +2881,104 @@ ${prodRows}
 }
 
 // ════════════════════════════════════════════════
-// SAVE STATE — localStorage persistence
+// SAVE STATE — localStorage autosave + multi-slot
 // ════════════════════════════════════════════════
-const SAVE_KEY = 'gies-cafe-save-v2';
+const AUTOSAVE_KEY = 'gies-cafe-autosave-v3';
+const SLOT_KEY     = (n) => `gies-cafe-slot-${n}-v3`;
+const NUM_SLOTS    = 4;
 
-// Save on ANY page close / refresh — this is what makes "resume on refresh" reliable
 window.addEventListener('beforeunload', ()=>{ if(GS && !GS.done) saveStateToStorage(); });
 window.addEventListener('pagehide',     ()=>{ if(GS && !GS.done) saveStateToStorage(); });
 
+function _packSave(gs){ return { gs: JSON.parse(JSON.stringify(gs)), savedAt: Date.now(), version: 3 }; }
+function _unpackSave(raw){
+  try { const obj = JSON.parse(raw); if(!obj||!obj.gs||obj.version!==3) return null; return obj; }
+  catch(e){ return null; }
+}
 function saveStateToStorage(){
   if(!GS) return;
-  try {
-    const snapshot = JSON.parse(JSON.stringify(GS)); // deep clone
-    localStorage.setItem(SAVE_KEY, JSON.stringify({
-      gs: snapshot,
-      savedAt: Date.now(),
-      version: 2
-    }));
-  } catch(e){ console.warn('Save failed:', e); }
+  try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(_packSave(GS))); }
+  catch(e){ console.warn('AutoSave failed:', e); }
 }
-
 function loadStateFromStorage(){
+  try { return _unpackSave(localStorage.getItem(AUTOSAVE_KEY)); } catch(e){ return null; }
+}
+function saveToSlot(n){
+  if(!GS) return false;
+  try { localStorage.setItem(SLOT_KEY(n), JSON.stringify(_packSave(GS))); return true; }
+  catch(e){ console.warn('Slot save failed:', e); return false; }
+}
+function loadSlot(n){
+  try { return _unpackSave(localStorage.getItem(SLOT_KEY(n))); } catch(e){ return null; }
+}
+function deleteSlot(n){ try { localStorage.removeItem(SLOT_KEY(n)); } catch(e){} }
+function clearSavedState(){
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if(!raw) return null;
-    const obj = JSON.parse(raw);
-    if(!obj || !obj.gs || obj.version !== 2) return null;
-    return obj;
-  } catch(e){ return null; }
+    localStorage.removeItem(AUTOSAVE_KEY);
+    for(let i=1;i<=NUM_SLOTS;i++) localStorage.removeItem(SLOT_KEY(i));
+  } catch(e){}
 }
 
-function clearSavedState(){
-  try { localStorage.removeItem(SAVE_KEY); } catch(e){}
+// ── SAVE SLOT MODAL ──
+function showSaveModal(){
+  if(!GS || GS.done){ toast('Nothing to save — start a game first'); return; }
+  document.getElementById('save-slot-modal')?.remove();
+  const svcPct = GS.totSold+GS.totLost>0 ? (GS.svc*100).toFixed(1)+'%' : '—';
+  const dayStr = `Day ${GS.day-1}/${GS.maxDay||30}`;
+  let slotsHtml = '';
+  for(let i=1;i<=NUM_SLOTS;i++){
+    const s = loadSlot(i);
+    if(s && s.gs){
+      const sg=s.gs;
+      const ago = Math.round((Date.now()-s.savedAt)/60000);
+      const timeStr = ago<1?'just now':ago<60?ago+'m ago':Math.round(ago/60)+'h ago';
+      const sSvc = sg.totSold+sg.totLost>0?(sg.svc*100).toFixed(1)+'%':'—';
+      slotsHtml += `
+<div class="slot-row">
+  <div class="slot-meta">
+    <div class="slot-title">💾 Slot ${i}</div>
+    <div class="slot-sub">${sg.player||'Manager'} · Day ${sg.day-1}/${sg.maxDay||30} · ${sSvc}</div>
+    <div class="slot-time">${timeStr}</div>
+  </div>
+  <button class="slot-btn slot-btn-primary" onclick="doSaveToSlot(${i})">Overwrite</button>
+</div>`;
+    } else {
+      slotsHtml += `
+<div class="slot-row slot-empty">
+  <div class="slot-meta"><div class="slot-title" style="color:var(--dim)">Slot ${i} — Empty</div></div>
+  <button class="slot-btn slot-btn-primary" onclick="doSaveToSlot(${i})">Save Here</button>
+</div>`;
+    }
+  }
+  const modal = document.createElement('div');
+  modal.id = 'save-slot-modal';
+  modal.className = 'sv-modal';
+  modal.innerHTML = `
+<div class="sv-modal-card">
+  <div class="sv-modal-head">
+    <div class="sv-modal-title">💾 Save Game</div>
+    <button class="sv-modal-close" onclick="document.getElementById('save-slot-modal').remove()">✕</button>
+  </div>
+  <div class="sv-modal-sub">Current: <strong>${GS.player||'Manager'}</strong> · ${dayStr} · <strong style="color:var(--sky)">${svcPct}</strong></div>
+  <div class="slot-list">${slotsHtml}</div>
+</div>`;
+  modal.addEventListener('click', e=>{ if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
+window.doSaveToSlot = function(n){
+  if(saveToSlot(n)){ toast(`💾 Saved to Slot ${n}`); document.getElementById('save-slot-modal')?.remove(); updateTitleScreenButtons(); }
+  else toast('⚠ Save failed');
+};
+window.showSaveModal = showSaveModal;
+window.loadGameSlot = function(n){
+  const s = loadSlot(n);
+  if(!s || !s.gs){ toast('Slot '+n+' is empty'); return; }
+  _launchGame(s.gs, false);
+};
+window.deleteGameSlot = function(n){
+  if(!confirm('Delete Slot '+n+'?')) return;
+  deleteSlot(n); updateTitleScreenButtons(); toast('🗑 Slot '+n+' deleted');
+};
 
 function updateTitleScreenButtons(){
   const saved = loadStateFromStorage();
@@ -2827,6 +3015,36 @@ function updateTitleScreenButtons(){
     if(btnResume) btnResume.style.display='none';
     if(btnOpen){ btnOpen.textContent='▶ OPEN THE CAFE'; }
     if(extraBtns) extraBtns.style.display='none';
+  }
+
+  // ── Load Game slots ──
+  const container = document.getElementById('load-slots-container');
+  const loadSection = document.getElementById('load-game-section');
+  if(container){
+    let hasAnySlot=false, html='';
+    for(let i=1;i<=NUM_SLOTS;i++){
+      const s = loadSlot(i);
+      if(s && s.gs){
+        hasAnySlot=true;
+        const sg=s.gs;
+        const ago = Math.round((Date.now()-s.savedAt)/60000);
+        const timeStr = ago<1?'just now':ago<60?ago+'m ago':Math.round(ago/60)+'h ago';
+        const sSvc = sg.totSold+sg.totLost>0?(sg.svc*100).toFixed(1)+'%':'—';
+        const statusColor = sg.done?'var(--green)':'var(--sky)';
+        const statusTxt = sg.done?'Complete':'Day '+(sg.day-1)+'/'+(sg.maxDay||30);
+        html += `
+<div class="slot-row">
+  <div class="slot-meta">
+    <div class="slot-title">📂 Slot ${i} · <span style="color:${statusColor}">${statusTxt}</span></div>
+    <div class="slot-sub">${sg.player||'Manager'} · Svc ${sSvc} · ${timeStr}</div>
+  </div>
+  <button class="slot-btn slot-btn-primary" onclick="loadGameSlot(${i})">Load</button>
+  <button class="slot-btn slot-btn-ghost" onclick="deleteGameSlot(${i})" title="Delete">✕</button>
+</div>`;
+      }
+    }
+    container.innerHTML = html;
+    if(loadSection) loadSection.style.display = hasAnySlot ? 'block' : 'none';
   }
 }
 
