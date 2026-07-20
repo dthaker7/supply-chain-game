@@ -376,27 +376,71 @@ html, body {
         <div class="auth-subtitle">Sign in or create your account to start playing</div>
       </div>
 
-      <!-- Passwordless magic-link form -->
-      <div id="s-link-form">
+      <!-- Tab switcher -->
+      <div class="tab-switcher">
+        <button class="tab-btn active" id="stab-login" onclick="switchStudentTab('login')">Sign In</button>
+        <button class="tab-btn" id="stab-register" onclick="switchStudentTab('register')">Register</button>
+      </div>
+
+      <!-- Login form -->
+      <div id="s-login-form">
         <div class="field">
-          <label>Full Name <span style="color:var(--dim);font-weight:400">(first time only)</span></label>
-          <div class="field-wrap">
-            <input id="s-name" type="text" placeholder="Alex Kim" maxlength="30"
-              onkeydown="if(event.key==='Enter')document.getElementById('s-email').focus()">
-          </div>
-        </div>
-        <div class="field">
-          <label>Illinois Email</label>
+          <label>Email</label>
           <div class="field-wrap">
             <input id="s-email" type="email" placeholder="netid@illinois.edu"
-              onkeydown="if(event.key==='Enter')doStudentSendLink()">
+              onkeydown="if(event.key==='Enter')document.getElementById('s-pass').focus()">
           </div>
         </div>
-        <button class="submit-btn student-btn" id="s-link-btn" onclick="doStudentSendLink()">✉ Send Sign-In Link</button>
-        <div class="restrict-note">
-          🔒 Only <strong>@illinois.edu</strong> addresses can sign in.<br>
-          We'll email you a secure link — no password needed.
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <input id="s-pass" type="password" placeholder="••••••••"
+              onkeydown="if(event.key==='Enter')doStudentLogin()">
+            <button class="eye-btn" onclick="toggleEye('s-pass',this)">👁</button>
+          </div>
         </div>
+        <button class="submit-btn student-btn" id="s-login-btn" onclick="doStudentLogin()">▶ Sign In & Play</button>
+        <button class="forgot-btn" onclick="doStudentForgot()">Forgot password?</button>
+      </div>
+
+      <!-- Register form -->
+      <div id="s-register-form" style="display:none">
+        <div class="field">
+          <label>Full Name</label>
+          <div class="field-wrap">
+            <input id="s-name" type="text" placeholder="Alex Kim" maxlength="30"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-reg-email').focus()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <div class="field-wrap">
+            <input id="s-reg-email" type="email" placeholder="netid@illinois.edu"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-reg-pass').focus()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Password <span style="color:var(--dim);font-weight:400">(min 6 chars)</span></label>
+          <div class="field-wrap">
+            <input id="s-reg-pass" type="password" placeholder="••••••••"
+              oninput="updateStrength(this.value)"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-reg-pass2').focus()">
+            <button class="eye-btn" onclick="toggleEye('s-reg-pass',this)">👁</button>
+          </div>
+          <div class="strength-wrap">
+            <div class="strength-bar-bg"><div class="strength-bar" id="strength-bar"></div></div>
+            <div class="strength-label" id="strength-label"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <div class="field-wrap">
+            <input id="s-reg-pass2" type="password" placeholder="••••••••"
+              onkeydown="if(event.key==='Enter')doStudentRegister()">
+            <button class="eye-btn" onclick="toggleEye('s-reg-pass2',this)">👁</button>
+          </div>
+        </div>
+        <button class="submit-btn student-btn" id="s-reg-btn" onclick="doStudentRegister()">✓ Create Account & Play</button>
       </div>
 
       <div class="msg msg-error"   id="s-error"></div>
@@ -453,15 +497,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
-  onAuthStateChanged,
-  signOut,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
+import { getFirestore, doc, setDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const FB_CFG = {
@@ -486,71 +527,16 @@ function isProfessor(email) {
   return PROFESSOR_EMAILS.map(e => e.toLowerCase()).includes((email||'').toLowerCase());
 }
 
-// ── EMAIL DOMAIN VALIDATION ────────────────────────────────────────────────────
-function isIllinoisEmail(email) {
-  return /^[^\s@]+@illinois\.edu$/i.test((email || '').trim());
-}
-
-// ── MAGIC-LINK CONFIG ─────────────────────────────────────────────────────────
-const ACTION_CODE_SETTINGS = {
-  url: window.location.origin + window.location.pathname,
-  handleCodeInApp: true
-};
-
 // ── AUTO-REDIRECT if already logged in ───────────────────────────────────────
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, user => {
   if (!user) return; // not logged in, show landing page normally
+  // Already logged in — redirect to the right place
   if (isProfessor(user.email)) {
-    return redirect('operator.html');
+    redirect('operator.html');
+  } else {
+    redirect('sim.html');
   }
-  if (!isIllinoisEmail(user.email)) {
-    // Stale session from a non-illinois.edu account (e.g. pre-restriction test account) — kick it out.
-    await signOut(auth);
-    selectRole('student');
-    showError('s-error', 'This account (' + user.email + ') isn\'t an @illinois.edu address, so it\'s been signed out. Please sign in with your Illinois email.');
-    return;
-  }
-  redirect('sim.html');
 });
-
-// ── COMPLETE MAGIC-LINK SIGN-IN (student returns after clicking emailed link) ─
-async function completeMagicLinkSignIn() {
-  if (!isSignInWithEmailLink(auth, window.location.href)) return;
-
-  showLoading('Verifying your link…');
-
-  let email = window.localStorage.getItem('emailForSignIn');
-  if (!email) {
-    // Fallback: link opened on a different device/browser than it was sent from
-    email = window.prompt('Confirm your @illinois.edu email to finish signing in:');
-  }
-  if (!email || !isIllinoisEmail(email)) {
-    document.getElementById('loading-overlay').classList.remove('show');
-    selectRole('student');
-    return showError('s-error', 'That link needs to be confirmed with your @illinois.edu email.');
-  }
-
-  try {
-    const cred = await signInWithEmailLink(auth, email, window.location.href);
-    const userRef = doc(db, 'users', cred.user.uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      const name = window.localStorage.getItem('nameForSignIn') || email.split('@')[0];
-      await updateProfile(cred.user, { displayName: name });
-      await setDoc(userRef, { name, email, role: 'student', createdAt: serverTimestamp() });
-    }
-    window.localStorage.removeItem('emailForSignIn');
-    window.localStorage.removeItem('nameForSignIn');
-    window.history.replaceState({}, document.title, window.location.pathname);
-    showLoading('Opening your cafe…');
-    window.location.href = 'sim.html';
-  } catch (e) {
-    document.getElementById('loading-overlay').classList.remove('show');
-    selectRole('student');
-    showError('s-error', friendlyError(e.code));
-  }
-}
-completeMagicLinkSignIn();
 
 function redirect(page) {
   showLoading('Redirecting…');
@@ -585,27 +571,72 @@ window.goBack = function() {
   currentRole = null;
 };
 
-// ── STUDENT: SEND MAGIC SIGN-IN LINK ──────────────────────────────────────────
-window.doStudentSendLink = async function() {
-  const name  = document.getElementById('s-name').value.trim();
+// ── STUDENT TAB SWITCHER ──────────────────────────────────────────────────────
+window.switchStudentTab = function(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('s-login-form').style.display    = isLogin ? 'block' : 'none';
+  document.getElementById('s-register-form').style.display = isLogin ? 'none' : 'block';
+  document.getElementById('stab-login').className    = 'tab-btn' + (isLogin  ? ' active' : '');
+  document.getElementById('stab-register').className = 'tab-btn' + (!isLogin ? ' active' : '');
+  clearAllMessages();
+  setTimeout(() => {
+    const inp = isLogin
+      ? document.getElementById('s-email')
+      : document.getElementById('s-name');
+    if (inp) inp.focus();
+  }, 50);
+};
+
+// ── STUDENT LOGIN ─────────────────────────────────────────────────────────────
+window.doStudentLogin = async function() {
   const email = document.getElementById('s-email').value.trim();
-
+  const pass  = document.getElementById('s-pass').value;
   if (!email) return showError('s-error', 'Please enter your email.');
-  if (!isIllinoisEmail(email)) {
-    return showError('s-error', 'Please use your @illinois.edu email address.');
-  }
-
-  setBtnLoading('s-link-btn', true, 'Sending link…');
+  if (!pass)  return showError('s-error', 'Please enter your password.');
+  setBtnLoading('s-login-btn', true, 'Signing in…');
   try {
-    await sendSignInLinkToEmail(auth, email, ACTION_CODE_SETTINGS);
-    window.localStorage.setItem('emailForSignIn', email);
-    if (name) window.localStorage.setItem('nameForSignIn', name);
-    setBtnLoading('s-link-btn', false, '✉ Send Sign-In Link');
-    showSuccess('s-success', '📬 Link sent to ' + email + '. Open your Illinois inbox and click it to sign in — you can close this tab.');
+    await signInWithEmailAndPassword(auth, email, pass);
+    showLoading('Opening your cafe…');
+    window.location.href = 'sim.html';
   } catch(e) {
-    setBtnLoading('s-link-btn', false, '✉ Send Sign-In Link');
+    setBtnLoading('s-login-btn', false, '▶ Sign In & Play');
     showError('s-error', friendlyError(e.code));
   }
+};
+
+// ── STUDENT REGISTER ──────────────────────────────────────────────────────────
+window.doStudentRegister = async function() {
+  const name  = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-reg-email').value.trim();
+  const pass  = document.getElementById('s-reg-pass').value;
+  const pass2 = document.getElementById('s-reg-pass2').value;
+  if (!name)          return showError('s-error', 'Please enter your full name.');
+  if (!email)         return showError('s-error', 'Please enter your email address.');
+  if (pass.length < 6) return showError('s-error', 'Password must be at least 6 characters.');
+  if (pass !== pass2) return showError('s-error', 'Passwords do not match.');
+  setBtnLoading('s-reg-btn', true, 'Creating account…');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      name, email, role: 'student', createdAt: serverTimestamp()
+    });
+    showSuccess('s-success', '🎉 Account created! Loading your cafe…');
+    showLoading('Setting up your cafe…');
+    setTimeout(() => { window.location.href = 'sim.html'; }, 1200);
+  } catch(e) {
+    setBtnLoading('s-reg-btn', false, '✓ Create Account & Play');
+    showError('s-error', friendlyError(e.code));
+  }
+};
+
+window.doStudentForgot = async function() {
+  const email = document.getElementById('s-email').value.trim();
+  if (!email) return showError('s-error', 'Enter your email above first.');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showSuccess('s-success', 'Reset email sent to ' + email + '. Check your inbox.');
+  } catch(e) { showError('s-error', friendlyError(e.code)); }
 };
 
 // ── OPERATOR LOGIN ────────────────────────────────────────────────────────────
@@ -613,7 +644,6 @@ window.doOperatorLogin = async function() {
   const email = document.getElementById('o-email').value.trim();
   const pass  = document.getElementById('o-pass').value;
   if (!email) return showError('o-error', 'Please enter your email.');
-  if (!isIllinoisEmail(email)) return showError('o-error', 'Please use your @illinois.edu email address.');
   if (!pass)  return showError('o-error', 'Please enter your password.');
   if (!isProfessor(email)) return showError('o-error', '⛔ This email is not on the instructor list. Students should use the Student login.');
   setBtnLoading('o-login-btn', true, 'Signing in…');
@@ -704,9 +734,6 @@ function friendlyError(code) {
     'auth/weak-password':          'Password too weak. Use at least 6 characters.',
     'auth/too-many-requests':      'Too many failed attempts. Please wait a moment.',
     'auth/network-request-failed': 'Network error. Check your connection.',
-    'auth/invalid-action-code':    'This link has expired or was already used. Request a new one.',
-    'auth/unauthorized-continue-uri': 'This domain isn\'t authorized for sign-in links yet — contact your instructor.',
-    'auth/missing-email':          'Please enter your email address.',
   };
   return map[code] || 'Something went wrong. Please try again.';
 }

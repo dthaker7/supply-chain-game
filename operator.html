@@ -167,17 +167,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
 .panel-content::-webkit-scrollbar{width:5px}
 .panel-content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
+/* ── PLAYER CARDS ── */
 .player-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
   padding:13px 16px;cursor:pointer;transition:all .18s;margin-bottom:8px;animation:slide-in .3s ease-out}
 @keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .player-card:hover{border-color:var(--dim);transform:translateY(-1px)}
 .player-card.expanded{border-color:var(--acc)}
-.player-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.player-top{display:flex;align-items:center;gap:10px}
 .player-name{font-weight:700;font-size:14px;flex:1}
-.player-date{font-size:9px;color:var(--dim);font-family:'Space Mono',monospace;white-space:nowrap}
-.player-delete{background:none;border:1px solid transparent;color:var(--dim);font-size:14px;
-  cursor:pointer;padding:2px 6px;border-radius:5px;line-height:1;flex-shrink:0;transition:all .15s}
-.player-delete:hover{border-color:var(--red);color:var(--red);background:rgba(217,106,90,.1)}
 .status-pill{font-size:9px;padding:3px 9px;border-radius:99px;font-weight:700;font-family:'Space Mono',monospace}
 .status-complete{background:rgba(61,220,151,.15);color:#3ddc97;border:1px solid rgba(61,220,151,.3)}
 .status-progress{background:rgba(255,209,102,.12);color:#ffd166;border:1px solid rgba(255,209,102,.3)}
@@ -316,7 +313,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
         <span class="nav-icon">🎮</span>Round Control
       </a>
       <a class="nav-item" id="nav-players" onclick="showPage('players')">
-        <span class="nav-icon">👥</span>Players
+        <span class="nav-icon">👥</span>Teams
       </a>
       <a class="nav-item" id="nav-leaderboard" onclick="showPage('leaderboard')">
         <span class="nav-icon">🏆</span>Leaderboard
@@ -343,8 +340,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
           <p>Here's what's happening in your simulation.</p>
         </div>
         <div class="dash-kpi-row">
-          <div class="kpi-card"><div class="kpi-label">Players Active</div><div class="kpi-value" id="dash-teams" style="color:var(--green)">—</div><div class="kpi-sub" id="dash-teams-sub"></div></div>
-          <div class="kpi-card"><div class="kpi-label">Players Ready</div><div class="kpi-value" id="dash-ready" style="color:var(--gold)">—</div><div class="kpi-sub" id="dash-ready-sub"></div></div>
+          <div class="kpi-card"><div class="kpi-label">Teams Active</div><div class="kpi-value" id="dash-teams" style="color:var(--green)">—</div><div class="kpi-sub" id="dash-teams-sub"></div></div>
+          <div class="kpi-card"><div class="kpi-label">Teams Ready</div><div class="kpi-value" id="dash-ready" style="color:var(--gold)">—</div><div class="kpi-sub" id="dash-ready-sub"></div></div>
           <div class="kpi-card"><div class="kpi-label">Current Day</div><div class="kpi-value" id="dash-day" style="color:var(--sky)">—</div><div class="kpi-sub" id="dash-day-sub"></div></div>
           <div class="kpi-card"><div class="kpi-label">Avg Service Level</div><div class="kpi-value" id="dash-svc" style="color:var(--purple)">—</div></div>
           <div class="kpi-card"><div class="kpi-label">Avg Profit</div><div class="kpi-value" id="dash-profit" style="color:var(--green)">—</div></div>
@@ -369,7 +366,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
           </div>
           <!-- Recent Activity -->
           <div class="dash-card">
-            <div class="dash-card-title">PLAYER STATUS OVERVIEW</div>
+            <div class="dash-card-title">TEAM STATUS OVERVIEW</div>
             <div id="dash-activity"></div>
           </div>
         </div>
@@ -400,13 +397,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
               <div class="round-status-day" id="rc-day-big">—</div>
               <div class="round-status-sub" id="rc-day-sub">Round — of —</div>
               <div class="round-progress-row">
-                <span id="rc-waiting-label">0 players ready</span>
+                <span id="rc-waiting-label">0 teams ready</span>
                 <div class="round-progress-bar"><div class="round-progress-fill" id="rc-progress-fill" style="width:0%"></div></div>
                 <span id="rc-progress-pct">0%</span>
               </div>
               <button class="btn-release-big" id="rc-release-btn" onclick="releaseNextDay()">▶ Release Next Day</button>
               <div style="display:flex;gap:8px;margin-top:10px">
                 <button class="btn-lock" style="flex:1" onclick="resetToDay1()">↺ Reset to Day 1</button>
+                <button class="btn-lock" style="flex:1" onclick="releaseAllDays()">Release All</button>
               </div>
             </div>
             <!-- Waiting grid -->
@@ -425,8 +423,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
             </div>
             <div class="round-settings-card">
               <div class="round-settings-title">ROUND ACTIONS</div>
-              <button class="round-action-btn" onclick="showNotif('📢 Notification sent to all players')">
-                <span>📢</span> Notify All Players
+              <button class="round-action-btn" onclick="showNotif('📢 Notification sent to all teams')">
+                <span>📢</span> Notify All Teams
               </button>
               <button class="round-action-btn" onclick="doExportCSV()">
                 <span>⬇</span> Export CSV
@@ -439,9 +437,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
         </div>
       </div>
 
-      <!-- ══ PLAYERS PAGE ══ -->
+      <!-- ══ TEAMS PAGE ══ -->
       <div class="panel-page" id="page-players">
-        <div class="page-header"><h1>Players</h1><p>Monitor all players in real time.</p></div>
+        <div class="page-header"><h1>Teams</h1><p>Monitor all teams in real time.</p></div>
         <div class="panel-content" id="panel-body">
           <div class="empty-state"><div>⏳</div>Connecting…</div>
         </div>
@@ -589,10 +587,8 @@ let scen_id=7, selScen=null, rTab='players', RUNS={}, expandedRun=null;
 let CURRENT_ALLOWED_DAY=1;
 let unsubRuns=null, unsubControl=null, unsubConfig=null, selDProd='coffee';
 
-// Populate all config inputs from current CFG/SCENARIOS state.
-// Pass quiet=true when called from a Firestore listener so we don't
-// falsely mark the form as dirty (nothing has actually changed).
-function populateConfigInputs(quiet=false){
+// Populate all config inputs from current CFG/SCENARIOS state
+function populateConfigInputs(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v;};
   const setChk=(id,v)=>{const el=document.getElementById(id);if(el)el.checked=!!v;};
   set('cfg-rounds',CFG.rounds);
@@ -602,12 +598,10 @@ function populateConfigInputs(quiet=false){
   setChk('cfg-round-control',CFG.roundControl);
   setChk('cfg-hide-demand',CFG.hideDemand);
   setChk('cfg-hide-rec',CFG.hideRecommendations);
+  // Re-render demand+LT fields so per-product inputs reflect CFG
   if(typeof renderDemandFields==='function') renderDemandFields();
   if(typeof renderLTFields==='function') renderLTFields();
-  if(typeof updateConfigJSON==='function') updateConfigJSON();
-  // When loading from Firestore, clear the dirty flag so the
-  // "Submit Changes" button doesn't appear when nothing changed.
-  if(quiet && typeof clearDirty==='function') clearDirty();
+  if(typeof updateConfigJSON==='function'){ updateConfigJSON(); clearDirty(); }
   if(typeof renderScenarios==='function') renderScenarios();
 }
 
@@ -632,14 +626,13 @@ function showDashboard(user){
   const init=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   document.getElementById('op-avatar').textContent=init;
   document.getElementById('op-user-label').textContent=name+' ('+user.email+')';
+  // Greeting by time of day
   const hr=new Date().getHours();
   const el=document.getElementById('dash-greeting');
   if(el) el.textContent=(hr<12?'Good morning':hr<17?'Good afternoon':'Good evening')+', '+name+'!';
   startListeners();
   renderSettings();
-  // Restore the last page the professor was on, or default to dashboard
-  const lastPage = sessionStorage.getItem('op-last-page')||'dashboard';
-  showPage(lastPage);
+  showPage('dashboard');
 }
 
 // ── FIREBASE LISTENERS ────────────────────────────────────────────────────────
@@ -681,11 +674,11 @@ function startListeners(){
       SCENARIOS=d.scenarios.map((s,i)=>({
         id:i+1, day:s.day, product:s.product, type:s.type, desc:s.desc,
         multiplier:s.multiplier||1, extra:s.extraDays||0, newPrice:s.newPrice||0,
-        active:s.active!==false
+        active:true
       }));
       scen_id=SCENARIOS.length+1;
     }
-    populateConfigInputs(true); // quiet=true: loaded from Firestore, don't mark dirty
+    populateConfigInputs();
     renderPanel();
   });
 }
@@ -729,11 +722,10 @@ async function applyConfig(){
   const payload=buildPayload();
   try{
     await setDoc(doc(db,'config','game'),{...payload,updatedAt:serverTimestamp()});
-    // Only sync the roundControl flag — never reset allowedDay here,
-    // that's exclusively managed by mirrorRoundControl and releaseNextDay.
+    // Update round control gate
     await setDoc(doc(db,'control','round'),{
+      allowedDay:CFG.roundControl?CURRENT_ALLOWED_DAY:9999,
       roundControl:CFG.roundControl,
-      allowedDay:CURRENT_ALLOWED_DAY,
       updatedAt:serverTimestamp()
     });
     showNotif('✓ Config pushed to all students'); clearDirty();
@@ -776,7 +768,6 @@ function updateConfigJSON(){
 
 // ── ROUND CONTROL ─────────────────────────────────────────────────────────────
 async function releaseNextDay(){
-  if(!CFG.roundControl){ showNotif('⚠ Enable Round Control first'); return; }
   CURRENT_ALLOWED_DAY++;
   try{
     await setDoc(doc(db,'control','round'),{allowedDay:CURRENT_ALLOWED_DAY,roundControl:true,updatedAt:serverTimestamp()});
@@ -785,13 +776,10 @@ async function releaseNextDay(){
   renderPanel();
 }
 
-async function resetToDay1(){
-  if(!confirm('Reset all students back to Day 1? This resets the round gate only — student run data is not deleted.')) return;
-  CURRENT_ALLOWED_DAY=1;
-  try{
-    await setDoc(doc(db,'control','round'),{allowedDay:1,roundControl:CFG.roundControl,updatedAt:serverTimestamp()});
-    showNotif('↺ Reset to Day 1');
-  }catch(e){showNotif('⚠ '+e.message);CURRENT_ALLOWED_DAY=1;}
+async function releaseAllDays(){
+  if(!confirm('Release all remaining days?')) return;
+  await setDoc(doc(db,'control','round'),{allowedDay:9999,roundControl:false,updatedAt:serverTimestamp()});
+  CURRENT_ALLOWED_DAY=9999; showNotif('✓ All days released');
   renderPanel();
 }
 
@@ -972,24 +960,11 @@ window.setRTab=function(t){rTab=t;renderPanel();};
 function renderPlayers(){
   const body=document.getElementById('panel-body');
   if(!body) return;
-  // Sort by most recent play date (updatedAt, falling back to startedAt), descending
-  const runs=Object.values(RUNS).sort((a,b)=>{
-    const ta=a.updatedAt?.seconds||a.startedAt?.seconds||0;
-    const tb=b.updatedAt?.seconds||b.startedAt?.seconds||0;
-    return tb-ta;
-  });
+  const runs=Object.values(RUNS).sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));
   body.innerHTML = runs.length
     ? runs.map(r=>playerCardHTML(r)).join('')
-    : `<div class="empty-state"><div>👥</div><strong>No players yet</strong><br>Players appear here when they start playing.</div>`;
+    : `<div class="empty-state"><div>👥</div><strong>No players yet</strong><br>Students appear here when they start playing.</div>`;
 }
-
-window.deleteRun=async function(id){
-  if(!confirm('Delete this player\'s run? This cannot be undone.')) return;
-  try{
-    await deleteDoc(doc(db,'runs',id));
-    showNotif('✓ Player run deleted');
-  }catch(e){showNotif('⚠ Could not delete: '+e.message);}
-};
 
 function gradeFor(svc,profit){
   const s=svc/100;
@@ -1001,13 +976,6 @@ function gradeFor(svc,profit){
   return 'F';
 }
 function gradeColor(g){return g==='A+'||g==='A'?'#3ddc97':g==='B'||g==='C'?'#ffd166':g==='D'?'#ff6b35':'#ff5c7a';}
-
-// Returns the most recent timestamp we have for a run (last update, falling back to when it started)
-function formatPlayDate(r){
-  const ts = r.updatedAt?.seconds || r.startedAt?.seconds;
-  if(!ts) return '—';
-  return new Date(ts*1000).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
 
 function playerCardHTML(r){
   const done=r.status==='complete';
@@ -1053,8 +1021,6 @@ function playerCardHTML(r){
     <div class="player-name">${r.player||'Unknown'}</div>
     ${done?`<span class="status-pill status-complete">✓ COMPLETE</span>`:`<span class="status-pill status-progress">⏳ Day ${r.currentDay||1}/${r.totalDays||30}</span>`}
     ${grade?`<div class="grade-big" style="color:${gradeColor(grade)}">${grade}</div>`:''}
-    <div class="player-date">${formatPlayDate(r)}</div>
-    <button class="player-delete" title="Delete this player's run" onclick="event.stopPropagation();deleteRun('${r.id}')">✕</button>
   </div>
   <div class="day-progress">
     <span style="font-size:10px;color:var(--dim);min-width:50px">Day ${r.currentDay||1}/${r.totalDays||30}</span>
@@ -1270,7 +1236,7 @@ function setOpOk(m){const e=document.getElementById('op-auth-success');e.textCon
 window.applyConfig=applyConfig;
 window.refreshRuns=function(){startListeners();showNotif('↺ Refreshed');};
 window.releaseNextDay=releaseNextDay;
-window.resetToDay1=resetToDay1;
+window.releaseAllDays=releaseAllDays;
 window.doExportCSV=function(){
   const runs=Object.values(RUNS);if(!runs.length){showNotif('No data');return;}
   const hdr='Name,Status,Day,SVC%,Profit,Revenue,LostSales,Grade';
@@ -1296,8 +1262,6 @@ window.notify=showNotif;
 // ── PAGE NAVIGATION ──────────────────────────────────────────────────────────
 const ALL_PAGES=['dashboard','roundcontrol','players','leaderboard','scenarios','settings'];
 window.showPage=function(page){
-  // Remember this page so refresh restores it
-  try{ sessionStorage.setItem('op-last-page', page); }catch(e){}
   ALL_PAGES.forEach(p=>{
     const el=document.getElementById('page-'+p);
     if(el) el.classList.toggle('active',p===page);
@@ -1312,24 +1276,9 @@ window.showPage=function(page){
 };
 
 // ── MIRROR TOGGLES ────────────────────────────────────────────────────────────
-window.mirrorRoundControl=async function(el){
+window.mirrorRoundControl=function(el){
   const m=document.getElementById('cfg-round-control'); if(m) m.checked=el.checked;
-  CFG.roundControl=el.checked;
-  // When turning ON: reset allowedDay to 1 so students start gated.
-  // When turning OFF: set 9999 so all days open immediately.
-  CURRENT_ALLOWED_DAY = CFG.roundControl ? 1 : 9999;
-  try{
-    await setDoc(doc(db,'control','round'),{
-      roundControl:CFG.roundControl,
-      allowedDay:CURRENT_ALLOWED_DAY,
-      updatedAt:serverTimestamp()
-    });
-    showNotif(CFG.roundControl
-      ? '🎮 Round Control ON — students gated. Click Release Day 2 to let them advance.'
-      : '🎮 Round Control OFF — all days open');
-  }catch(e){ showNotif('⚠ '+e.message); }
-  updateConfigJSON();
-  renderPanel();
+  CFG.roundControl=el.checked; updateConfigJSON();
 };
 window.mirrorHideDemand=function(el){
   const m=document.getElementById('cfg-hide-demand'); if(m) m.checked=el.checked;
@@ -1348,39 +1297,26 @@ function updateDashboard(){
   const avgSvc=total?runs.reduce((s,r)=>s+(r.svc||0),0)/total:0;
   const avgP=total?Math.round(runs.reduce((s,r)=>s+(r.profit||0),0)/total):0;
   const s=id=>document.getElementById(id);
-  const dayLabel = !CFG.roundControl ? '—' : (CURRENT_ALLOWED_DAY>=9999 ? 'All' : CURRENT_ALLOWED_DAY);
   if(s('dash-teams'))     s('dash-teams').textContent=total||'0';
   if(s('dash-ready'))     s('dash-ready').textContent=complete;
-  if(s('dash-day'))       s('dash-day').textContent=dayLabel;
+  if(s('dash-day'))       s('dash-day').textContent=CURRENT_ALLOWED_DAY;
   if(s('dash-day-sub'))   s('dash-day-sub').textContent='of '+CFG.rounds+' days';
   if(s('dash-svc'))       s('dash-svc').textContent=avgSvc.toFixed(1)+'%';
   if(s('dash-profit'))    s('dash-profit').textContent='$'+avgP.toLocaleString();
-  const bigLabel = !CFG.roundControl ? 'RC OFF' : (CURRENT_ALLOWED_DAY>=9999 ? 'ALL DAYS' : 'DAY '+CURRENT_ALLOWED_DAY);
-  const subLabel = !CFG.roundControl ? 'All days open — turn on Round Control to gate students'
-    : (CURRENT_ALLOWED_DAY>=9999 ? 'All days released' : 'Day '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds+' released');
-  if(s('dash-day-big'))   s('dash-day-big').textContent=bigLabel;
-  if(s('dash-day-sub2'))  s('dash-day-sub2').textContent=subLabel;
+  if(s('dash-day-big'))   s('dash-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
+  if(s('dash-day-sub2'))  s('dash-day-sub2').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
   const readyPct=total?Math.round(complete/total*100):0;
   if(s('dash-waiting-label')) s('dash-waiting-label').textContent=complete+' / '+total+' ready';
   if(s('dash-progress-fill')) s('dash-progress-fill').style.width=readyPct+'%';
   if(s('dash-progress-pct'))  s('dash-progress-pct').textContent=readyPct+'%';
   const btn=s('dash-release-btn');
-  if(btn){
-    if(!CFG.roundControl){
-      btn.style.display='none';
-    } else {
-      btn.style.display='';
-      btn.textContent=CURRENT_ALLOWED_DAY>=9999?'✓ All Days Released':'▶ Release Day '+(CURRENT_ALLOWED_DAY+1);
-      btn.disabled=CURRENT_ALLOWED_DAY>=9999;
-      btn.style.opacity=CURRENT_ALLOWED_DAY>=9999?'0.5':'';
-    }
-  }
+  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
   // Activity feed
   const actEl=s('dash-activity');
   if(actEl){
     const sorted=[...runs].sort((a,b)=>(b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0));
     if(!sorted.length){
-      actEl.innerHTML='<div style="color:var(--dim);font-size:12px;padding:10px 0">No players connected yet.</div>';
+      actEl.innerHTML='<div style="color:var(--dim);font-size:12px;padding:10px 0">No teams connected yet.</div>';
     } else {
       const dotC={complete:'#3ddc97',in_progress:'#ffd166',waiting:'#ff7a3d'};
       actEl.innerHTML=sorted.slice(0,6).map(r=>{
@@ -1402,30 +1338,16 @@ function updateDashboard(){
 function updateRoundControlPage(){
   const runs=Object.values(RUNS);
   const s=id=>document.getElementById(id);
-  // When RC is off, show a neutral state; when on, show current released day
-  const rcDayLabel = !CFG.roundControl ? 'OPEN' : (CURRENT_ALLOWED_DAY>=9999 ? 'ALL DAYS' : 'DAY '+CURRENT_ALLOWED_DAY);
-  const rcSubLabel = !CFG.roundControl ? 'Round control is off — all days accessible'
-    : (CURRENT_ALLOWED_DAY>=9999 ? 'All days released' : 'Day '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds+' released');
-  if(s('rc-day-big'))      s('rc-day-big').textContent=rcDayLabel;
-  if(s('rc-day-sub'))      s('rc-day-sub').textContent=rcSubLabel;
+  if(s('rc-day-big'))      s('rc-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
+  if(s('rc-day-sub'))      s('rc-day-sub').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
   if(s('rc-total-rounds')) s('rc-total-rounds').textContent=CFG.rounds;
   const complete=runs.filter(r=>r.status==='complete').length;
   const readyPct=runs.length?Math.round(complete/runs.length*100):0;
-  if(s('rc-waiting-label')) s('rc-waiting-label').textContent=complete+' / '+runs.length+' players ready';
+  if(s('rc-waiting-label')) s('rc-waiting-label').textContent=complete+' / '+runs.length+' teams ready';
   if(s('rc-progress-fill')) s('rc-progress-fill').style.width=readyPct+'%';
   if(s('rc-progress-pct'))  s('rc-progress-pct').textContent=readyPct+'%';
-  // Release button: hidden when RC off, shows next day number when RC on
   const btn=s('rc-release-btn');
-  if(btn){
-    if(!CFG.roundControl){
-      btn.style.display='none';
-    } else {
-      btn.style.display='';
-      btn.textContent=CURRENT_ALLOWED_DAY>=9999?'✓ All Days Released':'▶ Release Day '+(CURRENT_ALLOWED_DAY+1);
-      btn.disabled=CURRENT_ALLOWED_DAY>=9999;
-      btn.style.opacity=CURRENT_ALLOWED_DAY>=9999?'0.5':'';
-    }
-  }
+  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
   // Mirror toggles
   const rcm=s('rc-round-control-mirror'); if(rcm) rcm.checked=CFG.roundControl;
   const hdm=s('rc-hide-demand-mirror');   if(hdm) hdm.checked=CFG.hideDemand;
@@ -1435,7 +1357,7 @@ function updateRoundControlPage(){
   if(grid&&runs.length){
     grid.innerHTML='<div class="waiting-grid">'+runs.slice(0,8).map(r=>{
       const isDone=r.status==='complete';
-      const isWait=CFG.roundControl&&!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
+      const isWait=!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
       return `<div class="waiting-chip ${isDone?'ready':isWait?'waiting':'ready'}">
         <div>${isDone?'✓':isWait?'⏳':'▶'}</div>
         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${(r.player||'?').split(' ')[0]}</div>

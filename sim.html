@@ -2387,222 +2387,127 @@ function loadSpr(name,src){
   SPR.loaded[name]=im;
   return im;
 }
-function drawInterior(ctx,W,H,t){
+function loadAsset(name,src){return loadSpr(name,src);}
+
+// ── Real map art dimensions (the source PNG is 1373×1145) ──
+const MAP_W=1373, MAP_H=1145;
+
+// Tune these to match the map art — all coordinates are in the ORIGINAL
+// 1373×1145 image pixel space (top-left = 0,0), same space you'd get by
+// opening map_daylight.png in an image editor and reading the cursor position.
+const STORAGE_RECT      = {x:435, y:130, w:215, h:195};   // storage-room floor, the area you marked "100X"
+const PARK_SPOT_STAFF   = {x:255, y:668, w:150, h:60};    // resting spot for the always-parked sedan (2nd bay)
+const DELIVERY_PATH = [                                    // waypoints the delivery car drives through, in order
+  {x:1450,y:1018},   // enters off-screen, on the main road
+  {x:860, y:1018},   // driving down the road
+  {x:615, y:1018},   // lines up with the driveway entrance
+  {x:605, y:860},    // turns up into the driveway
+  {x:565, y:700},    // inside the parking lot lane
+  {x:460, y:700},    // turns toward the open bay
+  {x:300, y:610}     // parks in the 1st bay
+];
+const CAR_DEFAULT_ANGLE = Math.PI; // car sprites face LEFT by default — rotate relative to this
+
+function coverTransform(W,H){
+  const scale=Math.max(W/MAP_W,H/MAP_H);
+  const dw=MAP_W*scale,dh=MAP_H*scale;
+  return {scale,ox:(W-dw)/2,oy:(H-dh)/2,dw,dh};
+}
+function toCanvas(pt,tr){return {x:tr.ox+pt.x*tr.scale,y:tr.oy+pt.y*tr.scale};}
+
+// Piecewise-linear position + heading along a waypoint path, p is 0..1
+function pathPoint(path,p){
+  const segs=path.length-1;
+  p=Math.max(0,Math.min(1,p));
+  let f=p*segs, i=Math.floor(f); if(i>=segs)i=segs-1;
+  const lt=f-i, a=path[i], b=path[i+1];
+  return {x:a.x+(b.x-a.x)*lt, y:a.y+(b.y-a.y)*lt, ang:Math.atan2(b.y-a.y,b.x-a.x)};
+}
+
+function drawCarSprite(ctx,img,cx,cy,w,h,angle){
+  if(!(img.complete&&img.naturalWidth)) return;
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(angle-CAR_DEFAULT_ANGLE);
+  ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=6;ctx.shadowOffsetY=3;
+  ctx.drawImage(img,-w/2,-h/2,w,h);
+  ctx.restore();
+}
+
+// Draws up to 9 stacked box/sack sprites (3 cols × 3 rows) inside a rect,
+// each sprite representing `unitsPerBox` units of inventory, plus a "+N" label if more.
+function drawBoxCluster(ctx,img,x,y,w,h,units,unitsPerBox,cols){
+  const count=Math.ceil(units/unitsPerBox);
+  if(count<=0){
+    ctx.fillStyle='rgba(217,106,90,.85)';ctx.font='700 10px Figtree,system-ui';ctx.textAlign='center';
+    ctx.fillText('EMPTY',x+w/2,y+h/2);
+    return;
+  }
+  const maxShown=cols*3;
+  const shown=Math.min(count,maxShown);
+  const cellW=w/cols, cellH=h/3;
+  for(let i=0;i<shown;i++){
+    const col=i%cols, row=2-Math.floor(i/cols);
+    const bw=cellW*0.82, bh=cellH*0.86;
+    const bx=x+col*cellW+(cellW-bw)/2;
+    const by=y+row*cellH+(cellH-bh)/2;
+    ctx.fillStyle='rgba(0,0,0,.28)';
+    ctx.beginPath();ctx.ellipse(bx+bw/2,by+bh-2,bw*0.42,4,0,0,Math.PI*2);ctx.fill();
+    if(img.complete&&img.naturalWidth) ctx.drawImage(img,bx,by,bw,bh);
+  }
+  if(count>shown){
+    ctx.fillStyle='rgba(15,10,6,.82)';ctx.font='700 10px Figtree,system-ui';ctx.textAlign='center';
+    ctx.fillText('+'+(count-shown)+' more',x+w/2,y+h+13);
+  }
+}
+
+function drawStoreMap(ctx,W,H,t){
   ctx.clearRect(0,0,W,H);
-  ctx.imageSmoothingEnabled=true;
+  const tr=coverTransform(W,H);
+  const mapImg      = loadAsset('map','assets/map_daylight.png');
+  const carDelivery = loadAsset('carDelivery','assets/car1.png');
+  const carStaff    = loadAsset('carStaff','assets/car2.png');
+  const boxCookie   = loadAsset('boxCookie','assets/storage_box.png');
+  const boxCoffee   = loadAsset('boxCoffee','assets/coffee_sack.png');
 
-  // Backdrop sprites (cafe + warehouse references)
-  const sprWarehouse=loadSpr('warehouse','sprites/warehouse.png');
-  const sprCafe=loadSpr('cafe','sprites/cafe-pixel.png');
-  const sprBagCoffee=loadSpr('coffeeBag','sprites/coffee-bag.png');
-  const sprBagCookie=loadSpr('cookieBag','sprites/cookies-bag.png');
-
-  // Split scene: warehouse (back / top) + cafe (front / bottom)
-  const WH_H=Math.round(H*0.56);
-  const CF_Y=WH_H;
-  const CF_H=H-WH_H;
-
-  // ── WAREHOUSE BACKDROP
-  ctx.save();
-  if(sprWarehouse.complete && sprWarehouse.naturalWidth){
-    // cover-fit
-    const ar=sprWarehouse.naturalWidth/sprWarehouse.naturalHeight;
-    let dw=W,dh=W/ar;
-    if(dh<WH_H){dh=WH_H;dw=WH_H*ar;}
-    ctx.drawImage(sprWarehouse,(W-dw)/2,(WH_H-dh)/2,dw,dh);
-    ctx.fillStyle='rgba(20,14,8,0.55)';ctx.fillRect(0,0,W,WH_H);
+  if(mapImg.complete&&mapImg.naturalWidth){
+    ctx.drawImage(mapImg,tr.ox,tr.oy,tr.dw,tr.dh);
   } else {
-    const g=ctx.createLinearGradient(0,0,0,WH_H);
+    const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,'#2a221b');g.addColorStop(1,'#3a2e22');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,WH_H);
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   }
-  // Warehouse label
-  ctx.fillStyle='rgba(15,10,6,.7)';
-  ctx.fillRect(12,10,118,22);
-  ctx.fillStyle='#e8b770';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
-  ctx.fillText('▣  WAREHOUSE',20,25);
-  ctx.restore();
 
-  // ── WAREHOUSE SHELVES with stacked inventory boxes (each box ≈ 5 units)
-  const shelfPadX=Math.round(W*0.06);
-  const shelfTop=44;
-  const shelfBottom=WH_H-18;
-  const shelfH=shelfBottom-shelfTop;
-  const shelfGap=18;
-  const slotW=Math.floor((W-shelfPadX*2-shelfGap*(PRODS.length-1))/PRODS.length);
+  // ── Storage room: stock rendered as sacks (coffee) + boxes (cookies)
+  const coffee=PRODS.find(p=>p.id==='coffee'), cookie=PRODS.find(p=>p.id==='cookie');
+  const invCoffee=GS?GS.inv[coffee.id]:coffee.initInv;
+  const invCookie=GS?GS.inv[cookie.id]:cookie.initInv;
+  const rectTL=toCanvas({x:STORAGE_RECT.x,y:STORAGE_RECT.y},tr);
+  const rectW=STORAGE_RECT.w*tr.scale, rectH=STORAGE_RECT.h*tr.scale;
+  const half=rectW/2;
+  drawBoxCluster(ctx,boxCoffee, rectTL.x,        rectTL.y, half-6, rectH, invCoffee, 8, 3);
+  drawBoxCluster(ctx,boxCookie, rectTL.x+half+6, rectTL.y, half-6, rectH, invCookie, 8, 3);
 
-  PRODS.forEach((p,i)=>{
-    const sx=shelfPadX+i*(slotW+shelfGap);
-    const sy=shelfTop;
-    const sw=slotW, sh=shelfH;
-    const inv=GS?GS.inv[p.id]:p.initInv;
-    const ratio=Math.max(0,Math.min(1,inv/p.maxShelf));
+  // ── Staff sedan, always parked in the 2nd bay
+  const staffTL=toCanvas({x:PARK_SPOT_STAFF.x,y:PARK_SPOT_STAFF.y},tr);
+  drawCarSprite(ctx,carStaff,
+    staffTL.x+PARK_SPOT_STAFF.w*tr.scale/2, staffTL.y+PARK_SPOT_STAFF.h*tr.scale/2,
+    PARK_SPOT_STAFF.w*tr.scale, PARK_SPOT_STAFF.h*tr.scale, Math.PI);
 
-    // Shelf frame (rusted industrial rack)
-    ctx.save();
-    ctx.fillStyle='rgba(10,6,3,.55)';
-    ctx.fillRect(sx-2,sy+sh-6,sw+4,8);
-    // uprights
-    ctx.fillStyle='#3a2a1c';
-    ctx.fillRect(sx-3,sy,4,sh);
-    ctx.fillRect(sx+sw-1,sy,4,sh);
-    // 3 shelves
-    const levels=3;
-    const levelH=Math.floor(sh/levels);
-    for(let lv=0;lv<levels;lv++){
-      const ly=sy+lv*levelH;
-      ctx.fillStyle='#5a3e26';ctx.fillRect(sx-3,ly,sw+6,4);
-      ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(sx-3,ly+4,sw+6,2);
+  // ── Delivery car: drives the marked route while UI.mode === 'exterior'
+  //    (that window is opened by advDay() for ~2.2s every time you go to the next day)
+  if(UI.mode==='exterior'){
+    const p=Math.min(1, UI.extTime/95);
+    const pt=pathPoint(DELIVERY_PATH,p);
+    const cv=toCanvas(pt,tr);
+    drawCarSprite(ctx,carDelivery,cv.x,cv.y, 95*tr.scale, 48*tr.scale, pt.ang);
+    if(p>=1){
+      ctx.fillStyle='rgba(6,214,160,.92)';ctx.font='700 11px Figtree,system-ui';ctx.textAlign='center';
+      ctx.fillText('📦 delivering...', cv.x, cv.y-30);
     }
-    ctx.restore();
-
-    // Boxes: each represents 5 units. distribute on the 3 shelves bottom→up.
-    const unitsPerBox=5;
-    const totalBoxes=Math.ceil(inv/unitsPerBox);
-    const colsPerShelf=Math.max(3,Math.floor((sw-12)/40));
-    const boxesPerShelf=colsPerShelf; // 1 row per shelf
-    const bagImg=p.id==='coffee'?sprBagCoffee:sprBagCookie;
-    const boxW=Math.floor((sw-12)/colsPerShelf)-4;
-    const boxH=levelH-12;
-    let placed=0;
-    // bottom shelf first
-    for(let lv=levels-1;lv>=0 && placed<totalBoxes;lv--){
-      const baseY=sy+lv*levelH+levelH-boxH-4;
-      for(let c=0;c<boxesPerShelf && placed<totalBoxes;c++){
-        const bx=sx+6+c*(boxW+4);
-        // shadow
-        ctx.fillStyle='rgba(0,0,0,.4)';
-        ctx.fillRect(bx+2,baseY+boxH-2,boxW,3);
-        if(bagImg.complete && bagImg.naturalWidth){
-          ctx.drawImage(bagImg,bx,baseY,boxW,boxH);
-        } else {
-          ctx.fillStyle=p.dark;ctx.fillRect(bx,baseY,boxW,boxH);
-          ctx.fillStyle=p.color;ctx.fillRect(bx+2,baseY+2,boxW-4,boxH-4);
-        }
-        placed++;
-      }
-    }
-    // empty shelf hint
-    if(totalBoxes===0){
-      ctx.fillStyle='rgba(255,80,80,.6)';
-      ctx.font='600 10px Inter,system-ui';ctx.textAlign='center';
-      ctx.fillText('EMPTY',sx+sw/2,sy+sh/2);
-    }
-
-    // Header label
-    ctx.fillStyle='rgba(8,5,3,.78)';
-    ctx.fillRect(sx,sy-22,sw,20);
-    ctx.fillStyle='#f0e4d0';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
-    ctx.fillText(p.emoji+' '+p.name,sx+8,sy-8);
-    // count badge right
-    ctx.fillStyle=ratio>.5?'#8db580':ratio>.2?'#e8b770':'#d96860';
-    ctx.font='700 12px JetBrains Mono,monospace';ctx.textAlign='right';
-    ctx.fillText(inv+'units',sx+sw-8,sy-8);
-
-    // Low stock pulse
-    if(ratio<.15){
-      const pulse=.15+.2*Math.abs(Math.sin(t*.2));
-      ctx.fillStyle=`rgba(217,104,96,${pulse})`;
-      ctx.fillRect(sx-4,sy-2,sw+8,sh+4);
-    }
-    // Pending order glow
-    if(GS&&UI.pendOrd&&UI.pendOrd[p.id]>0){
-      ctx.strokeStyle='#8db580';ctx.lineWidth=2;
-      ctx.strokeRect(sx-4,sy-2,sw+8,sh+4);
-    }
-  });
-
-  // ── DIVIDER / DOORWAY between warehouse and cafe
-  ctx.fillStyle='#1a1108';ctx.fillRect(0,WH_H-4,W,8);
-  ctx.fillStyle='rgba(232,183,112,.35)';ctx.fillRect(0,WH_H+4,W,1);
-  // swinging door in middle
-  const doorW=Math.min(70,W*.1), doorH=26;
-  const dx=W/2-doorW/2, dy=WH_H-doorH-2;
-  ctx.fillStyle='#3b2519';ctx.fillRect(dx,dy,doorW,doorH);
-  ctx.fillStyle='#a67b5b';ctx.fillRect(dx+3,dy+3,doorW-6,doorH-6);
-  ctx.fillStyle='#e8b770';ctx.font='600 8px Inter,system-ui';ctx.textAlign='center';
-  ctx.fillText('TO CAFÉ',W/2,dy+16);
-
-  // ── CAFE BACKDROP
-  ctx.save();
-  if(sprCafe.complete && sprCafe.naturalWidth){
-    const ar=sprCafe.naturalWidth/sprCafe.naturalHeight;
-    let dw=W,dh=W/ar;
-    if(dh<CF_H){dh=CF_H;dw=CF_H*ar;}
-    ctx.drawImage(sprCafe,(W-dw)/2,CF_Y+(CF_H-dh)/2,dw,dh);
-    // warm tint
-    ctx.fillStyle='rgba(60,28,12,0.35)';ctx.fillRect(0,CF_Y,W,CF_H);
-  } else {
-    const g=ctx.createLinearGradient(0,CF_Y,0,H);
-    g.addColorStop(0,'#5a3a22');g.addColorStop(1,'#3a2418');
-    ctx.fillStyle=g;ctx.fillRect(0,CF_Y,W,CF_H);
   }
-  // Cafe label
-  ctx.fillStyle='rgba(15,10,6,.7)';
-  ctx.fillRect(12,CF_Y+10,86,22);
-  ctx.fillStyle='#e8b770';ctx.font='600 11px Inter,system-ui';ctx.textAlign='left';
-  ctx.fillText('☕ CAFÉ',20,CF_Y+25);
-  ctx.restore();
 
-  // ── CAFE COUNTER with bag products on display + price tags
-  const counterY=CF_Y+CF_H-Math.min(78,CF_H*.6);
-  const counterH=H-counterY-26;
-  ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,counterY+counterH-3,W,5);
-  // counter top (warm wood)
-  const wood=ctx.createLinearGradient(0,counterY,0,counterY+counterH);
-  wood.addColorStop(0,'#7a4a26');wood.addColorStop(1,'#4a2a14');
-  ctx.fillStyle=wood;ctx.fillRect(0,counterY,W,counterH);
-  // gold trim
-  ctx.fillStyle='#e8b770';ctx.fillRect(0,counterY,W,2);
-
-  // Place product bag samples on counter with price tag
-  const samplesY=counterY-Math.min(56,CF_H*.42);
-  const sampleH=counterY-samplesY-4;
-  PRODS.forEach((p,i)=>{
-    const slotW2=Math.min(140,W/(PRODS.length+1));
-    const cx=W*(i+1)/(PRODS.length+1)-slotW2/2;
-    const bag=p.id==='coffee'?sprBagCoffee:sprBagCookie;
-    const bagH=sampleH, bagW=bagH*0.78;
-    const bx=cx+slotW2/2-bagW/2;
-    // gentle bob
-    const bob=Math.sin(t*.04+i)*2;
-    if(bag.complete && bag.naturalWidth){
-      ctx.drawImage(bag,bx,samplesY+bob,bagW,bagH);
-    }
-    // price chalkboard tag
-    const tagW=70, tagH=22;
-    const tx2=cx+slotW2/2-tagW/2, ty2=counterY+8;
-    ctx.fillStyle='#1a120a';ctx.fillRect(tx2,ty2,tagW,tagH);
-    ctx.strokeStyle='#e8b770';ctx.lineWidth=1;ctx.strokeRect(tx2+.5,ty2+.5,tagW-1,tagH-1);
-    ctx.fillStyle='#f0e4d0';ctx.font='600 10px Outfit,serif';ctx.textAlign='center';
-    ctx.fillText(p.emoji+' '+p.name,tx2+tagW/2,ty2+10);
-    ctx.fillStyle='#e8b770';ctx.font='700 10px JetBrains Mono,monospace';
-    ctx.fillText('$'+(GS?GS.sellPrice[p.id]:p.sell).toFixed(2),tx2+tagW/2,ty2+20);
-  });
-
-  // Hanging Edison bulb
-  const fl=.85+.15*Math.sin(t*.18);
-  ctx.fillStyle=`rgba(255,209,140,${fl*.18})`;
-  ctx.beginPath();ctx.arc(W*.5,CF_Y+10,40,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(W*.5,CF_Y+10,3,0,Math.PI*2);ctx.fill();
-
-  // ── CUSTOMERS — walk along the cafe floor in front of counter
-  if(GS&&GS.customers){
-    const walkY=counterY-10;
-    GS.customers.forEach(c=>{
-      if(c.done)return;
-      const cx=(c.x*0.9)%(W+40)-20;
-      drawTopDownChar(ctx,cx,walkY,c.skin,c.shirt,c.hair,false,c.happy);
-      c.x+=c.sp; c.fr++;
-      if(c.x>W*2) c.done=true;
-    });
-    GS.customers=GS.customers.filter(c=>!c.done);
-  }
-  // Barista behind counter
-  const bob2=Math.abs(Math.sin(t*.05))*1.5;
-  drawTopDownChar(ctx,W*.08,counterY+4-bob2,'#f4c27a','#7a3a1a','#3a2418',true,false);
-
-  // ── PARTICLES
+  // ── Floating +N particles (delivery / sales feedback)
   if(GS&&GS.particles){
     GS.particles.forEach(p=>{
       ctx.save();ctx.globalAlpha=p.l;
@@ -2614,7 +2519,7 @@ function drawInterior(ctx,W,H,t){
     GS.particles=GS.particles.filter(p=>p.l>0);
   }
 
-  // ── PROGRESS BAR overlay
+  // ── Day progress bar + upcoming-event banner
   if(GS){
     ctx.fillStyle='rgba(15,10,6,.78)';ctx.fillRect(0,H-22,W,22);
     ctx.fillStyle='#2a1a10';ctx.fillRect(8,H-14,W-16,8);
@@ -2638,170 +2543,6 @@ function drawInterior(ctx,W,H,t){
   }
 }
 
-// Top-down RPG character sprite (like reference image)
-function drawTopDownChar(ctx,x,y,skin,shirt,hair,isCashier,happy){
-  const S=14; // sprite size
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,.2)';ctx.beginPath();ctx.ellipse(x+S/2,y+S+3,S/2,3,0,0,Math.PI*2);ctx.fill();
-  // Body (top-down = oval torso)
-  ctx.fillStyle=shirt;ctx.beginPath();ctx.ellipse(x+S/2,y+S/2+2,S/2-1,S/2,0,0,Math.PI*2);ctx.fill();
-  // Head (top-down = circle, taking most of sprite)
-  ctx.fillStyle=skin;ctx.beginPath();ctx.arc(x+S/2,y+S/2-1,S/2,0,Math.PI*2);ctx.fill();
-  // Hair
-  ctx.fillStyle=hair;ctx.beginPath();ctx.arc(x+S/2,y+S/2-1,S/2,Math.PI,0);ctx.fill();
-  ctx.fillStyle=hair;ctx.fillRect(x+1,y+S/2-1,S-2,3);
-  // Eyes (two dots)
-  ctx.fillStyle='#1a1428';
-  ctx.beginPath();ctx.arc(x+S/2-3,y+S/2+1,1.2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(x+S/2+3,y+S/2+1,1.2,0,Math.PI*2);ctx.fill();
-  // Mouth
-  if(happy){ctx.strokeStyle='#1a1428';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+S/2,y+S/2+3,2,.1,Math.PI-.1);ctx.stroke();}
-  else if(!isCashier){ctx.strokeStyle='#1a1428';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x+S/2,y+S/2+5,2,Math.PI+.1,-.1);ctx.stroke();}
-  // Shopping basket for customers
-  if(!isCashier&&happy){
-    ctx.fillStyle='#ffd166';ctx.fillRect(x+S-2,y+S/2,6,5);
-    ctx.strokeStyle='#aa8800';ctx.lineWidth=1;ctx.strokeRect(x+S-2,y+S/2,6,5);
-  }
-  if(isCashier){
-    // Name tag
-    ctx.fillStyle='#fff';ctx.fillRect(x+S/2-5,y+S/2+2,10,5);
-    ctx.fillStyle='#0a0818';ctx.font='3px Figtree,system-ui';ctx.textAlign='center';
-    ctx.fillText('SAM',x+S/2,y+S/2+6);
-  }
-}
-
-// ── EXTERIOR (night + store facade)
-function drawExterior(ctx,W,H,t){
-  ctx.clearRect(0,0,W,H);
-  // Sky
-  const sk=ctx.createLinearGradient(0,0,0,H*.42);sk.addColorStop(0,'#0d0b20');sk.addColorStop(1,'#1e1848');
-  ctx.fillStyle=sk;ctx.fillRect(0,0,W,H*.42);
-  // Stars
-  [[.06,.08],[.18,.13],[.3,.04],[.45,.16],[.6,.06],[.75,.11],[.9,.08],[.22,.21],[.68,.18],[.5,.1]].forEach(([sx,sy],i)=>{
-    ctx.globalAlpha=.3+.7*Math.abs(Math.sin(t*.05+i*1.8));
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx*W,sy*H*.42,.9,0,Math.PI*2);ctx.fill();
-  });
-  ctx.globalAlpha=1;
-  // Moon
-  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(W*.87,H*.1,13,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#1a1540';ctx.beginPath();ctx.arc(W*.87-4,H*.1-3,10,0,Math.PI*2);ctx.fill();
-  // Ground
-  ctx.fillStyle='#1a1230';ctx.fillRect(0,H*.42,W,H*.58);
-  ctx.fillStyle='#221a40';ctx.fillRect(0,H*.65,W,H*.35);
-  // Road
-  ctx.strokeStyle='rgba(255,209,102,.18)';ctx.lineWidth=2;ctx.setLineDash([18,14]);
-  ctx.beginPath();ctx.moveTo(0,H*.82);ctx.lineTo(W,H*.82);ctx.stroke();ctx.setLineDash([]);
-  // Lamps
-  [W*.07,W*.93].forEach(lx=>{
-    ctx.fillStyle='#2c2650';ctx.fillRect(lx-2,H*.46,5,H*.2);
-    ctx.fillStyle='#443878';ctx.fillRect(lx-10,H*.46,21,8);
-    const g=ctx.createRadialGradient(lx,H*.48,2,lx,H*.48,40);
-    g.addColorStop(0,'rgba(255,209,102,.18)');g.addColorStop(1,'rgba(255,209,102,0)');
-    ctx.fillStyle=g;ctx.fillRect(lx-40,H*.4,80,70);
-  });
-  // Building
-  const bw=Math.min(W*.66,420),bh=H*.44,bx=(W-bw)/2,by=H*.2;
-  ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(bx+6,by+bh,bw,10);
-  ctx.fillStyle='#22194a';ctx.beginPath();ctx.roundRect(bx,by,bw,bh,6);ctx.fill();
-  // Awning
-  ctx.fillStyle='#cc4422';
-  ctx.beginPath();ctx.moveTo(bx-13,by);ctx.lineTo(bx+bw/2,by-36);ctx.lineTo(bx+bw+13,by);ctx.closePath();ctx.fill();
-  for(let i=0;i<12;i++){const fx=bx-13+i*(bw+26)/11,sw=Math.sin(t*.07+i*.65)*2.5;ctx.strokeStyle='#ff8c5a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(fx,by);ctx.lineTo(fx+sw,by+10);ctx.stroke();}
-  // Sign
-  ctx.fillStyle='#160e2a';ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.fill();
-  ctx.strokeStyle='#ffd166';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(bx+bw*.25,by+10,bw*.5,26,4);ctx.stroke();
-  ctx.globalAlpha=.85+.15*Math.sin(t*.19);ctx.fillStyle='#ffd166';ctx.font='bold 11px Figtree,system-ui';ctx.textAlign='center';
-  ctx.fillText('★  THE CAFE  ★',bx+bw/2,by+27);ctx.globalAlpha=1;
-  // Windows
-  const totInv=GS?PRODS.reduce((a,p)=>a+GS.inv[p.id],0):200;
-  const maxInv=PRODS.reduce((a,p)=>a+p.initInv,0);
-  const rat=Math.max(0,Math.min(1,totInv/maxInv));
-  const sc=rat>.5?'#06d6a0':rat>.25?goldColor():'#ef476f';
-  [[bx+14,by+44,bw*.32,bh*.28],[bx+bw-bw*.32-14,by+44,bw*.32,bh*.28]].forEach(([wx,wy,ww,wh])=>{
-    ctx.fillStyle='#160e2a';ctx.fillRect(wx,wy,ww,wh);
-    ctx.strokeStyle='#3c2e6a';ctx.lineWidth=2;ctx.strokeRect(wx,wy,ww,wh);
-    for(let r2=0;r2<3;r2++){
-      const ry=wy+4+r2*(wh-4)/3;ctx.fillStyle='#2c2060';ctx.fillRect(wx+2,ry+(wh-4)/3-4,ww-4,3);
-      const fp=Math.round(rat*5);
-      for(let p=0;p<5;p++){const pw=(ww-8)/5,px=wx+4+p*pw,py=ry+(wh-4)/3-14;
-        if(p<fp){ctx.fillStyle=p%2===0?sc:sc+'aa';ctx.fillRect(px,py,pw-2,10);}
-        else{ctx.fillStyle='rgba(239,71,111,.08)';ctx.fillRect(px,py,pw-2,10);}
-      }
-    }
-    ctx.fillStyle=sc;ctx.font='8px Figtree,system-ui';ctx.textAlign='center';ctx.fillText(Math.round(rat*100)+'%',wx+ww/2,wy+wh+12);
-  });
-  // Door
-  const dw=bw*.17,dh=bh*.36,dx=bx+bw/2-bw*.085,dy=by+bh-dh;
-  ctx.fillStyle='#2c2260';ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.fill();
-  ctx.strokeStyle='#4a3a90';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(dx,dy,dw,dh,4);ctx.stroke();
-  ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(dx+dw*.65,dy+dh*.5,2.5,0,Math.PI*2);ctx.fill();
-  ctx.font='bold 7px Figtree,system-ui';ctx.textAlign='center';ctx.fillStyle='#06d6a0';ctx.fillText('OPEN',dx+dw/2,dy+12);
-  // Truck
-  const pipeU=GS?PRODS.reduce((s,p)=>s+GS.pipe[p.id].reduce((a,o)=>a+o.q,0),0):1;
-  const tx=((t*1.3)%(W+280))-140;
-  ctx.save();ctx.translate(tx,H*.62);
-  ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.ellipse(0,24,50,5,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#0c5a72';ctx.fillRect(-66,-25,66,25);
-  ctx.fillStyle='#1a8ab2';ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(28,-25);ctx.lineTo(32,-16);ctx.lineTo(32,0);ctx.lineTo(0,0);ctx.closePath();ctx.fill();
-  ctx.fillStyle='rgba(115,194,251,.28)';ctx.beginPath();ctx.moveTo(2,-23);ctx.lineTo(26,-23);ctx.lineTo(30,-16);ctx.lineTo(2,-16);ctx.closePath();ctx.fill();
-  ctx.fillStyle='#73c2fb';ctx.font='bold 7px Figtree,system-ui';ctx.textAlign='center';ctx.fillText('SUPPLY CO',-33,-12);
-  if(pipeU>0){ctx.fillStyle='#06d6a0';ctx.font='bold 8px Figtree,system-ui';ctx.fillText('+'+pipeU+'units',-33,-22);}
-  const gl=ctx.createRadialGradient(33,-8,1,33,-8,16);gl.addColorStop(0,'rgba(255,248,180,.45)');gl.addColorStop(1,'rgba(255,248,180,0)');
-  ctx.fillStyle=gl;ctx.fillRect(20,-18,26,26);ctx.fillStyle='#fff8c4';ctx.fillRect(30,-11,4,4);
-  [[-40,22],[-15,22],[21,22]].forEach(([wx2,wy2])=>{
-    ctx.fillStyle='#16112a';ctx.beginPath();ctx.arc(wx2,wy2,8,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#2c2460';ctx.beginPath();ctx.arc(wx2,wy2,4,0,Math.PI*2);ctx.fill();
-    ctx.save();ctx.translate(wx2,wy2);ctx.rotate(t*.1);
-    ctx.strokeStyle='#48408a';ctx.lineWidth=1;
-    for(let s=0;s<4;s++){const a=s/4*Math.PI*2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*3.5,Math.sin(a)*3.5);ctx.stroke();}
-    ctx.restore();
-  });
-  ctx.restore();
-  // Walking customers outside
-  if(GS&&GS.customers){
-    const gy=H*.668;
-    GS.customers.forEach(c=>{
-      if(c.done)return;
-      drawCustomer(ctx,c.x,gy,c);
-      c.x+=c.sp;c.fr++;
-      if(c.x>W+70)c.done=true;
-    });
-    GS.customers=GS.customers.filter(c=>!c.done);
-  }
-  // Particles
-  if(GS&&GS.particles){
-    GS.particles.forEach(p=>{
-      ctx.save();ctx.globalAlpha=p.l;ctx.font=`bold ${11+(1-p.l)*4}px Figtree,system-ui`;ctx.textAlign='center';
-      ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillText(p.t,p.x+1,p.y+1);ctx.fillStyle=p.c;ctx.fillText(p.t,p.x,p.y);ctx.restore();
-      p.y+=p.vy;p.l-=.018;
-    });
-    GS.particles=GS.particles.filter(p=>p.l>0);
-  }
-}
-
-function drawCustomer(ctx,x,y,c){
-  ctx.save();ctx.translate(x,y);ctx.scale(c.sc,c.sc);
-  const ls=Math.sin(c.fr*.28)*5,ab=Math.abs(Math.sin(c.fr*.28))*1.5;
-  ctx.fillStyle='rgba(0,0,0,.14)';ctx.beginPath();ctx.ellipse(0,25+ab,8,2,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=c.pants;
-  [[-4,16+ab,ls*.04],[4,16+ab,-ls*.04]].forEach(([dx,dy2,r])=>{ctx.save();ctx.translate(dx,dy2);ctx.rotate(r);ctx.fillRect(-3,0,5,12);ctx.restore();});
-  ctx.fillStyle=c.shirt;ctx.fillRect(-8,ab,16,17);
-  ctx.fillStyle=c.skin;
-  [[-8,3+ab,-ls*.05],[8,3+ab,ls*.05]].forEach(([dx,dy2,r],ii)=>{ctx.save();ctx.translate(dx,dy2);ctx.rotate(r);ctx.fillRect(ii===0?-3:0,0,3,10);ctx.restore();});
-  ctx.fillStyle=c.skin;ctx.beginPath();ctx.arc(0,ab-8,9,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=c.hair;ctx.beginPath();ctx.arc(0,ab-13,7,Math.PI,0);ctx.fill();
-  ctx.fillStyle='#0d0b18';
-  if(c.happy){
-    ctx.beginPath();ctx.arc(-3,ab-10,1.5,Math.PI,0);ctx.fill();
-    ctx.beginPath();ctx.arc(3,ab-10,1.5,Math.PI,0);ctx.fill();
-    ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,ab-5,3.5,.1,Math.PI-.1);ctx.stroke();
-    if(x>80){ctx.fillStyle='#ffd166';ctx.fillRect(9,6+ab,7,9);}
-  }else{
-    ctx.fillRect(-4,ab-11,3,2.5);ctx.fillRect(2,ab-11,3,2.5);
-    ctx.strokeStyle='#0d0b18';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,ab-4,3.5,Math.PI+.1,-.1);ctx.stroke();
-  }
-  ctx.restore();
-}
 
 // ════════════════════════════════════════════════
 // ANIMATION LOOP
@@ -2814,8 +2555,7 @@ function loop(){
     if(par&&(UI.cv.width!==par.offsetWidth||UI.cv.height!==par.offsetHeight)){
       UI.cv.width=par.offsetWidth;UI.cv.height=par.offsetHeight;
     }
-    if(UI.mode==='interior') drawInterior(UI.ctx,UI.cv.width,UI.cv.height,UI.time);
-    else drawExterior(UI.ctx,UI.cv.width,UI.cv.height,UI.extTime);
+    drawStoreMap(UI.ctx,UI.cv.width,UI.cv.height,UI.time);
   }
   UI.raf=requestAnimationFrame(loop);
 }
@@ -3282,6 +3022,11 @@ function showInfo(){document.getElementById('info-modal').classList.remove('hidd
 function hideInfo(){document.getElementById('info-modal').classList.add('hidden');}
 document.getElementById('info-modal').addEventListener('click',function(e){if(e.target===this)hideInfo();});
 </script>
+
+<!-- ANIMATION ENGINE (visual layer only — added on top of the existing
+     simulation above; does not change game state, UI, or logic) -->
+<script src="config.js"></script>
+<script src="animation.js"></script>
 
 </body>
 </html>
