@@ -220,17 +220,41 @@
   }
   function drawWalkers(ctx, tr){
     const cc = CFG.customers;
+    const sp = cc.sprite || {};
+    const sheet = img('walkSheet', CFG.assets.walkSheet);
     walkers.forEach(w=>{
       const bob = Math.sin(w.t*Math.PI*6) * 3;
+      const prevT = Math.max(0, w.t - 0.001);
+      const px = cc.entrance.x + (cc.cafeSpot.x - cc.entrance.x)*prevT + w.jitterX*Math.sin(prevT*Math.PI);
       const x = cc.entrance.x + (cc.cafeSpot.x - cc.entrance.x)*w.t + w.jitterX*Math.sin(w.t*Math.PI);
       const y = cc.entrance.y + (cc.cafeSpot.y - cc.entrance.y)*w.t + w.jitterY*Math.sin(w.t*Math.PI) + bob*0.2;
       const c = toCanvas({x,y}, tr);
-      const s = cc.size * tr.scale;
+      const alpha = w.t<0.08 ? w.t/0.08 : (w.t>0.92 ? (1-w.t)/0.08 : 1);
       ctx.save();
-      ctx.globalAlpha = w.t<0.08 ? w.t/0.08 : (w.t>0.92 ? (1-w.t)/0.08 : 1);
-      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x,c.y+s*0.9,s*0.5,s*0.18,0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = w.shirt; ctx.beginPath(); ctx.ellipse(c.x,c.y,s*0.32,s*0.42,0,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = w.skin; ctx.beginPath(); ctx.arc(c.x,c.y-s*0.55,s*0.26,0,Math.PI*2); ctx.fill();
+      ctx.globalAlpha = alpha;
+
+      if(ready(sheet)){
+        const frames = sp.frames || 12;
+        const fw = sp.frameW || (sheet.naturalWidth / frames);
+        const fh = sp.frameH || sheet.naturalHeight;
+        // frame index advances with the walk cycle (time-based, loops)
+        const fi = ~~(( (performance.now()/1000) * (sp.fps || 14) )) % frames;
+        const h = (sp.drawH || 42) * tr.scale;
+        const wpx = h * (fw / fh);
+        // ground shadow
+        ctx.fillStyle = 'rgba(0,0,0,.25)';
+        ctx.beginPath(); ctx.ellipse(c.x, c.y + h*0.46, wpx*0.32, h*0.06, 0, 0, Math.PI*2); ctx.fill();
+        const movingLeft = (x - px) < 0;
+        ctx.translate(c.x, c.y);
+        if(sp.flipWhenMovingLeft !== false && movingLeft) ctx.scale(-1, 1);
+        ctx.drawImage(sheet, fi*fw, 0, fw, fh, -wpx/2, -h*0.5, wpx, h);
+      } else {
+        // fallback if the sprite sheet hasn't loaded yet
+        const s = cc.size * tr.scale;
+        ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x,c.y+s*0.9,s*0.5,s*0.18,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = w.shirt; ctx.beginPath(); ctx.ellipse(c.x,c.y,s*0.32,s*0.42,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = w.skin; ctx.beginPath(); ctx.arc(c.x,c.y-s*0.55,s*0.26,0,Math.PI*2); ctx.fill();
+      }
       ctx.restore();
     });
   }
@@ -339,6 +363,17 @@
     if(pct<=80) return img('cookie80', CFG.assets.cookie80);
     return img('cookie100', CFG.assets.cookie100);
   }
+  // ── Coffee storage — same tiered-image approach as cookie above,
+  //    keyed off the same inventory percentage the Coffee panel
+  //    already shows. ──
+  function coffeeImageForPct(pct){
+    if(pct<=0) return img('coffee0', CFG.assets.coffee0);
+    if(pct<=20) return img('coffee20', CFG.assets.coffee20);
+    if(pct<=40) return img('coffee40', CFG.assets.coffee40);
+    if(pct<=60) return img('coffee60', CFG.assets.coffee60);
+    if(pct<=80) return img('coffee80', CFG.assets.coffee80);
+    return img('coffee100', CFG.assets.coffee100);
+  }
   function drawCookieStorage(ctx, x, y, w, h, invUnits, maxShelf){
     const r = Math.max(0, Math.min(1, invUnits/maxShelf));
     const pct = Math.round(r*100);
@@ -352,16 +387,55 @@
     const dw = im.naturalWidth*s, dh = im.naturalHeight*s;
     ctx.drawImage(im, x + (w-dw)/2 + cfg.offsetX, y + (h-dh)/2 + cfg.offsetY, dw, dh);
   }
+  function drawCoffeeStorage(ctx, x, y, w, h, invUnits, maxShelf){
+    const r = Math.max(0, Math.min(1, invUnits/maxShelf));
+    const pct = Math.round(r*100);
+    const im = coffeeImageForPct(pct);
+    if(!ready(im)) return;
+    const cfg = CFG.warehouse.coffeeStorage;
+    const s =
+        Math.min(w/im.naturalWidth, h/im.naturalHeight)
+        * cfg.scale;
+    const dw = im.naturalWidth*s, dh = im.naturalHeight*s;
+    ctx.drawImage(im, x + (w-dw)/2 + cfg.offsetX, y + (h-dh)/2 + cfg.offsetY, dw, dh);
+  }
 
   function drawInventory(ctx, tr, now){
-    const coffee = PRODS.find(p=>p.id==='coffee'), cookie = PRODS.find(p=>p.id==='cookie');
+    const coffee = PRODS.find(p=>p.id==='coffee');
+    const cookie = PRODS.find(p=>p.id==='cookie');
+
     const invCoffee = GS ? GS.inv[coffee.id] : coffee.initInv;
     const invCookie = GS ? GS.inv[cookie.id] : cookie.initInv;
-    const rectTL = toCanvas({x:CFG.warehouse.rect.x, y:CFG.warehouse.rect.y}, tr);
-    const rectW = CFG.warehouse.rect.w*tr.scale, rectH = CFG.warehouse.rect.h*tr.scale;
-    const half = rectW/2;
-    drawOneStack(ctx, 'coffee', img('coffeeSack', CFG.assets.coffeeSack), rectTL.x, rectTL.y, half-6, rectH, invCoffee, now);
-    drawCookieStorage(ctx, rectTL.x+half+6, rectTL.y, half-6, rectH, invCookie, cookie.maxShelf);
+
+    const rectTL = toCanvas({
+      x: CFG.warehouse.rect.x,
+      y: CFG.warehouse.rect.y
+    }, tr);
+
+    const rectW = CFG.warehouse.rect.w * tr.scale;
+    const rectH = CFG.warehouse.rect.h * tr.scale;
+
+    // Both get the full warehouse area.
+    // Their config offsets determine their actual positions.
+    drawCookieStorage(
+      ctx,
+      rectTL.x,
+      rectTL.y,
+      rectW,
+      rectH,
+      invCookie,
+      cookie.maxShelf
+    );
+
+    drawCoffeeStorage(
+      ctx,
+      rectTL.x,
+      rectTL.y,
+      rectW,
+      rectH,
+      invCoffee,
+      coffee.maxShelf
+    );
   }
   function drawOneStack(ctx, pid, im, x, y, w, h, units, now){
     const newCount = stackCount(units);
@@ -467,6 +541,9 @@
   }
 
   function drawFrame(ctx, W, H, now, dt){
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     ensureBackground(W, H);
     ctx.clearRect(0,0,W,H);
     ctx.drawImage(bg, 0, 0);
@@ -504,11 +581,27 @@
     if(UI.mode==='exterior') UI.extTime++; // kept in sync for compatibility
 
     if(UI.cv && UI.ctx){
-      const par = UI.cv.parentElement;
-      if(par && (UI.cv.width!==par.offsetWidth || UI.cv.height!==par.offsetHeight)){
-        UI.cv.width = par.offsetWidth; UI.cv.height = par.offsetHeight;
-        bgW = 0; // force background re-cache at the new size
-      }
+        const par = UI.cv.parentElement;
+
+        if (par) {
+          const dpr = window.devicePixelRatio || 1;
+
+          const cssW = par.clientWidth;
+          const cssH = par.clientHeight;
+
+          const pixelW = Math.round(cssW * dpr);
+          const pixelH = Math.round(cssH * dpr);
+
+          if (UI.cv.width !== pixelW || UI.cv.height !== pixelH) {
+            UI.cv.width = pixelW;
+            UI.cv.height = pixelH;
+
+            UI.cv.style.width = cssW + 'px';
+            UI.cv.style.height = cssH + 'px';
+
+            bgW = 0;
+          }
+        }
       drawFrame(UI.ctx, UI.cv.width, UI.cv.height, now, dt);
     }
     UI.raf = requestAnimationFrame(loop);

@@ -38,7 +38,19 @@ window.ANIM_CONFIG = {
     cookie100: 'assets/storage/cookie/100_cookie.png',
     // other
     coffeeSack:  'assets/storage/coffee/coffee_sack.png',
+    // walking human sprite sheet (12 frames, 300x420 each, transparent PNG)
+    walkSheet:   'assets/characters/walk_2d_spritesheet.png',
     cookieBox:   'assets/storage/cookie/cookie_box.png',
+    // coffee box — same tiered-image approach as the cookie stack,
+    // assumed to follow the same naming pattern as the cookie files
+    // (0_cookie.png etc.) inside assets/storage/coffee/. If your
+    // actual filenames differ, just update these six paths.
+    coffee0:   'assets/storage/coffee/0_coffee.png',
+    coffee20:  'assets/storage/coffee/20_coffee.png',
+    coffee40:  'assets/storage/coffee/40_coffee.png',
+    coffee60:  'assets/storage/coffee/60_coffee.png',
+    coffee80:  'assets/storage/coffee/80_coffee.png',
+    coffee100: 'assets/storage/coffee/100_coffee.png',
   },
 
   map: { w: 1373, h: 1145 },
@@ -76,9 +88,17 @@ window.ANIM_CONFIG = {
     // loading dock just outside the storage room, used by the
     // "Place Order" loading animation before the truck pulls away
     cookieStorage: {
-      scale: 2.95,
-      offsetX: -35,
-      offsetY: -5
+      scale: 1.17,
+      offsetX: -15,
+      offsetY: -12 
+    },
+    // Starting point copied from cookieStorage above — tune scale/
+    // offsetX/offsetY independently once the real coffee art is in,
+    // since its sprite dimensions/padding may differ from cookie's.
+    coffeeStorage: {
+      scale: 1.10,
+      offsetX: -15,
+      offsetY: 45
     },
     dock: { x: 545, y: 340 },
   },
@@ -160,11 +180,20 @@ window.ANIM_CONFIG = {
   // ── Decorative walking customers (separate from, and additive to,
   //    the existing sale-result customer sprites already in GS.customers) ──
   customers: {
-    entrance: { x: 735, y: 875 },  // the double glass doors on the south wall
+    entrance: { x: 895, y: 875 },  // the double glass doors on the south wall
     cafeSpot: { x: 820, y: 340 },  // inside, among the dining tables — NOT the storage room
     spawnEveryMsRange: [3000, 7000],
     walkSec: 4.5,
     size: 14,
+    // ── Sprite-sheet walk animation (replaces the old drawn blob) ──
+    sprite: {
+      frames: 12,          // number of frames across the sheet
+      frameW: 300,         // px per frame in the sheet
+      frameH: 420,
+      fps: 14,             // playback speed of the walk cycle
+      drawH: 100,           // on-map draw height in map pixels
+      flipWhenMovingLeft: true,
+    },
   },
 
   // ── Day/night ambient cycle (purely decorative; the sim itself is

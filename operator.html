@@ -585,6 +585,8 @@ let SCENARIOS = [
 ];
 let scen_id=7, selScen=null, rTab='players', RUNS={}, expandedRun=null;
 let CURRENT_ALLOWED_DAY=1;
+let LAST_REAL_DAY=1; // last non-sentinel day, used for display when round control is off (allowedDay=9999)
+function displayDay(){ return CURRENT_ALLOWED_DAY===9999 ? LAST_REAL_DAY : CURRENT_ALLOWED_DAY; }
 let unsubRuns=null, unsubControl=null, unsubConfig=null, selDProd='coffee';
 
 // Populate all config inputs from current CFG/SCENARIOS state
@@ -649,6 +651,7 @@ function startListeners(){
   unsubControl=onSnapshot(doc(db,'control','round'),snap=>{
     if(snap.exists()){
       CURRENT_ALLOWED_DAY=snap.data().allowedDay||1;
+      if(CURRENT_ALLOWED_DAY!==9999) LAST_REAL_DAY=CURRENT_ALLOWED_DAY;
       CFG.roundControl=snap.data().roundControl||false;
       const rc=document.getElementById('cfg-round-control'); if(rc) rc.checked=CFG.roundControl;
     }
@@ -724,7 +727,7 @@ async function applyConfig(){
     await setDoc(doc(db,'config','game'),{...payload,updatedAt:serverTimestamp()});
     // Update round control gate
     await setDoc(doc(db,'control','round'),{
-      allowedDay:CFG.roundControl?CURRENT_ALLOWED_DAY:9999,
+      allowedDay:CFG.roundControl?(CURRENT_ALLOWED_DAY===9999?LAST_REAL_DAY:CURRENT_ALLOWED_DAY):9999,
       roundControl:CFG.roundControl,
       updatedAt:serverTimestamp()
     });
@@ -768,6 +771,7 @@ function updateConfigJSON(){
 
 // ── ROUND CONTROL ─────────────────────────────────────────────────────────────
 async function releaseNextDay(){
+  if(CURRENT_ALLOWED_DAY===9999) CURRENT_ALLOWED_DAY=LAST_REAL_DAY;
   CURRENT_ALLOWED_DAY++;
   try{
     await setDoc(doc(db,'control','round'),{allowedDay:CURRENT_ALLOWED_DAY,roundControl:true,updatedAt:serverTimestamp()});
@@ -1299,18 +1303,18 @@ function updateDashboard(){
   const s=id=>document.getElementById(id);
   if(s('dash-teams'))     s('dash-teams').textContent=total||'0';
   if(s('dash-ready'))     s('dash-ready').textContent=complete;
-  if(s('dash-day'))       s('dash-day').textContent=CURRENT_ALLOWED_DAY;
+  if(s('dash-day'))       s('dash-day').textContent=displayDay();
   if(s('dash-day-sub'))   s('dash-day-sub').textContent='of '+CFG.rounds+' days';
   if(s('dash-svc'))       s('dash-svc').textContent=avgSvc.toFixed(1)+'%';
   if(s('dash-profit'))    s('dash-profit').textContent='$'+avgP.toLocaleString();
-  if(s('dash-day-big'))   s('dash-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
-  if(s('dash-day-sub2'))  s('dash-day-sub2').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
+  if(s('dash-day-big'))   s('dash-day-big').textContent='DAY '+displayDay();
+  if(s('dash-day-sub2'))  s('dash-day-sub2').textContent='Round '+displayDay()+' of '+CFG.rounds;
   const readyPct=total?Math.round(complete/total*100):0;
   if(s('dash-waiting-label')) s('dash-waiting-label').textContent=complete+' / '+total+' ready';
   if(s('dash-progress-fill')) s('dash-progress-fill').style.width=readyPct+'%';
   if(s('dash-progress-pct'))  s('dash-progress-pct').textContent=readyPct+'%';
   const btn=s('dash-release-btn');
-  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
+  if(btn){ btn.textContent='▶ Release Day '+(displayDay()+1); btn.disabled=!CFG.roundControl; }
   // Activity feed
   const actEl=s('dash-activity');
   if(actEl){
@@ -1338,8 +1342,8 @@ function updateDashboard(){
 function updateRoundControlPage(){
   const runs=Object.values(RUNS);
   const s=id=>document.getElementById(id);
-  if(s('rc-day-big'))      s('rc-day-big').textContent='DAY '+CURRENT_ALLOWED_DAY;
-  if(s('rc-day-sub'))      s('rc-day-sub').textContent='Round '+CURRENT_ALLOWED_DAY+' of '+CFG.rounds;
+  if(s('rc-day-big'))      s('rc-day-big').textContent='DAY '+displayDay();
+  if(s('rc-day-sub'))      s('rc-day-sub').textContent='Round '+displayDay()+' of '+CFG.rounds;
   if(s('rc-total-rounds')) s('rc-total-rounds').textContent=CFG.rounds;
   const complete=runs.filter(r=>r.status==='complete').length;
   const readyPct=runs.length?Math.round(complete/runs.length*100):0;
@@ -1347,7 +1351,7 @@ function updateRoundControlPage(){
   if(s('rc-progress-fill')) s('rc-progress-fill').style.width=readyPct+'%';
   if(s('rc-progress-pct'))  s('rc-progress-pct').textContent=readyPct+'%';
   const btn=s('rc-release-btn');
-  if(btn){ btn.textContent='▶ Release Day '+(CURRENT_ALLOWED_DAY+1); btn.disabled=!CFG.roundControl; }
+  if(btn){ btn.textContent='▶ Release Day '+(displayDay()+1); btn.disabled=!CFG.roundControl; }
   // Mirror toggles
   const rcm=s('rc-round-control-mirror'); if(rcm) rcm.checked=CFG.roundControl;
   const hdm=s('rc-hide-demand-mirror');   if(hdm) hdm.checked=CFG.hideDemand;
@@ -1357,7 +1361,7 @@ function updateRoundControlPage(){
   if(grid&&runs.length){
     grid.innerHTML='<div class="waiting-grid">'+runs.slice(0,8).map(r=>{
       const isDone=r.status==='complete';
-      const isWait=!isDone&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
+      const isWait=!isDone&&CFG.roundControl&&(r.currentDay||1)>=CURRENT_ALLOWED_DAY;
       return `<div class="waiting-chip ${isDone?'ready':isWait?'waiting':'ready'}">
         <div>${isDone?'✓':isWait?'⏳':'▶'}</div>
         <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${(r.player||'?').split(' ')[0]}</div>
