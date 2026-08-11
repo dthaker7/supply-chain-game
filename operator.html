@@ -469,12 +469,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Figtre
         <div class="s-card">
           <div class="s-title">Game Parameters</div>
           <div class="field-row">
-            <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100"></div>
-            <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0"></div>
+            <div class="field"><label>Rounds (Days)</label><input type="number" id="cfg-rounds" value="30" min="5" max="100" oninput="markDirty()"></div>
+            <div class="field"><label>Starting Cash (G)</label><input type="number" id="cfg-cash" value="2500" min="0" oninput="markDirty()"></div>
           </div>
           <div class="field-row">
-            <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42"></div>
-            <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100"></div>
+            <div class="field"><label>RNG Seed</label><input type="number" id="cfg-seed" value="42" oninput="markDirty()"></div>
+            <div class="field"><label>SVC Target (%)</label><input type="number" id="cfg-svc-target" value="90" min="1" max="100" oninput="markDirty()"></div>
           </div>
           <div style="margin-top:8px;border:1px solid var(--border2);border-radius:7px;padding:8px 10px;background:var(--bg2)">
             <label class="tog-row" style="padding-top:0; display:none">

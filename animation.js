@@ -123,8 +123,25 @@
     }
   }
   function stepTraffic(dt){
+    // Move cars, then clamp same-lane followers to a minimum gap behind
+    // whichever car is ahead of them, so a faster car can never catch up
+    // to and overlap a slower one in the same lane.
+    traffic.forEach(c=>{ c.x += c.dir * c.speed * dt; });
+    const minGap = (CFG.road.spacingRange && CFG.road.spacingRange[0]) || 200;
+    const byLane = {};
+    traffic.forEach(c=>{ (byLane[c.lane] = byLane[c.lane] || []).push(c); });
+    Object.values(byLane).forEach(cars=>{
+      const dir = cars[0].dir;
+      // Sort leader-first: for dir=1 (moving right) the leader has the
+      // largest x; for dir=-1 (moving left) the leader has the smallest x.
+      cars.sort((a,b)=> dir===1 ? b.x - a.x : a.x - b.x);
+      for(let i=1;i<cars.length;i++){
+        const c = cars[i], leader = cars[i-1];
+        if(dir===1 && c.x > leader.x - minGap) c.x = leader.x - minGap;
+        else if(dir===-1 && c.x < leader.x + minGap) c.x = leader.x + minGap;
+      }
+    });
     traffic.forEach(c=>{
-      c.x += c.dir * c.speed * dt;
       if(c.dir===1 && c.x > CFG.road.xExit){
         Object.assign(c, spawnTrafficCar(c.lane));
       } else if(c.dir===-1 && c.x < CFG.road.xEnter){
