@@ -38,8 +38,6 @@ window.ANIM_CONFIG = {
     cookie100: 'assets/storage/cookie/100_cookie.png',
     // other
     coffeeSack:  'assets/storage/coffee/coffee_sack.png',
-    // walking human sprite sheet (12 frames, 300x420 each, transparent PNG)
-    walkSheet:   'assets/characters/walk_2d_spritesheet.png',
     cookieBox:   'assets/storage/cookie/cookie_box.png',
     // coffee box — same tiered-image approach as the cookie stack,
     // assumed to follow the same naming pattern as the cookie files
@@ -189,25 +187,6 @@ window.ANIM_CONFIG = {
   inventoryAnim: {
     totalMs: 900,           // shrink+fade -> fade+grow, split 50/50
     minScale: 0.55,
-  },
-
-  // ── Decorative walking customers (separate from, and additive to,
-  //    the existing sale-result customer sprites already in GS.customers) ──
-  customers: {
-    entrance: { x: 895, y: 875 },  // the double glass doors on the south wall
-    cafeSpot: { x: 820, y: 340 },  // inside, among the dining tables — NOT the storage room
-    spawnEveryMsRange: [3000, 7000],
-    walkSec: 4.5,
-    size: 14,
-    // ── Sprite-sheet walk animation (replaces the old drawn blob) ──
-    sprite: {
-      frames: 12,          // number of frames across the sheet
-      frameW: 300,         // px per frame in the sheet
-      frameH: 420,
-      fps: 14,             // playback speed of the walk cycle
-      drawH: 100,           // on-map draw height in map pixels
-      flipWhenMovingLeft: true,
-    },
   },
 
   // ── Day/night ambient cycle (purely decorative; the sim itself is

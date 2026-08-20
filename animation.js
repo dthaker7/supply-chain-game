@@ -480,69 +480,6 @@
   }
 
   // ════════════════════════════════════════════════
-  // DECORATIVE CUSTOMERS — entrance -> cafe -> gone.
-  // Independent of GS.customers (which the untouched
-  // advDay()/spawnCust() logic still drives for sale results).
-  // ════════════════════════════════════════════════
-  const walkers = [];
-  let nextWalkerAt = 0;
-  const WALKER_PALETTE = ['#f4c27a','#d4956a','#c68642','#8d5524','#fdbcb4'];
-  const WALKER_SHIRTS  = ['#ff6b35','#118ab2','#06d6a0','#9b5de5','#f72585','#4cc9f0'];
-  function stepWalkers(now, dt){
-    if(now >= nextWalkerAt){
-      const cc = CFG.customers;
-      walkers.push({ t:0, skin: WALKER_PALETTE[~~(Math.random()*WALKER_PALETTE.length)],
-        shirt: WALKER_SHIRTS[~~(Math.random()*WALKER_SHIRTS.length)],
-        jitterX: rand(-18,18), jitterY: rand(-14,14) });
-      nextWalkerAt = now + rand(cc.spawnEveryMsRange[0], cc.spawnEveryMsRange[1]);
-    }
-    for(let i=walkers.length-1;i>=0;i--){
-      walkers[i].t += dt / CFG.customers.walkSec;
-      if(walkers[i].t >= 1) walkers.splice(i,1);
-    }
-  }
-  function drawWalkers(ctx, tr){
-    const cc = CFG.customers;
-    const sp = cc.sprite || {};
-    const sheet = img('walkSheet', CFG.assets.walkSheet);
-    walkers.forEach(w=>{
-      const bob = Math.sin(w.t*Math.PI*6) * 3;
-      const prevT = Math.max(0, w.t - 0.001);
-      const px = cc.entrance.x + (cc.cafeSpot.x - cc.entrance.x)*prevT + w.jitterX*Math.sin(prevT*Math.PI);
-      const x = cc.entrance.x + (cc.cafeSpot.x - cc.entrance.x)*w.t + w.jitterX*Math.sin(w.t*Math.PI);
-      const y = cc.entrance.y + (cc.cafeSpot.y - cc.entrance.y)*w.t + w.jitterY*Math.sin(w.t*Math.PI) + bob*0.2;
-      const c = toCanvas({x,y}, tr);
-      const alpha = w.t<0.08 ? w.t/0.08 : (w.t>0.92 ? (1-w.t)/0.08 : 1);
-      ctx.save();
-      ctx.globalAlpha = alpha;
-
-      if(ready(sheet)){
-        const frames = sp.frames || 12;
-        const fw = sp.frameW || (sheet.naturalWidth / frames);
-        const fh = sp.frameH || sheet.naturalHeight;
-        // frame index advances with the walk cycle (time-based, loops)
-        const fi = ~~(( (performance.now()/1000) * (sp.fps || 14) )) % frames;
-        const h = (sp.drawH || 42) * tr.scale;
-        const wpx = h * (fw / fh);
-        // ground shadow
-        ctx.fillStyle = 'rgba(0,0,0,.25)';
-        ctx.beginPath(); ctx.ellipse(c.x, c.y + h*0.46, wpx*0.32, h*0.06, 0, 0, Math.PI*2); ctx.fill();
-        const movingLeft = (x - px) < 0;
-        ctx.translate(c.x, c.y);
-        if(sp.flipWhenMovingLeft !== false && movingLeft) ctx.scale(-1, 1);
-        ctx.drawImage(sheet, fi*fw, 0, fw, fh, -wpx/2, -h*0.5, wpx, h);
-      } else {
-        // fallback if the sprite sheet hasn't loaded yet
-        const s = cc.size * tr.scale;
-        ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(c.x,c.y+s*0.9,s*0.5,s*0.18,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = w.shirt; ctx.beginPath(); ctx.ellipse(c.x,c.y,s*0.32,s*0.42,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle = w.skin; ctx.beginPath(); ctx.arc(c.x,c.y-s*0.55,s*0.26,0,Math.PI*2); ctx.fill();
-      }
-      ctx.restore();
-    });
-  }
-
-  // ════════════════════════════════════════════════
   // DELIVERY TRUCK — drives the road, turns into the
   // driveway, stops, unloads, leaves. Driven by
   // UI.mode/UI.extTime, which advDay() (untouched)
@@ -820,7 +757,6 @@
     started = true;
     initTraffic();
     initParking(now);
-    nextWalkerAt = now + rand(CFG.customers.spawnEveryMsRange[0], CFG.customers.spawnEveryMsRange[1]);
   }
 
   function drawFrame(ctx, W, H, now, dt){
@@ -839,9 +775,6 @@
     drawParking(ctx, tr);
 
     drawInventory(ctx, tr, now);
-
-    stepWalkers(now, dt);
-    drawWalkers(ctx, tr);
 
     drawDelivery(ctx, tr, now);
     stepAndDrawOrderFx(ctx, tr, now);
