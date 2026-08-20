@@ -141,8 +141,22 @@ window.ANIM_CONFIG = {
     ],
     carW: 160, carH: 100,
     turnoverSecRange: [20, 40],
-    // point just off the driveway a car arrives from / leaves toward
-    approach: { x: 560, y: 700 },
+    // ── Real drive-in/drive-out path (verified against map_daylight.png
+    //    pixel-by-pixel) instead of the old straight-line fade ──
+    // roadEntry sits on the same lane the background road traffic uses
+    // (road.laneY[0]=1090) directly below the driveway gap in the curb
+    // (the gap is centered ~x552, roughly x480-x630 wide, marked by the
+    // painted up-arrow around y900-960). A car drives straight up this
+    // x from the road, through the gap, up the open aisle to the target
+    // spot's row (spot.y), then turns left into the spot itself — so
+    // the path is just [roadEntry, {x:roadEntry.x, y:spot.y}, spot].
+    // Reversed for leaving. driveSpeed is in px/sec, map space.
+    roadEntry: { x: 552, y: 1090 },
+    driveSpeed: 100,
+    // ── How long a bay sits empty before another car arrives, once a
+    //    parked car leaves (seconds). Replaces the old fixed ~0.6-1.8s
+    //    gap, which made replacements feel instant/unnatural. ──
+    emptyDwellSecRange: [5, 20],
   },
 
   // ── Delivery truck (order fulfilment) ──

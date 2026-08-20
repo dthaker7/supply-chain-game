@@ -137,9 +137,9 @@ body{
 @keyframes sv-pop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 /* ========= MAIN LAYOUT ========= */
-#main{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);overflow:hidden;min-height:0;background:var(--grad-bg)}
-@media (max-width: 1300px){
-  #main{grid-template-columns:1fr;grid-template-rows:minmax(240px,42vh) 1fr;overflow-y:auto}
+#main{flex:1;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(440px,1fr);overflow:hidden;min-height:0;background:var(--grad-bg)}
+@media (max-width: 1100px){
+  #main{grid-template-columns:1fr;grid-template-rows:minmax(240px,42vh) 1fr}
   #side{border-left:none;border-top:2px solid var(--border2)}
 }
 
@@ -949,11 +949,13 @@ function startConfigListener() {
     if (!snap.exists()) return;
     const cfg = snap.data();
     const pushTime = cfg.updatedAt?.seconds || 0;
-    if (_lastCfgTime === null) { _lastCfgTime = pushTime; return; }
-    if (pushTime <= _lastCfgTime) return;
+    const isFirstLoad = _lastCfgTime === null;
+    if (!isFirstLoad && pushTime <= _lastCfgTime) return;
     _lastCfgTime = pushTime;
     const changes = applyLiveConfig(cfg);
-    if (changes.length > 0) showGMPopup(changes);
+    // Don't show the "Game Master Update" popup on initial page load —
+    // only when the config changes live while the student is already in.
+    if (!isFirstLoad && changes.length > 0) showGMPopup(changes);
   }, err => console.warn('Config listener error', err));
 
   // Also listen to the round control doc
@@ -998,7 +1000,7 @@ function applyLiveConfig(cfg) {
   PRODS.forEach(p => {
     const pc = cfgProds[p.id]; if (!pc) return;
     if (pc.demandAvg !== undefined && pc.demandAvg !== p.demandAvg) {
-      changes.push(`📊 ${p.emoji} ${p.name} avg demand: <strong>${p.demandAvg} → ${pc.demandAvg} u/day</strong>`);
+      changes.push(`📊 ${p.emoji} ${p.name} avg demand: <strong>${p.demandAvg} → ${pc.demandAvg} units/day</strong>`);
       p.demandAvg = pc.demandAvg;
     }
     if (pc.demandStd !== undefined && pc.demandStd !== p.demandStd) {
@@ -1020,7 +1022,7 @@ function applyLiveConfig(cfg) {
       p.sell = pc.sell;
     }
     if (pc.holdPerUnit !== undefined && pc.holdPerUnit !== p.holdPerUnit) {
-      changes.push(`📦 ${p.emoji} ${p.name} hold cost: <strong>$${p.holdPerUnit.toFixed(3)} → $${pc.holdPerUnit.toFixed(3)}/u/day</strong>`);
+      changes.push(`📦 ${p.emoji} ${p.name} hold cost: <strong>$${p.holdPerUnit.toFixed(3)} → $${pc.holdPerUnit.toFixed(3)}/unit/day</strong>`);
       p.holdPerUnit = pc.holdPerUnit;
     }
     if (pc.unitCost !== undefined) p.suppliers.forEach(s => s.cost = pc.unitCost);
@@ -1394,7 +1396,7 @@ function stepDay(st, decisions){
   history=[...history];
 
   const dayLog={day, prods:{}, events:[]};
-  const daySnap={day, inv:{}, pipe:{}, sold:{}, lost:{}, rev:{}};
+  const daySnap={day, inv:{}, pipe:{}, sold:{}, lost:{}, rev:{}, cost:{}};
 
   PRODS.forEach(p=>{
     const pid=p.id;
@@ -1494,6 +1496,7 @@ function stepDay(st, decisions){
     daySnap.sold[pid]=s;
     daySnap.lost[pid]=l;
     daySnap.rev[pid]=r;
+    daySnap.cost[pid]=hc+oc;
   });
 
   // ── END-OF-STEP RECEIVE: any orders due tomorrow arrive now ──
@@ -1586,8 +1589,8 @@ function updateTopbar(){
   const pipeCookie=GS.pipe['cookie']?GS.pipe['cookie'].reduce((a,o)=>a+o.q,0):0;
   const pipeElCoffee=document.getElementById('hpipe-coffee');
   const pipeElCookie=document.getElementById('hpipe-cookie');
-  if(pipeElCoffee) pipeElCoffee.textContent=pipeCoffee+' u';
-  if(pipeElCookie) pipeElCookie.textContent=pipeCookie+' u';
+  if(pipeElCoffee) pipeElCoffee.textContent=pipeCoffee+' units';
+  if(pipeElCookie) pipeElCookie.textContent=pipeCookie+' units';
   // legacy id for any other references
   const pipeEl=document.getElementById('hpipe');
   if(pipeEl){ pipeEl.textContent=pipeU+'units'; }
@@ -1780,13 +1783,15 @@ function htmlDashboard(){
   if(GS.log&&GS.log.length){
     html += `<div class="section-title" style="margin-bottom:6px">Recent activity</div>`;
     html += [...GS.log].reverse().slice(0,3).map(e=>{
-      const totS=PRODS.reduce((s,p)=>s+e.prods[p.id].s,0);
       const totL=PRODS.reduce((s,p)=>s+e.prods[p.id].l,0);
-      const totR=PRODS.reduce((s,p)=>s+e.prods[p.id].r,0);
+      const perProd=PRODS.map(p=>{
+        const d=e.prods[p.id];
+        return `${p.emoji} $${d.r.toFixed(0)} · ${d.s} sold${d.l>0?` · <span style="color:#ef476f">${d.l} lost</span>`:''}`;
+      }).join(' &nbsp;|&nbsp; ');
       return `
 <div class="log-entry" style="margin-bottom:5px;border-left-color:${totL>0?'#ef476f':'#06d6a0'}">
   <div style="display:flex;justify-content:space-between;font-size:11px"><strong>Day ${e.day}</strong>
-    <span>Rev <strong style="color:#06d6a0">$${totR.toFixed(0)}</strong> · Sold <strong>${totS}</strong>${totL>0?` · Lost <strong style="color:#ef476f">${totL}</strong>`:''}</span>
+    <span>${perProd}</span>
   </div>
   ${e.events.length?`<div style="color:var(--gold);font-size:10px;margin-top:2px">${e.events.map(ev=>ev.txt).join(' · ')}</div>`:''}
 </div>`;
@@ -2001,13 +2006,32 @@ function htmlCharts(){
     <canvas id="chart-rev" data-chart="rev" style="width:100%;height:140px;display:block"></canvas>
     <div class="chart-tip" id="tip-rev"></div>
   </div>
+  <div style="display:flex;gap:14px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center">
+    <span><span style="display:inline-block;width:12px;height:3px;background:#06d6a0;vertical-align:middle;margin-right:5px;border-radius:2px"></span>Revenue</span>
+    <span><span style="display:inline-block;width:12px;height:0;border-top:2px dashed #ef476f;vertical-align:middle;margin-right:5px"></span>Total Cost (holding + ordering)</span>
+  </div>
+</div>
+<div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">💵 Daily Cash Flow</div>
+  <div class="chart-wrap" style="position:relative">
+    <canvas id="chart-cashflow" data-chart="cashflow" style="width:100%;height:120px;display:block"></canvas>
+    <div class="chart-tip" id="tip-cashflow"></div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#06d6a0;vertical-align:middle;margin-right:5px;border-radius:2px"></span>Net cash in</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#ef476f;vertical-align:middle;margin-right:5px;border-radius:2px"></span>Net cash out</span>
+  </div>
 </div>
 ${invCards}
 <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:10px">
-  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📉 Lost Sales per Day</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700">📊 Sales vs Lost Sales per Day</div>
   <div class="chart-wrap" style="position:relative">
-    <canvas id="chart-lost" data-chart="lost" style="width:100%;height:120px;display:block"></canvas>
+    <canvas id="chart-lost" data-chart="lost" style="width:100%;height:140px;display:block"></canvas>
     <div class="chart-tip" id="tip-lost"></div>
+  </div>
+  <div style="display:flex;gap:14px;margin-top:6px;font-size:10px;color:var(--muted);justify-content:center;flex-wrap:wrap">
+    ${PRODS.map(p=>`<span><span style="display:inline-block;width:10px;height:10px;background:${p.color};vertical-align:middle;margin-right:5px;border-radius:2px"></span>${p.emoji} ${p.name} sold</span>`).join('')}
+    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(239,71,111,.55);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Lost (below 0 line)</span>
   </div>
 </div>
 <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:10px">
@@ -2103,10 +2127,12 @@ function drawCharts(){
 
   // 1) Revenue
   const revData=hist.map(s=>PRODS.reduce((a,p)=>a+(s.rev[p.id]||0),0));
+  const costData=hist.map(s=>PRODS.reduce((a,p)=>a+(s.cost?.[p.id]||0),0));
   makeLineChart('chart-rev',
-    [{name:'Revenue',color:'#06d6a0',data:revData,fill:'rgba(6,214,160,.12)'}],
+    [{name:'Revenue',color:'#06d6a0',data:revData,fill:'rgba(6,214,160,.12)'},
+     {name:'Total Cost',color:'#ef476f',data:costData,dashed:true}],
     {minMax:10,fmtMax:v=>'$'+Math.round(v),unit:'',
-     tipFmt:i=>`Day ${i+1}<br><b style="color:#06d6a0">$${Math.round(revData[i]).toLocaleString()}</b> revenue`});
+     tipFmt:i=>`Day ${i+1}<br><b style="color:#06d6a0">$${Math.round(revData[i]).toLocaleString()}</b> revenue<br><b style="color:#ef476f">$${Math.round(costData[i]).toLocaleString()}</b> total cost`});
 
   // 2) Inventory vs Demand — one per product
   PRODS.forEach(p=>{
@@ -2117,38 +2143,110 @@ function drawCharts(){
     makeLineChart('chart-inv-'+p.id,
       [{name:'Inventory',color:p.light,data:invData,fill:'rgba(212,135,60,.08)'},
        {name:'Demand',color:'#ef476f',data:demData,dashed:true}],
-      {minMax:5,unit:'u',
+      {minMax:5,unit:'units',
        tipFmt:i=>`Day ${i+1}<br>
          <span style="color:${p.light}">Inventory:</span> <b>${invData[i]}</b><br>
          <span style="color:#ef476f">Demand:</span> <b>${demData[i]}</b> <span style="color:var(--dim)">(${soldData[i]} sold, ${lostData[i]} lost)</span>`});
   });
 
-  // 3) Lost sales — bars, but use line chart helper with bars? Keep bars + hover.
+  // 3) Sales vs Lost Sales — grouped diverging bars per product
+  //    (sold extends up from the 0 line, lost extends down from it)
   {
     const r=setupCanvas('chart-lost');
     if(r){
       const {canvas,ctx,w,h}=r;
-      const data=hist.map(s=>PRODS.reduce((a,p)=>a+(s.lost[p.id]||0),0));
-      const perProd=PRODS.map(p=>({p,data:hist.map(s=>s.lost[p.id]||0)}));
-      let max=Math.max(5,...data); max=Math.ceil(max*1.1);
-      const n=data.length;
+      const n=hist.length;
+      const soldByProd=PRODS.map(p=>hist.map(s=>s.sold[p.id]||0));
+      const lostByProd=PRODS.map(p=>hist.map(s=>s.lost[p.id]||0));
+      let maxPos=1,maxNeg=1;
+      soldByProd.forEach(arr=>arr.forEach(v=>{if(v>maxPos)maxPos=v;}));
+      lostByProd.forEach(arr=>arr.forEach(v=>{if(v>maxNeg)maxNeg=v;}));
+      maxPos=Math.ceil(maxPos*1.15); maxNeg=Math.ceil(maxNeg*1.15);
+      const plotH=h-PAD_T-PAD_B;
+      const posH=plotH*(maxPos/(maxPos+maxNeg));
+      const negH=plotH-posH;
+      const y0=PAD_T+posH;
+      const slot=(w-PAD_L-PAD_R)/n;
+      const groupW=Math.max(8,slot*0.7);
+      const bw=(groupW/PRODS.length)-1;
       const render=(hoverIdx)=>{
         ctx.clearRect(0,0,w,h);
-        drawAxis(ctx,w,h,max,'u');
-        const slot=(w-PAD_L-PAD_R)/n;
-        const bw=Math.max(3,slot*0.7);
-        data.forEach((v,i)=>{
-          const x=PAD_L+slot*i+(slot-bw)/2;
-          const bh=(h-PAD_T-PAD_B)*(v/(max||1));
-          ctx.fillStyle=i===hoverIdx?'#ff5c7c':(v>0?'#ef476f':'rgba(239,71,111,.15)');
-          ctx.fillRect(x,h-PAD_B-bh,bw,bh);
+        ctx.strokeStyle='rgba(180,180,200,.18)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(PAD_L,PAD_T);ctx.lineTo(PAD_L,h-PAD_B);ctx.stroke();
+        ctx.strokeStyle='rgba(180,180,200,.4)';
+        ctx.beginPath();ctx.moveTo(PAD_L,y0);ctx.lineTo(w-PAD_R,y0);ctx.stroke();
+        ctx.fillStyle='#9c8d72';ctx.font='9px Figtree,system-ui';ctx.textAlign='right';
+        ctx.fillText(maxPos+'units',PAD_L-4,PAD_T+8);
+        ctx.fillText('0',PAD_L-4,y0+3);
+        ctx.fillText('-'+maxNeg+'units',PAD_L-4,h-PAD_B);
+        ctx.textAlign='center';
+        ctx.fillText('Day 1',PAD_L+6,h-5);
+        ctx.fillText('Day '+n,w-PAD_R-14,h-5);
+        PRODS.forEach((p,pi)=>{
+          soldByProd[pi].forEach((sv,i)=>{
+            const lv=lostByProd[pi][i];
+            const x=PAD_L+slot*i+(slot-groupW)/2+pi*(bw+1);
+            const hSold=posH*(sv/maxPos);
+            const hLost=negH*(lv/maxNeg);
+            ctx.fillStyle=i===hoverIdx?p.light:p.color;
+            ctx.fillRect(x,y0-hSold,bw,hSold);
+            if(lv>0){
+              ctx.fillStyle=i===hoverIdx?'#ff5c7c':'rgba(239,71,111,.55)';
+              ctx.fillRect(x,y0,bw,hLost);
+            }
+          });
         });
       };
       render(null);
       window.__charts['chart-lost']={render,n,w,
-        xAt:(i)=>{const slot=(w-PAD_L-PAD_R)/n;return PAD_L+slot*(i+0.5);},
-        opts:{tipFmt:i=>`Day ${i+1}<br><b style="color:#ef476f">${data[i]}</b> units lost<br>` +
-          perProd.filter(x=>x.data[i]>0).map(x=>`<span style="color:var(--dim)">${x.p.emoji} ${x.p.name}: ${x.data[i]}</span>`).join('<br>')}};
+        xAt:(i)=>PAD_L+slot*(i+0.5),
+        opts:{tipFmt:i=>`Day ${i+1}<br>`+PRODS.map((p,pi)=>
+          `<span style="color:${p.light}">${p.emoji} ${p.name}:</span> <b>${soldByProd[pi][i]} sold</b>`+
+          (lostByProd[pi][i]>0?`, <b style="color:#ef476f">${lostByProd[pi][i]} lost</b>`:'')
+        ).join('<br>')}};
+    }
+  }
+
+  // Daily Cash Flow — diverging single-series bars (net in vs. net out)
+  {
+    const r=setupCanvas('chart-cashflow');
+    if(r){
+      const {canvas,ctx,w,h}=r;
+      const n=hist.length;
+      const flowData=revData.map((rv,i)=>rv-costData[i]);
+      let maxAbs=1;
+      flowData.forEach(v=>{if(Math.abs(v)>maxAbs)maxAbs=Math.abs(v);});
+      maxAbs=Math.ceil(maxAbs*1.15);
+      const plotH=h-PAD_T-PAD_B, half=plotH/2, y0=PAD_T+half;
+      const slot=(w-PAD_L-PAD_R)/n;
+      const bw=Math.max(4,slot*0.6);
+      const render=(hoverIdx)=>{
+        ctx.clearRect(0,0,w,h);
+        ctx.strokeStyle='rgba(180,180,200,.18)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(PAD_L,PAD_T);ctx.lineTo(PAD_L,h-PAD_B);ctx.stroke();
+        ctx.strokeStyle='rgba(180,180,200,.4)';
+        ctx.beginPath();ctx.moveTo(PAD_L,y0);ctx.lineTo(w-PAD_R,y0);ctx.stroke();
+        ctx.fillStyle='#9c8d72';ctx.font='9px Figtree,system-ui';ctx.textAlign='right';
+        ctx.fillText('$'+maxAbs.toLocaleString(),PAD_L-4,PAD_T+8);
+        ctx.fillText('$0',PAD_L-4,y0+3);
+        ctx.fillText('-$'+maxAbs.toLocaleString(),PAD_L-4,h-PAD_B);
+        ctx.textAlign='center';
+        ctx.fillText('Day 1',PAD_L+6,h-5);
+        ctx.fillText('Day '+n,w-PAD_R-14,h-5);
+        flowData.forEach((v,i)=>{
+          const x=PAD_L+slot*i+(slot-bw)/2;
+          const bh=half*(Math.abs(v)/maxAbs);
+          ctx.fillStyle=v>=0?(i===hoverIdx?'#3ddc97':'#06d6a0'):(i===hoverIdx?'#ff5c7c':'#ef476f');
+          if(v>=0) ctx.fillRect(x,y0-bh,bw,bh); else ctx.fillRect(x,y0,bw,bh);
+        });
+      };
+      render(null);
+      window.__charts['chart-cashflow']={render,n,w,
+        xAt:(i)=>PAD_L+slot*(i+0.5),
+        opts:{tipFmt:i=>{
+          const v=flowData[i];
+          return `Day ${i+1}<br><b style="color:${v>=0?'#06d6a0':'#ef476f'}">${v>=0?'+':'-'}$${Math.round(Math.abs(v)).toLocaleString()}</b> net cash flow`;
+        }}};
     }
   }
 
@@ -2157,7 +2255,7 @@ function drawCharts(){
   const pipePerProd=PRODS.map(p=>({p,data:hist.map(s=>s.pipe[p.id]||0)}));
   makeLineChart('chart-pipe',
     [{name:'In-Transit',color:'#7fd3ff',data:pipeData,fill:'rgba(127,211,255,.15)'}],
-    {minMax:5,unit:'u',
+    {minMax:5,unit:'units',
      tipFmt:i=>`Day ${i+1}<br><b style="color:#7fd3ff">${pipeData[i]}</b> units in transit<br>` +
        pipePerProd.filter(x=>x.data[i]>0).map(x=>`<span style="color:var(--dim)">${x.p.emoji} ${x.p.name}: ${x.data[i]}</span>`).join('<br>')});
 
@@ -2227,7 +2325,7 @@ ${PRODS.map(p=>{
     <div class="cost-row"><span>Lost sales value</span><span class="val" style="color:#ef476f">$${Math.round(GS.lrev[p.id])}</span></div>
     <div class="cost-row"><span>Units sold / lost</span><span class="val">${GS.sold[p.id]} / <span style="color:#ef476f">${GS.lost[p.id]}</span></span></div>
     <div class="cost-row"><span>Selling price/unit</span><span class="val" style="color:#06d6a0">$${(GS.sellPrice?.[p.id] ?? p.sell).toFixed(2)}</span></div>
-    <div class="cost-row"><span>Supplier cost/unit</span><span class="val">$${sup.cost.toFixed(2)} (${sup.name})</span></div>
+    <div class="cost-row"><span>Supplier cost/unit</span><span class="val">$${sup.cost.toFixed(2)}</span></div>
     <div class="cost-row"><span>Today's holding (${GS.inv[p.id]}units)</span><span class="val" style="color:#9b5de5">$${dailyHold}/day</span></div>
   </div>
 </div>`;
@@ -2293,7 +2391,7 @@ function placeOrder(pid){
   UI.pendOrd[pid]=(UI.pendOrd[pid]||0)+q;
   UI.pendOrdCount[pid]=(UI.pendOrdCount[pid]||0)+1;
   UI.decs[pid]=0;
-  toast('📦 '+PRODS.find(p=>p.id===pid).name+': +'+q+' units queued! (Total: '+UI.pendOrd[pid]+'u)');
+  toast('📦 '+PRODS.find(p=>p.id===pid).name+': +'+q+' units queued! (Total: '+UI.pendOrd[pid]+' units)');
   renderPanel();
 }
 
@@ -2464,7 +2562,7 @@ function drawBoxCluster(ctx,img,x,y,w,h,units,unitsPerBox,cols){
 function drawStoreMap(ctx,W,H,t){
   ctx.clearRect(0,0,W,H);
   const tr=coverTransform(W,H);
-  const mapImg      = loadAsset('map','map_daylight.png');
+  const mapImg      = loadAsset('map','assets/map_daylight.png');
   const carDelivery = loadAsset('carDelivery','assets/car1.png');
   const carStaff    = loadAsset('carStaff','assets/car2.png');
   const boxCookie   = loadAsset('boxCookie','assets/storage_box.png');

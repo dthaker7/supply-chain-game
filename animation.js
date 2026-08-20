@@ -158,57 +158,323 @@
     });
   }
 
-  // ════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════
   // PARKING LOT — cars idle, then every 20-40s one
-  // leaves and a new one arrives.
+  // leaves and a new one arrives. Cars now DRIVE a real
+  // multi-leg path (road -> up the driveway -> across the
+  // aisle -> into the bay) instead of fading between two
+  // points, and face the direction they're actually moving.
   // ════════════════════════════════════════════════
   const parking = [];
+
+  // Path for ARRIVING at `spot`: start on the road, drive straight up
+  // the driveway to the spot's row, then turn and pull into the bay.
+  // (Leaving is just this same path walked in reverse.)
+  function parkingPath(spot){
+      const laneY = CFG.road.laneY[1];
+      const stopGap = 80;
+
+      return [
+          // Start at the right side of the top lane
+          { x: CFG.road.xExit, y: laneY },
+
+          // Drive left until the stop point
+          { x: 552 + stopGap, y: laneY },
+
+          // Cross the remaining gap after traffic is clear
+          { x: 552, y: laneY },
+
+          // Turn down into parking
+          { x: 552, y: 470 },
+
+          { x: 470, y: 470 }, 
+
+          { x: 470, y: spot.y },
+
+          // Park
+          { x: spot.x, y: spot.y },
+      ];
+  }
+  function parkingExitPath(spot){
+      const laneY = CFG.road.laneY[1];
+      const stopGap = 80;
+
+      return [
+          // Start parked
+          { x: spot.x, y: spot.y },
+
+          // Drive toward the aisle
+          { x: 552, y: spot.y },
+
+          // Drive toward the road
+          { x: 552, y: laneY + stopGap },
+
+          // STOP HERE before entering the road
+          { x: 552, y: laneY + stopGap },
+
+          // Enter the top lane once clear
+          { x: 552, y: laneY },
+
+          // Follow top lane toward its exit
+          { x: CFG.road.xEnter, y: laneY },
+      ];
+  }
+  function pathLength(path){
+    let len = 0;
+    for(let i=1;i<path.length;i++) len += Math.hypot(path[i].x-path[i-1].x, path[i].y-path[i-1].y);
+    return len;
+  }
+  // Walks `path` a fraction `t` (0..1) of its total length along, and
+  // returns the {x,y,angle} at that point — angle is the heading of
+  // whichever leg it's currently on (atan2 convention: 0=facing +x).
+  function pointOnPath(path, t){
+    const total = pathLength(path);
+    let dist = Math.max(0, Math.min(1, t)) * total;
+    for(let i=1;i<path.length;i++){
+      const a=path[i-1], b=path[i];
+      const segLen = Math.hypot(b.x-a.x, b.y-a.y);
+      if(dist <= segLen || i===path.length-1){
+        const segT = segLen>0 ? dist/segLen : 1;
+        return {
+          x: a.x + (b.x-a.x)*segT,
+          y: a.y + (b.y-a.y)*segT,
+          angle: Math.atan2(b.y-a.y, b.x-a.x),
+        };
+      }
+      dist -= segLen;
+    }
+    const last=path[path.length-1];
+    return { x:last.x, y:last.y, angle:0 };
+  }
   function scheduleTurnover(now){
     return now + rand(CFG.parkingLot.turnoverSecRange[0], CFG.parkingLot.turnoverSecRange[1]) * 1000;
   }
+  // How long a bay waits empty before the next car arrives — pulled out
+  // into its own helper since both initParking (first-empty bays) and
+  // stepParking (a bay that just emptied out) need it.
+  function scheduleArrival(now){
+    const r = CFG.parkingLot.emptyDwellSecRange || [5, 20];
+    return now + rand(r[0], r[1]) * 1000;
+  }
   function initParking(now){
     parking.length = 0;
-    CFG.parkingLot.spots.forEach(spot=>{
+    const spots = CFG.parkingLot.spots;
+    // Randomly occupy 1-4 of the bays at game start (Fisher-Yates
+    // shuffle of spot indices, then take the first N) instead of
+    // always starting full — the rest begin empty and arrive later,
+    // same as a bay that emptied out mid-game.
+    const order = spots.map((_, i) => i);
+    for(let i=order.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [order[i],order[j]] = [order[j],order[i]];
+    }
+    const occupiedCount = 1 + Math.floor(Math.random()*spots.length); // 1..spots.length
+    const startsOccupied = new Set(order.slice(0, occupiedCount));
+
+    spots.forEach((spot,i)=>{
+      const path = parkingPath(spot);
+      const occupied = startsOccupied.has(i);
       parking.push({
-        spot, state:'parked', sprite: CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
-        t:0, nextChangeAt: scheduleTurnover(now),
+        spot, path, exitPath: parkingExitPath(spot), len: pathLength(path),
+        state: occupied ? 'parked' : 'empty',
+        sprite: CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)],
+        t:0,
+        nextChangeAt: occupied ? scheduleTurnover(now) : 0,
+        emptyUntil: occupied ? 0 : scheduleArrival(now),
       });
     });
   }
   function stepParking(now, dt){
-    parking.forEach(p=>{
-      if(p.state==='parked' && now >= p.nextChangeAt){
-        p.state='leaving'; p.t=0;
-      } else if(p.state==='leaving'){
-        p.t += dt/1.1;
-        if(p.t>=1){ p.state='empty'; p.t=0; p.emptyUntil = now + rand(600,1800); }
-      } else if(p.state==='empty' && now >= (p.emptyUntil||0)){
-        p.state='arriving'; p.t=0; p.sprite = CAR_TYPES[Math.floor(Math.random() * CAR_TYPES.length)];
-      } else if(p.state==='arriving'){
-        p.t += dt/1.1;
-        if(p.t>=1){ p.state='parked'; p.t=0; p.nextChangeAt = scheduleTurnover(now); }
-      }
+    const speed = CFG.parkingLot.driveSpeed || 100;
+
+    const laneY = CFG.road.laneY[1];
+
+    // Same minimum spacing used by normal road traffic.
+    const minGap =
+        (CFG.road.spacingRange && CFG.road.spacingRange[0]) || 200;
+
+    const stopGap = 80;
+
+    // Is the shared road lane clear around this position?
+    const roadClear = (x) => {
+        return !traffic.some(c => {
+            if(c.y !== laneY) return false;
+            return Math.abs(c.x - x) < minGap;
+        });
+    };
+
+    // Prevent two moving parking cars from overlapping.
+    const parkingClear = (p, nextPos) => {
+        return !parking.some(other => {
+            if(other === p) return false;
+
+            if(other.state !== 'arriving' &&
+               other.state !== 'leaving'){
+                return false;
+            }
+
+            const otherPos =
+                other.state === 'arriving'
+                    ? pointOnPath(other.path, other.t)
+                    : pointOnPath(other.exitPath, other.t);
+
+            const distance = Math.hypot(
+                nextPos.x - otherPos.x,
+                nextPos.y - otherPos.y
+            );
+
+            return distance < minGap;
+        });
+    };
+
+    parking.forEach(p => {
+
+        // ─────────────────────────────
+        // PARKED → LEAVING
+        // ─────────────────────────────
+        if(p.state === 'parked' && now >= p.nextChangeAt){
+
+            p.state = 'leaving';
+            p.t = 0;
+
+        }
+
+        // ─────────────────────────────
+        // LEAVING
+        // ─────────────────────────────
+        else if(p.state === 'leaving'){
+
+            const exitLen =
+                p.exitLen || (p.exitLen = pathLength(p.exitPath));
+
+            const nextT = Math.min(
+                1,
+                p.t + dt * speed / exitLen
+            );
+
+            const cur = pointOnPath(p.exitPath, p.t);
+            const next = pointOnPath(p.exitPath, nextT);
+
+            let canMove = true;
+
+            // BEFORE entering the road:
+            // stop at x=552, y=laneY+stopGap.
+            if(
+                cur.x === 552 &&
+                cur.y >= laneY &&
+                next.y <= laneY &&
+                !roadClear(552)
+            ){
+                canMove = false;
+            }
+
+            // Normal parking-car spacing.
+            if(canMove && !parkingClear(p, next)){
+                canMove = false;
+            }
+
+            if(canMove){
+                p.t = nextT;
+            }
+
+            if(p.t >= 1){
+                p.state = 'empty';
+                p.t = 0;
+
+                // IMPORTANT:
+                // Do NOT automatically schedule a replacement.
+                p.emptyUntil = Infinity;
+            }
+        }
+
+        // ─────────────────────────────
+        // EMPTY → ARRIVING
+        // ─────────────────────────────
+        else if(
+            p.state === 'empty' &&
+            now >= (p.emptyUntil || 0)
+        ){
+
+            // Don't start another parking movement if
+            // another parking car is already moving nearby.
+            const anotherMoving = parking.some(other =>
+                other !== p &&
+                (other.state === 'arriving' ||
+                 other.state === 'leaving')
+            );
+
+            if(!anotherMoving){
+                p.state = 'arriving';
+                p.t = 0;
+                p.sprite =
+                    CAR_TYPES[
+                        Math.floor(Math.random() * CAR_TYPES.length)
+                    ];
+            }
+        }
+
+        // ─────────────────────────────
+        // ARRIVING
+        // ─────────────────────────────
+        else if(p.state === 'arriving'){
+
+            const pathLen = p.len || (p.len = pathLength(p.path));
+
+            const nextT = Math.min(
+                1,
+                p.t + dt * speed / pathLen
+            );
+
+            const cur = pointOnPath(p.path, p.t);
+            const next = pointOnPath(p.path, nextT);
+
+            let canMove = true;
+
+            // Parking car is approaching the driveway from the road.
+            // Don't allow it to enter the parking driveway if
+            // the road position is occupied.
+            if(
+                cur.y === laneY &&
+                cur.x <= 552 + stopGap &&
+                cur.x > 552 &&
+                !roadClear(cur.x)
+            ){
+                canMove = false;
+            }
+
+            // Apply same following-distance rule to parking cars.
+            if(canMove && !parkingClear(p, next)){
+                canMove = false;
+            }
+
+            if(canMove){
+                p.t = nextT;
+            }
+
+            if(p.t >= 1){
+                p.state = 'parked';
+                p.t = 0;
+                p.nextChangeAt = scheduleTurnover(now);
+            }
+        }
     });
   }
   function drawParking(ctx, tr){
-    const appr = CFG.parkingLot.approach;
     parking.forEach(p=>{
-      let pos, alpha=1;
+      let pos;
       if(p.state==='parked'){
-        pos = p.spot; alpha=1;
+        pos = { x:p.spot.x, y:p.spot.y, angle:p.spot.angle };
       } else if(p.state==='leaving'){
-        pos = { x: p.spot.x + (appr.x-p.spot.x)*p.t, y: p.spot.y + (appr.y-p.spot.y)*p.t };
-        alpha = 1-p.t;
+        pos = pointOnPath(p.exitPath, p.t); // spot -> road
       } else if(p.state==='arriving'){
-        pos = { x: appr.x + (p.spot.x-appr.x)*p.t, y: appr.y + (p.spot.y-appr.y)*p.t };
-        alpha = p.t;
+        pos = pointOnPath(p.path, p.t);    // road -> spot
       } else {
         return; // empty — nothing to draw
       }
       const im = img(p.sprite, CFG.assets[p.sprite]);
       const c = toCanvas(pos, tr);
-      ctx.save(); ctx.globalAlpha = alpha;
-      drawCarSprite(ctx, im, c.x, c.y, CFG.parkingLot.carW*tr.scale, CFG.parkingLot.carH*tr.scale, p.spot.angle);
+      ctx.save();
+      drawCarSprite(ctx, im, c.x, c.y, CFG.parkingLot.carW*tr.scale, CFG.parkingLot.carH*tr.scale, pos.angle);
       ctx.restore();
     });
   }
