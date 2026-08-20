@@ -376,27 +376,67 @@ html, body {
         <div class="auth-subtitle">Sign in or create your account to start playing</div>
       </div>
 
-      <!-- Passwordless magic-link form -->
-      <div id="s-link-form">
+      <!-- Sign In / Create Account tabs -->
+      <div class="tab-switcher">
+        <button class="tab-btn active" id="s-tab-signin" onclick="switchStudentTab('signin')" type="button">Sign In</button>
+        <button class="tab-btn" id="s-tab-signup" onclick="switchStudentTab('signup')" type="button">Create Account</button>
+      </div>
+
+      <!-- Sign In form -->
+      <div id="s-signin-form">
         <div class="field">
-          <label>Full Name <span style="color:var(--dim);font-weight:400">(first time only)</span></label>
+          <label>Illinois Email</label>
           <div class="field-wrap">
-            <input id="s-name" type="text" placeholder="Alex Kim" maxlength="30"
-              onkeydown="if(event.key==='Enter')document.getElementById('s-email').focus()">
+            <input id="s-signin-email" type="email" placeholder="netid@illinois.edu"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-signin-pass').focus()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <input id="s-signin-pass" type="password" placeholder="••••••••"
+              onkeydown="if(event.key==='Enter')doStudentSignIn()">
+            <button class="eye-btn" onclick="toggleEye('s-signin-pass',this)">👁</button>
+          </div>
+        </div>
+        <button class="submit-btn student-btn" id="s-signin-btn" onclick="doStudentSignIn()">🎓 Sign In</button>
+        <button class="forgot-btn" onclick="doStudentForgot()">Forgot password?</button>
+      </div>
+
+      <!-- Create Account form -->
+      <div id="s-signup-form" style="display:none">
+        <div class="field">
+          <label>Full Name</label>
+          <div class="field-wrap">
+            <input id="s-signup-name" type="text" placeholder="Alex Kim" maxlength="30"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-signup-email').focus()">
           </div>
         </div>
         <div class="field">
           <label>Illinois Email</label>
           <div class="field-wrap">
-            <input id="s-email" type="email" placeholder="netid@illinois.edu"
-              onkeydown="if(event.key==='Enter')doStudentSendLink()">
+            <input id="s-signup-email" type="email" placeholder="netid@illinois.edu"
+              onkeydown="if(event.key==='Enter')document.getElementById('s-signup-pass').focus()">
           </div>
         </div>
-        <button class="submit-btn student-btn" id="s-link-btn" onclick="doStudentSendLink()">✉ Send Sign-In Link</button>
-        <div class="restrict-note">
-          🔒 Only <strong>@illinois.edu</strong> addresses can sign in.<br>
-          We'll email you a secure link — no password needed.
+        <div class="field">
+          <label>Password</label>
+          <div class="field-wrap">
+            <input id="s-signup-pass" type="password" placeholder="At least 6 characters"
+              oninput="updateStrength(this.value)"
+              onkeydown="if(event.key==='Enter')doStudentSignUp()">
+            <button class="eye-btn" onclick="toggleEye('s-signup-pass',this)">👁</button>
+          </div>
+          <div class="strength-wrap">
+            <div class="strength-bar-bg"><div class="strength-bar" id="strength-bar"></div></div>
+            <div class="strength-label" id="strength-label"></div>
+          </div>
         </div>
+        <button class="submit-btn student-btn" id="s-signup-btn" onclick="doStudentSignUp()">🎓 Create Account</button>
+      </div>
+
+      <div class="restrict-note">
+        🔒 Only <strong>@illinois.edu</strong> addresses can sign in.
       </div>
 
       <div class="msg msg-error"   id="s-error"></div>
@@ -453,13 +493,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
   onAuthStateChanged,
-  signOut,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -491,12 +529,6 @@ function isIllinoisEmail(email) {
   return /^[^\s@]+@illinois\.edu$/i.test((email || '').trim());
 }
 
-// ── MAGIC-LINK CONFIG ─────────────────────────────────────────────────────────
-const ACTION_CODE_SETTINGS = {
-  url: window.location.origin + window.location.pathname,
-  handleCodeInApp: true
-};
-
 // ── AUTO-REDIRECT if already logged in ───────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   if (!user) return; // not logged in, show landing page normally
@@ -512,45 +544,6 @@ onAuthStateChanged(auth, async user => {
   }
   redirect('sim.html');
 });
-
-// ── COMPLETE MAGIC-LINK SIGN-IN (student returns after clicking emailed link) ─
-async function completeMagicLinkSignIn() {
-  if (!isSignInWithEmailLink(auth, window.location.href)) return;
-
-  showLoading('Verifying your link…');
-
-  let email = window.localStorage.getItem('emailForSignIn');
-  if (!email) {
-    // Fallback: link opened on a different device/browser than it was sent from
-    email = window.prompt('Confirm your @illinois.edu email to finish signing in:');
-  }
-  if (!email || !isIllinoisEmail(email)) {
-    document.getElementById('loading-overlay').classList.remove('show');
-    selectRole('student');
-    return showError('s-error', 'That link needs to be confirmed with your @illinois.edu email.');
-  }
-
-  try {
-    const cred = await signInWithEmailLink(auth, email, window.location.href);
-    const userRef = doc(db, 'users', cred.user.uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      const name = window.localStorage.getItem('nameForSignIn') || email.split('@')[0];
-      await updateProfile(cred.user, { displayName: name });
-      await setDoc(userRef, { name, email, role: 'student', createdAt: serverTimestamp() });
-    }
-    window.localStorage.removeItem('emailForSignIn');
-    window.localStorage.removeItem('nameForSignIn');
-    window.history.replaceState({}, document.title, window.location.pathname);
-    showLoading('Opening your cafe…');
-    window.location.href = 'sim.html';
-  } catch (e) {
-    document.getElementById('loading-overlay').classList.remove('show');
-    selectRole('student');
-    showError('s-error', friendlyError(e.code));
-  }
-}
-completeMagicLinkSignIn();
 
 function redirect(page) {
   showLoading('Redirecting…');
@@ -571,7 +564,7 @@ window.selectRole = function(role) {
     document.getElementById('card-operator').style.display = role === 'operator' ? 'block' : 'none';
     // Focus first input
     const firstInput = role === 'student'
-      ? document.getElementById('s-email')
+      ? document.getElementById('s-signin-email')
       : document.getElementById('o-email');
     setTimeout(() => firstInput && firstInput.focus(), 100);
   }, 200);
@@ -582,30 +575,73 @@ window.goBack = function() {
   document.getElementById('step-role').style.display = 'block';
   document.getElementById('step-role').style.animation = 'fade-up .4s ease-out both';
   clearAllMessages();
+  switchStudentTab('signin');
   currentRole = null;
 };
 
-// ── STUDENT: SEND MAGIC SIGN-IN LINK ──────────────────────────────────────────
-window.doStudentSendLink = async function() {
-  const name  = document.getElementById('s-name').value.trim();
-  const email = document.getElementById('s-email').value.trim();
+// ── STUDENT: SIGN IN / CREATE ACCOUNT TABS ────────────────────────────────────
+window.switchStudentTab = function(tab) {
+  clearAllMessages();
+  document.getElementById('s-tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('s-tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('s-signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('s-signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+};
+
+// ── STUDENT: SIGN IN ──────────────────────────────────────────────────────────
+window.doStudentSignIn = async function() {
+  const email = document.getElementById('s-signin-email').value.trim();
+  const pass  = document.getElementById('s-signin-pass').value;
 
   if (!email) return showError('s-error', 'Please enter your email.');
-  if (!isIllinoisEmail(email)) {
-    return showError('s-error', 'Please use your @illinois.edu email address.');
-  }
+  if (!isIllinoisEmail(email)) return showError('s-error', 'Please use your @illinois.edu email address.');
+  if (!pass) return showError('s-error', 'Please enter your password.');
 
-  setBtnLoading('s-link-btn', true, 'Sending link…');
+  setBtnLoading('s-signin-btn', true, 'Signing in…');
   try {
-    await sendSignInLinkToEmail(auth, email, ACTION_CODE_SETTINGS);
-    window.localStorage.setItem('emailForSignIn', email);
-    if (name) window.localStorage.setItem('nameForSignIn', name);
-    setBtnLoading('s-link-btn', false, '✉ Send Sign-In Link');
-    showSuccess('s-success', '📬 Link sent to ' + email + '. Open your Illinois inbox and click it to sign in — you can close this tab.');
+    await signInWithEmailAndPassword(auth, email, pass);
+    showLoading('Opening your cafe…');
+    window.location.href = 'sim.html';
   } catch(e) {
-    setBtnLoading('s-link-btn', false, '✉ Send Sign-In Link');
+    setBtnLoading('s-signin-btn', false, '🎓 Sign In');
     showError('s-error', friendlyError(e.code));
   }
+};
+
+// ── STUDENT: CREATE ACCOUNT ───────────────────────────────────────────────────
+window.doStudentSignUp = async function() {
+  const name  = document.getElementById('s-signup-name').value.trim();
+  const email = document.getElementById('s-signup-email').value.trim();
+  const pass  = document.getElementById('s-signup-pass').value;
+
+  if (!name) return showError('s-error', 'Please enter your name.');
+  if (!email) return showError('s-error', 'Please enter your email.');
+  if (!isIllinoisEmail(email)) return showError('s-error', 'Please use your @illinois.edu email address.');
+  if (!pass || pass.length < 6) return showError('s-error', 'Password must be at least 6 characters.');
+
+  setBtnLoading('s-signup-btn', true, 'Creating account…');
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    const userRef = doc(db, 'users', cred.user.uid);
+    await setDoc(userRef, { name, email, role: 'student', createdAt: serverTimestamp() });
+    showLoading('Opening your cafe…');
+    window.location.href = 'sim.html';
+  } catch(e) {
+    setBtnLoading('s-signup-btn', false, '🎓 Create Account');
+    showError('s-error', friendlyError(e.code));
+  }
+};
+
+// ── STUDENT: FORGOT PASSWORD ──────────────────────────────────────────────────
+window.doStudentForgot = async function() {
+  const email = document.getElementById('s-signin-email').value.trim();
+  if (!email) return showError('s-error', 'Enter your email above first.');
+  if (!isIllinoisEmail(email)) return showError('s-error', 'Please use your @illinois.edu email address.');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showSuccess('s-success', 'Reset email sent to ' + email);
+  } catch(e) { showError('s-error', friendlyError(e.code)); }
 };
 
 // ── OPERATOR LOGIN ────────────────────────────────────────────────────────────
@@ -704,8 +740,6 @@ function friendlyError(code) {
     'auth/weak-password':          'Password too weak. Use at least 6 characters.',
     'auth/too-many-requests':      'Too many failed attempts. Please wait a moment.',
     'auth/network-request-failed': 'Network error. Check your connection.',
-    'auth/invalid-action-code':    'This link has expired or was already used. Request a new one.',
-    'auth/unauthorized-continue-uri': 'This domain isn\'t authorized for sign-in links yet — contact your instructor.',
     'auth/missing-email':          'Please enter your email address.',
   };
   return map[code] || 'Something went wrong. Please try again.';
